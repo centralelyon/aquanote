@@ -6,7 +6,6 @@ var plot__handler_8js =
     [ "ecart_barres", "plot__handler_8js.html#aaefe4f291518f6389f29251614088d9f", null ],
     [ "ecart_bord_premiere_barre", "plot__handler_8js.html#a32845dc8e697b15a9d27a8ce00f49eee", null ],
     [ "hide_indicator_lines", "plot__handler_8js.html#ab495dcff0ed50854651d44322a106cc7", null ],
-    [ "import", "plot__handler_8js.html#a59be084da8908b7d77ff34b25cd84488", null ],
     [ "last_mode", "plot__handler_8js.html#ad4206432bf69f6bd2e97a66eef34d4f7", null ],
     [ "show_indicator_lines", "plot__handler_8js.html#a5acba9df97e4bf806887626341f0ae84", null ]
 ];

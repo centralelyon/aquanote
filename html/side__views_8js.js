@@ -8,6 +8,5 @@ var side__views_8js =
     [ "if", "side__views_8js.html#ac7933242658dd4629eb3c1c4581a514d", null ],
     [ "save_data_entry_click", "side__views_8js.html#a10a402abf74b3109036a4113d52a18f7", null ],
     [ "set_placeholder_of_time_entry", "side__views_8js.html#ab4353880f500d493d2dac54ea0cb9a01", null ],
-    [ "update_swimmer", "side__views_8js.html#a28db10b0748e69d724549b17f5ab0984", null ],
-    [ "import", "side__views_8js.html#a59be084da8908b7d77ff34b25cd84488", null ]
+    [ "update_swimmer", "side__views_8js.html#a28db10b0748e69d724549b17f5ab0984", null ]
 ];

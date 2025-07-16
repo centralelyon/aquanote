@@ -17,7 +17,6 @@ var data__handler_8js =
     [ "vide_last_added_data", "data__handler_8js.html#aa3c1280f65cb5a9ac1b347aba244ce7c", null ],
     [ "choose_tab", "data__handler_8js.html#a385149b61fc24b07898c0a0a8a43056d", null ],
     [ "data_onclick", "data__handler_8js.html#a96d5d55397eb74f89c4b9088d5b5ef6e", null ],
-    [ "import", "data__handler_8js.html#a59be084da8908b7d77ff34b25cd84488", null ],
     [ "last_added_data", "data__handler_8js.html#a2893652d12beda775f0b8540bdf5c146", null ],
     [ "nb_of_last_added_data_saved", "data__handler_8js.html#ac6242edb1adaf255ed531bbd0d29ebe5", null ],
     [ "prochain_cycle_predit", "data__handler_8js.html#a60aa1b37e0047b2079241c0eed3f73ea", null ]

@@ -41,7 +41,6 @@ var refactor_script_8js =
     [ "flipper", "refactor-script_8js.html#ac727f64a403e635bf4a61c5c42d2e4ba", null ],
     [ "generateRunReport", "refactor-script_8js.html#ae866553bd7233c6c1f004ff858d22144", null ],
     [ "get_run_selected", "refactor-script_8js.html#a1966d68bf3e182f215edddbf6ee7b955", null ],
-    [ "import", "refactor-script_8js.html#a59be084da8908b7d77ff34b25cd84488", null ],
     [ "keyhold", "refactor-script_8js.html#a8e5f7ec7b6e73e8b3d2d619bad679d55", null ],
     [ "last_checkpoint", "refactor-script_8js.html#a5f6f8e4c807241d46723ead462345c08", null ],
     [ "link", "refactor-script_8js.html#a09494fd1551c69e0d4d32836e82bda46", null ],

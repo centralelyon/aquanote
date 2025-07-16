@@ -24,10 +24,87 @@
 */
 var NAVTREE =
 [
-  [ "aquanote", "index.html", [
-    [ "annotation", "md__r_e_a_d_m_e.html", [
-      [ "How to install and run in Local", "md__r_e_a_d_m_e.html#autotoc_md11", null ],
-      [ "Documentation", "md__r_e_a_d_m_e.html#autotoc_md12", null ]
+  [ "annotations", "index.html", [
+    [ "ml-cycle-predictor-js", "md_ml-cycle-predictor-js_2README.html", [
+      [ "Overview", "md_ml-cycle-predictor-js_2README.html#autotoc_md1", null ],
+      [ "Project Structure", "md_ml-cycle-predictor-js_2README.html#autotoc_md2", null ],
+      [ "Files Description", "md_ml-cycle-predictor-js_2README.html#autotoc_md3", [
+        [ "Model", "md_ml-cycle-predictor-js_2README.html#autotoc_md4", null ],
+        [ "JavaScript", "md_ml-cycle-predictor-js_2README.html#autotoc_md5", null ],
+        [ "Data", "md_ml-cycle-predictor-js_2README.html#autotoc_md6", null ]
+      ] ],
+      [ "Usage", "md_ml-cycle-predictor-js_2README.html#autotoc_md7", null ],
+      [ "Setup Instructions", "md_ml-cycle-predictor-js_2README.html#autotoc_md8", null ],
+      [ "License", "md_ml-cycle-predictor-js_2README.html#autotoc_md9", null ]
+    ] ],
+    [ "annotation", "md_README.html", [
+      [ "How to install and run in Local", "md_README.html#autotoc_md11", null ],
+      [ "Documentation", "md_README.html#autotoc_md12", null ]
+    ] ],
+    [ "Tests E2E - Structure Réorganisée", "md_test_2e2e_2README.html", [
+      [ "Vue d'ensemble", "md_test_2e2e_2README.html#autotoc_md14", null ],
+      [ "Structure des fichiers", "md_test_2e2e_2README.html#autotoc_md15", [
+        [ "📁 helpers/", "md_test_2e2e_2README.html#autotoc_md16", null ],
+        [ "📁 tests/", "md_test_2e2e_2README.html#autotoc_md17", null ],
+        [ "📄 Fichiers principaux", "md_test_2e2e_2README.html#autotoc_md18", null ]
+      ] ],
+      [ "Utilisation", "md_test_2e2e_2README.html#autotoc_md19", [
+        [ "Exécuter tous les tests", "md_test_2e2e_2README.html#autotoc_md20", null ],
+        [ "Exécuter des tests spécifiques", "md_test_2e2e_2README.html#autotoc_md21", null ],
+        [ "Exécuter par catégorie avec des tags", "md_test_2e2e_2README.html#autotoc_md22", null ]
+      ] ],
+      [ "Avantages de cette structure", "md_test_2e2e_2README.html#autotoc_md23", null ],
+      [ "Fonctions utilitaires principales", "md_test_2e2e_2README.html#autotoc_md24", [
+        [ "test-helpers.js", "md_test_2e2e_2README.html#autotoc_md25", null ],
+        [ "mock-setup.js", "md_test_2e2e_2README.html#autotoc_md26", null ]
+      ] ],
+      [ "Migration depuis l'ancien fichier", "md_test_2e2e_2README.html#autotoc_md27", null ],
+      [ "Personnalisation", "md_test_2e2e_2README.html#autotoc_md28", null ],
+      [ "Dépendances", "md_test_2e2e_2README.html#autotoc_md29", null ]
+    ] ],
+    [ "Documentation des Tests - Projet Neptune", "md_test_2README.html", [
+      [ "📁 Structure des Tests", "md_test_2README.html#autotoc_md31", null ],
+      [ "🧪 Types de Tests", "md_test_2README.html#autotoc_md32", [
+        [ "Tests Unitaires (<tt>unit/</tt>)", "md_test_2README.html#autotoc_md33", [
+          [ "<tt>cycles_handler.test.js</tt>", "md_test_2README.html#autotoc_md34", null ],
+          [ "<tt>homography_handler.test.js</tt>", "md_test_2README.html#autotoc_md35", null ],
+          [ "<tt>side_views.test.js</tt>", "md_test_2README.html#autotoc_md36", null ],
+          [ "<tt>svg_rendering.test.js</tt>", "md_test_2README.html#autotoc_md37", null ]
+        ] ],
+        [ "Tests d'Intégration (<tt>integration/</tt>)", "md_test_2README.html#autotoc_md38", [
+          [ "<tt>cycles_handler.test.js</tt>", "md_test_2README.html#autotoc_md39", null ]
+        ] ],
+        [ "Tests End-to-End (<tt>e2e/</tt>)", "md_test_2README.html#autotoc_md40", [
+          [ "<tt>annotation.spec.js</tt> (Tests principaux)", "md_test_2README.html#autotoc_md41", null ],
+          [ "<tt>bars-functionality.spec.js</tt>", "md_test_2README.html#autotoc_md42", null ],
+          [ "<tt>complete.spec.js</tt>", "md_test_2README.html#autotoc_md43", null ],
+          [ "<tt>video.spec.js</tt>", "md_test_2README.html#autotoc_md44", null ],
+          [ "<tt>basic.spec.js</tt>", "md_test_2README.html#autotoc_md45", null ]
+        ] ]
+      ] ],
+      [ "🛠️ Utilitaires de Test", "md_test_2README.html#autotoc_md46", null ],
+      [ "📊 Couverture de Test", "md_test_2README.html#autotoc_md49", [
+        [ "✅ Complètement Testé", "md_test_2README.html#autotoc_md50", null ],
+        [ "⚠️ Partiellement Testé", "md_test_2README.html#autotoc_md51", null ],
+        [ "🎯 Recommandations E2E", "md_test_2README.html#autotoc_md52", null ]
+      ] ],
+      [ "🚀 Exécution des Tests", "md_test_2README.html#autotoc_md53", [
+        [ "Tests Unitaires et Intégration", "md_test_2README.html#autotoc_md54", null ],
+        [ "Tests E2E", "md_test_2README.html#autotoc_md55", null ],
+        [ "Configuration et Mocks", "md_test_2README.html#autotoc_md56", null ]
+      ] ],
+      [ "📈 Métriques de Test", "md_test_2README.html#autotoc_md57", [
+        [ "Performance", "md_test_2README.html#autotoc_md58", null ],
+        [ "Robustesse", "md_test_2README.html#autotoc_md59", null ]
+      ] ],
+      [ "🔄 Maintenance", "md_test_2README.html#autotoc_md60", [
+        [ "Mise à jour de cette documentation", "md_test_2README.html#autotoc_md61", null ],
+        [ "Bonnes pratiques", "md_test_2README.html#autotoc_md62", null ]
+      ] ],
+      [ "Lancer les tests E2E", "md_test_2README.html#autotoc_md64", null ],
+      [ "Tests E2E en mode headed (avec navigateur visible)", "md_test_2README.html#autotoc_md65", null ],
+      [ "Tests E2E d'un fichier spécifique", "md_test_2README.html#autotoc_md66", null ],
+      [ "Lancer tous les tests (Vitest + Playwright)", "md_test_2README.html#autotoc_md67", null ]
     ] ],
     [ "Packages", "namespaces.html", [
       [ "Package List", "namespaces.html", "namespaces_dup" ],
@@ -51,9 +128,9 @@ var NAVTREE =
 var NAVTREEINDEX =
 [
 "annotations_8spec_8js.html",
-"jquery-ui_8js.html#abf075bdbe59fd2c3336ed052c9c72b31",
-"refactor-script_8js.html#a7ad017464faac1b690e1c99a5f7fec5b"
+"jquery-ui_8js.html#ab26e398f0295e1a050226bd91ecd38b8",
+"predictor_8js.html"
 ];
 
-var SYNCONMSG = 'click to disable panel synchronization';
-var SYNCOFFMSG = 'click to enable panel synchronization';
+var SYNCONMSG = 'click to disable panel synchronisation';
+var SYNCOFFMSG = 'click to enable panel synchronisation';

@@ -7,6 +7,6 @@ var searchData=
   ['video_5fspeed_4',['video_speed',['../refactor-script_8js.html#ad768b5e279ae4e3089498a41fb6f8ed0',1,'refactor-script.js']]],
   ['video_5fvolume_5',['video_volume',['../refactor-script_8js.html#a0b57f649773689aa413903492b1b65a2',1,'refactor-script.js']]],
   ['vidname_6',['vidName',['../loader_8js.html#af3166f64545f88859895f6da900d17a6',1,'loader.js']]],
-  ['vidreset_7',['vidReset',['../video_handler_8js.html#abe0d50d779318cfac0aa67e0a4cf040b',1,'videoHandler.js']]],
+  ['vidreset_7',['vidReset',['../videoHandler_8js.html#abe0d50d779318cfac0aa67e0a4cf040b',1,'videoHandler.js']]],
   ['vue_5fdu_5fdessus_8',['vue_du_dessus',['../refactor-script_8js.html#a1ccff62a45c449ba97167f51ec26f67b',1,'refactor-script.js']]]
 ];

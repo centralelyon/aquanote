@@ -5,8 +5,8 @@ var dir_cf6dd3d856136905faaf5b7bba187d4d =
     [ "bars-functionality.spec.js", "bars-functionality_8spec_8js.html", "bars-functionality_8spec_8js" ],
     [ "basic.spec.js", "basic_8spec_8js.html", null ],
     [ "colors-test.spec.js", "colors-test_8spec_8js.html", null ],
-    [ "complete.spec.js", "complete_8spec_8js.html", null ],
+    [ "complete.spec.js", "complete_8spec_8js.html", "complete_8spec_8js" ],
     [ "fixtures.js", "fixtures_8js.html", null ],
     [ "simple-video-test.spec.js", "simple-video-test_8spec_8js.html", null ],
-    [ "video.spec.js", "video_8spec_8js.html", null ]
+    [ "video.spec.js", "video_8spec_8js.html", "video_8spec_8js" ]
 ];

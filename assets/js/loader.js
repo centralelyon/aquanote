@@ -181,7 +181,7 @@ export async function getDatas(comp, run) {
         c = staticData.csvFiles[run] || [];
     } else {
         // Mode local - utilisation serveur distant 
-        const url = local_bool 
+        const url = (local_bool && !isGitHubMode()) 
             ? "http://localhost:8001/getDatas/" + comp + "/" + run
             : getDataPath() + comp + "/" + run;
         
@@ -293,7 +293,7 @@ export async function getCompets() {
         return Promise.resolve();
     } else {
         // Mode local avec serveur Python - utiliser AJAX
-        const url = local_bool
+        const url = (local_bool && !isGitHubMode())
             ? "http://localhost:8001/getCompets"
             : getDataPath();
         
@@ -374,7 +374,7 @@ export async function get_quality(comp, run, actual_side) {
         c = [];
     } else {
         // Mode local - utilisation serveur distant
-        const url = local_bool 
+        const url = (local_bool && !isGitHubMode())
             ? "http://localhost:8001/getQuality/" + comp + "/" + run
             : getDataPath() + comp + "/" + run;
         
@@ -529,7 +529,7 @@ export async function getRuns(comp) {
     return runs;
 } else {
     // Mode local - utilisation serveur distant
-    const url = local_bool 
+    const url = (local_bool && !isGitHubMode())
         ? "http://localhost:8001/getRuns/" + comp
         : getDataPath() + comp;
     
@@ -716,7 +716,7 @@ export async function load_run(run, data, starTime = null) {
       }
     } else {
       // Lecture distante du JSON
-      const jsonUrl = local_bool 
+      const jsonUrl = (local_bool && !isGitHubMode()) 
         ? "http://localhost:8001/files/" + selected_comp + "/" + run + "/" + run + '.json'
         : getDataPath() + selected_comp + "/" + run + "/" + run + '.json';
       console.log("Mode distant - URL du fichier JSON:", jsonUrl);
@@ -792,7 +792,7 @@ export async function load_run(run, data, starTime = null) {
         }
       } else {
         try {
-          const csvUrl = local_bool 
+          const csvUrl = (local_bool && !isGitHubMode())
             ? "http://localhost:8001/files/" + selected_comp + "/" + run + "/" + data
             : getDataPath() + selected_comp + "/" + run + "/" + data;
           r = await fetchAndParseCsv(csvUrl);
@@ -826,7 +826,7 @@ export async function load_run(run, data, starTime = null) {
         temp_end = tmax;
       }
       if (data && data.includes("automatique")) {
-        const csvUrl = local_bool 
+        const csvUrl = (local_bool && !isGitHubMode())
           ? "http://localhost:8001/files/" + selected_comp + "/" + run + "/" + data
           : getDataPath() + selected_comp + "/" + run + "/" + data;
         let r = await d3.csv(csvUrl, d3.autoType);
@@ -854,7 +854,7 @@ export async function load_run(run, data, starTime = null) {
       } else {
         megaData = [t, []];
         let time_dif;
-        const csvUrl = local_bool 
+        const csvUrl = (local_bool && !isGitHubMode())
           ? "http://localhost:8001/files/" + selected_comp + "/" + run + "/" + data
           : getDataPath() + selected_comp + "/" + run + "/" + data;
         let r = await fetchAndParseCsv(csvUrl);

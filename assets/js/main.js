@@ -24,7 +24,17 @@ import "../../ml-cycle-predictor-js/js/predictor.js";
 
 
 // Backend link
-export let local_bool = true;
+// Détection automatique de l'environnement
+function isGitHubMode() {
+    const isElectron = window.myAPI !== undefined;
+    return !isElectron && (
+        window.location.hostname.includes('github.io') || 
+        window.location.hostname.includes('githubusercontent.com') ||
+        window.location.pathname.includes('/annotation/')
+    );
+}
+
+export let local_bool = !isGitHubMode();
 export let base = "./";
 
 

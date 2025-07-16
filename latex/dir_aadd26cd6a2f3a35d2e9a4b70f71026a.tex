@@ -1,0 +1,70 @@
+\doxysection{ml-\/cycle-\/predictor-\/js Directory Reference}
+\hypertarget{dir_aadd26cd6a2f3a35d2e9a4b70f71026a}{}\label{dir_aadd26cd6a2f3a35d2e9a4b70f71026a}\index{ml-\/cycle-\/predictor-\/js Directory Reference@{ml-\/cycle-\/predictor-\/js Directory Reference}}
+\doxysubsubsection*{Directories}
+\begin{DoxyCompactItemize}
+\item 
+directory \mbox{\hyperlink{dir_0dd2f3d9ac5f3b6c0b1fe87aac0260fc}{js}}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+\hypertarget{README.md_autotoc_md1}{}\doxysubsection{\texorpdfstring{Overview}{Overview}}\label{README.md_autotoc_md1}
+The {\ttfamily ml-\/cycle-\/predictor-\/js} project implements a machine learning model for predicting the next cycle in a swimming context. The model is designed to be used in a Java\+Script environment, allowing for easy integration into web applications.\hypertarget{README.md_autotoc_md2}{}\doxysubsection{\texorpdfstring{Project Structure}{Project Structure}}\label{README.md_autotoc_md2}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{ml-\/cycle-\/predictor-\/js}
+\DoxyCodeLine{├──\ model}
+\DoxyCodeLine{│\ \ \ ├──\ best\_model.json\ \ \ \ \ \ \ \ \#\ Serialized\ best\ AI\ model\ for\ predictions}
+\DoxyCodeLine{│\ \ \ └──\ model\_stats.json\ \ \ \ \ \ \ \#\ Model\ performance\ statistics}
+\DoxyCodeLine{├──\ js}
+\DoxyCodeLine{│\ \ \ ├──\ predictor.js\ \ \ \ \ \ \ \ \ \ \ \#\ Class\ for\ loading\ model\ and\ making\ predictions}
+\DoxyCodeLine{│\ \ \ └──\ utils.js\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \#\ Utility\ functions\ for\ data\ processing}
+\DoxyCodeLine{├──\ data}
+\DoxyCodeLine{│\ \ \ └──\ sample\_input.json\ \ \ \ \ \ \#\ Sample\ input\ data\ for\ testing}
+\DoxyCodeLine{└──\ README.md\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \#\ Project\ documentation}
+
+\end{DoxyCode}
+\hypertarget{README.md_autotoc_md3}{}\doxysubsection{\texorpdfstring{Files Description}{Files Description}}\label{README.md_autotoc_md3}
+\hypertarget{README.md_autotoc_md4}{}\doxysubsubsection{\texorpdfstring{Model}{Model}}\label{README.md_autotoc_md4}
+
+\begin{DoxyItemize}
+\item {\bfseries{best\+\_\+model.\+json}}\+: Contains the serialized architecture and weights of the best-\/performing AI model used for predicting the next cycle.
+\item {\bfseries{model\+\_\+stats.\+json}}\+: Stores performance metrics of the model, including\+:
+\begin{DoxyItemize}
+\item Percentage of exact predictions
+\item Percentage of predictions within 1 frame
+\item Additional relevant statistics
+\end{DoxyItemize}
+\end{DoxyItemize}\hypertarget{README.md_autotoc_md5}{}\doxysubsubsection{\texorpdfstring{Java\+Script}{Java\+Script}}\label{README.md_autotoc_md5}
+
+\begin{DoxyItemize}
+\item {\bfseries{\doxylink{predictor_8js}{predictor.\+js}}}\+: Exports the {\ttfamily Cycle\+Predictor} class, which includes methods for\+:
+\begin{DoxyItemize}
+\item {\ttfamily load\+Model}\+: Loads the AI model from {\ttfamily best\+\_\+model.\+json}.
+\item {\ttfamily predict\+Next\+Cycle}\+: Makes predictions based on input data.
+\item {\ttfamily get\+Model\+Stats}\+: Retrieves model performance statistics from {\ttfamily model\+\_\+stats.\+json}.
+\end{DoxyItemize}
+\item {\bfseries{utils.\+js}}\+: Exports utility functions for\+:
+\begin{DoxyItemize}
+\item {\ttfamily normalize\+Input}\+: Preprocesses input data for the model.
+\item {\ttfamily denormalize\+Output}\+: Converts model output back to the original scale.
+\end{DoxyItemize}
+\end{DoxyItemize}\hypertarget{README.md_autotoc_md6}{}\doxysubsubsection{\texorpdfstring{Data}{Data}}\label{README.md_autotoc_md6}
+
+\begin{DoxyItemize}
+\item {\bfseries{sample\+\_\+input.\+json}}\+: Contains sample input data in JSON format for testing the model\textquotesingle{}s prediction capabilities.
+\end{DoxyItemize}\hypertarget{README.md_autotoc_md7}{}\doxysubsection{\texorpdfstring{Usage}{Usage}}\label{README.md_autotoc_md7}
+
+\begin{DoxyEnumerate}
+\item Load the model using the {\ttfamily Cycle\+Predictor} class from {\ttfamily \doxylink{predictor_8js}{predictor.\+js}}.
+\item Use the {\ttfamily predict\+Next\+Cycle} method to make predictions based on input data.
+\item Access model performance statistics using the {\ttfamily get\+Model\+Stats} method.
+\end{DoxyEnumerate}\hypertarget{README.md_autotoc_md8}{}\doxysubsection{\texorpdfstring{Setup Instructions}{Setup Instructions}}\label{README.md_autotoc_md8}
+
+\begin{DoxyEnumerate}
+\item Clone the repository.
+\item Ensure you have a Java\+Script environment set up (Node.\+js or browser).
+\item Include the {\ttfamily \doxylink{predictor_8js}{predictor.\+js}} and {\ttfamily utils.\+js} files in your project.
+\item Load the model and start making predictions using the provided methods.
+\end{DoxyEnumerate}\hypertarget{README.md_autotoc_md9}{}\doxysubsection{\texorpdfstring{License}{License}}\label{README.md_autotoc_md9}
+This project is licensed under the MIT License. See the LICENSE file for details. 

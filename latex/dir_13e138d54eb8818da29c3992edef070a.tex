@@ -1,0 +1,542 @@
+\doxysection{test Directory Reference}
+\hypertarget{dir_13e138d54eb8818da29c3992edef070a}{}\label{dir_13e138d54eb8818da29c3992edef070a}\index{test Directory Reference@{test Directory Reference}}
+\doxysubsubsection*{Directories}
+\begin{DoxyCompactItemize}
+\item 
+directory \mbox{\hyperlink{dir_cf6dd3d856136905faaf5b7bba187d4d}{e2e}}
+\item 
+directory \mbox{\hyperlink{dir_bbf9f1b56ba6c621651be8934a24eced}{integration}}
+\item 
+directory \mbox{\hyperlink{dir_6a07fdbc4b50e86806a88566ca8f66e4}{unit}}
+\item 
+directory \mbox{\hyperlink{dir_aa9be1b82c48662217aefeaa0c6781c6}{utils}}
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Files}
+\begin{DoxyCompactItemize}
+\item 
+file \mbox{\hyperlink{setup_8js}{setup.\+js}}
+\begin{DoxyCompactList}\small\item\em Configuration d\textquotesingle{}environnement de test pour Vitest avec JSDOM. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Ce document présente l\textquotesingle{}ensemble des tests du projet d\textquotesingle{}annotation de natation Neptune, leur organisation et leur couverture.\hypertarget{README.md_autotoc_md31}{}\doxysubsection{\texorpdfstring{📁 Structure des Tests}{📁 Structure des Tests}}\label{README.md_autotoc_md31}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{test/}
+\DoxyCodeLine{├──\ README.md\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \#\ Cette\ documentation}
+\DoxyCodeLine{├──\ setup.js\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \#\ Configuration\ Vitest}
+\DoxyCodeLine{├──\ utils/}
+\DoxyCodeLine{│\ \ \ └──\ video-\/generator.js\ \ \ \ \ \ \ \ \ \ \ \ \ \ \#\ Utilitaire\ de\ génération\ de\ vidéos\ MP4\ pour\ tests}
+\DoxyCodeLine{├──\ unit/\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \#\ Tests\ unitaires}
+\DoxyCodeLine{│\ \ \ ├──\ cycles\_handler.test.js\ \ \ \ \ \ \ \ \ \ \#\ Tests\ logiques\ cycles\_handler}
+\DoxyCodeLine{│\ \ \ ├──\ homography\_handler.test.js\ \ \ \ \ \ \#\ Tests\ logiques\ homography\_handler}
+\DoxyCodeLine{│\ \ \ ├──\ side\_views.test.js\ \ \ \ \ \ \ \ \ \ \ \ \ \ \#\ Tests\ logiques\ side\_views}
+\DoxyCodeLine{│\ \ \ └──\ svg\_rendering.test.js\ \ \ \ \ \ \ \ \ \ \ \#\ Tests\ de\ rendu\ SVG/D3}
+\DoxyCodeLine{├──\ integration/\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \#\ Tests\ d'intégration}
+\DoxyCodeLine{│\ \ \ ├──\ cycles\_handler.test.js\ \ \ \ \ \ \ \ \ \ \#\ Tests\ intégration\ cycles\_handler}
+\DoxyCodeLine{│\ \ \ └──\ IMPROVEMENTS.md\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \#\ Documentation\ améliorations\ tests}
+\DoxyCodeLine{└──\ e2e/\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \#\ Tests\ End-\/to-\/End\ (Playwright)}
+\DoxyCodeLine{\ \ \ \ ├──\ fixtures.js\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \#\ Configuration\ commune\ E2E}
+\DoxyCodeLine{\ \ \ \ ├──\ annotation.spec.js\ \ \ \ \ \ \ \ \ \ \ \ \ \ \#\ Tests\ complets\ d'annotation}
+\DoxyCodeLine{\ \ \ \ ├──\ basic.spec.js\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \#\ Tests\ de\ base\ serveur}
+\DoxyCodeLine{\ \ \ \ ├──\ bars-\/functionality.spec.js\ \ \ \ \ \ \#\ Tests\ fonctionnalités\ barres}
+\DoxyCodeLine{\ \ \ \ ├──\ complete.spec.js\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \#\ Tests\ complets\ avec\ vidéos}
+\DoxyCodeLine{\ \ \ \ └──\ video.spec.js\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \#\ Tests\ spécifiques\ vidéo}
+
+\end{DoxyCode}
+\hypertarget{README.md_autotoc_md32}{}\doxysubsection{\texorpdfstring{🧪 Types de Tests}{🧪 Types de Tests}}\label{README.md_autotoc_md32}
+\hypertarget{README.md_autotoc_md33}{}\doxysubsubsection{\texorpdfstring{Tests Unitaires ({\ttfamily unit/})}{Tests Unitaires ({\ttfamily unit/})}}\label{README.md_autotoc_md33}
+\hypertarget{README.md_autotoc_md34}{}\doxysubsubsubsection{\texorpdfstring{{\ttfamily cycles\+\_\+handler.\+test.\+js}}{{\ttfamily cycles\+\_\+handler.\+test.\+js}}}\label{README.md_autotoc_md34}
+{\bfseries{Objectif}} \+: Tester la logique pure des fonctions de gestion des cycles ~\newline
+ {\bfseries{Framework}} \+: Vitest ~\newline
+ {\bfseries{Couverture}} \+:
+\begin{DoxyItemize}
+\item ✅ Logique {\ttfamily find\+Cycle\+Index\+At\+Frame} (recherche de cycles par frame)
+\item ✅ Formatage et validation des données de cycles
+\item ✅ Calculs mathématiques de base
+\end{DoxyItemize}
+
+{\bfseries{Tests inclus}} \+:
+\begin{DoxyItemize}
+\item Recherche de cycle par numéro de frame
+\item Gestion des cas limites (frames négatives, cycles vides)
+\item Validation de la logique de tri temporel
+\end{DoxyItemize}\hypertarget{README.md_autotoc_md35}{}\doxysubsubsubsection{\texorpdfstring{{\ttfamily homography\+\_\+handler.\+test.\+js}}{{\ttfamily homography\+\_\+handler.\+test.\+js}}}\label{README.md_autotoc_md35}
+{\bfseries{Objectif}} \+: Tester les transformations géométriques et calculs de perspective ~\newline
+ {\bfseries{Framework}} \+: Vitest ~\newline
+ {\bfseries{Couverture}} \+:
+\begin{DoxyItemize}
+\item ✅ Logique de transformation de coordonnées ({\ttfamily get\+Pool\+Bar})
+\item ✅ Calculs de mise à l\textquotesingle{}échelle (pool\+\_\+vid\+\_\+xscale, pool\+\_\+vid\+\_\+yscale)
+\item ✅ Gestion des transformations de perspective (PerspT)
+\end{DoxyItemize}
+
+{\bfseries{Tests inclus}} \+:
+\begin{DoxyItemize}
+\item Calculs de coordonnées transformées
+\item Gestion des cas limites (bords de l\textquotesingle{}image)
+\item Validation des paramètres de transformation
+\end{DoxyItemize}\hypertarget{README.md_autotoc_md36}{}\doxysubsubsubsection{\texorpdfstring{{\ttfamily side\+\_\+views.\+test.\+js}}{{\ttfamily side\+\_\+views.\+test.\+js}}}\label{README.md_autotoc_md36}
+{\bfseries{Objectif}} \+: Tester les fonctions de vues latérales et statistiques ~\newline
+ {\bfseries{Framework}} \+: Vitest ~\newline
+ {\bfseries{Couverture}} \+:
+\begin{DoxyItemize}
+\item ✅ Formatage des temps (mm\+:ss.\+cc)
+\item ✅ Calculs de distances entre points
+\item ✅ Conversions d\textquotesingle{}unités et validations
+\end{DoxyItemize}
+
+{\bfseries{Tests inclus}} \+:
+\begin{DoxyItemize}
+\item Formatage temporel avec gestion des centisecondes
+\item Calculs de distances euclidiennes
+\item Gestion des valeurs limites et erreurs
+\end{DoxyItemize}\hypertarget{README.md_autotoc_md37}{}\doxysubsubsubsection{\texorpdfstring{{\ttfamily svg\+\_\+rendering.\+test.\+js}}{{\ttfamily svg\+\_\+rendering.\+test.\+js}}}\label{README.md_autotoc_md37}
+{\bfseries{Objectif}} \+: Tester le rendu SVG et les interactions D3.\+js ~\newline
+ {\bfseries{Framework}} \+: Vitest + D3 ~\newline
+ {\bfseries{Couverture}} \+:
+\begin{DoxyItemize}
+\item ✅ Création d\textquotesingle{}éléments SVG
+\item ✅ Ajout de barres de cycles
+\item ✅ Transformations et animations D3
+\end{DoxyItemize}
+
+{\bfseries{Tests inclus}} \+:
+\begin{DoxyItemize}
+\item Création et configuration des conteneurs SVG
+\item Rendu des barres de cycles avec données dynamiques
+\item Validation des attributs et styles D3
+\end{DoxyItemize}\hypertarget{README.md_autotoc_md38}{}\doxysubsubsection{\texorpdfstring{Tests d\textquotesingle{}Intégration ({\ttfamily integration/})}{Tests d\textquotesingle{}Intégration ({\ttfamily integration/})}}\label{README.md_autotoc_md38}
+\hypertarget{README.md_autotoc_md39}{}\doxysubsubsubsection{\texorpdfstring{{\ttfamily cycles\+\_\+handler.\+test.\+js}}{{\ttfamily cycles\+\_\+handler.\+test.\+js}}}\label{README.md_autotoc_md39}
+{\bfseries{Objectif}} \+: Tester l\textquotesingle{}intégration des fonctions {\ttfamily \doxylink{cycles__handler_8js}{cycles\+\_\+handler.\+js}} ~\newline
+ {\bfseries{Framework}} \+: Vitest avec mocks complets ~\newline
+
+
+{\bfseries{Fonctions testées complètement}} \+:
+\begin{DoxyItemize}
+\item ✅ {\ttfamily find\+Cycle\+Index\+At\+Frame} -\/ Recherche de cycles (performance, robustesse, cas limites)
+\item ✅ {\ttfamily mode\+\_\+color} -\/ Dictionnaire de couleurs (intégrité, format, cohérence)
+\item ✅ {\ttfamily edit\+\_\+lab\+\_\+flipper} -\/ Contrôle d\textquotesingle{}affichage des labels
+\item ✅ {\ttfamily highlight\+Cycle} / {\ttfamily reset\+High} -\/ Interactions D3 de surlignage
+\end{DoxyItemize}
+
+{\bfseries{Fonctions testées partiellement}} \+:
+\begin{DoxyItemize}
+\item ⚠️ {\ttfamily update\+Bars\+From\+Event} -\/ Tests structurels (logique de filtrage, paramètres)
+\item ⚠️ {\ttfamily make\+Bar} -\/ Tests de structure (données, calculs de base)
+\end{DoxyItemize}
+
+{\bfseries{Pourquoi certaines fonctions ne sont que partiellement testées}} \+:
+\begin{DoxyItemize}
+\item Couplage DOM fort (manipulation directe via {\ttfamily document.\+get\+Element\+By\+Id})
+\item Dépendances multiples (j\+Query, D3, Canvas API, variables globales)
+\item État global partagé (modification de variables affectant d\textquotesingle{}autres modules)
+\end{DoxyItemize}
+
+{\bfseries{Tests spéciaux}} \+:
+\begin{DoxyItemize}
+\item 🚀 Tests de performance avec 1000+ éléments
+\item 🛡️ Tests de robustesse (données corrompues, types mixtes)
+\item 🔄 Tests d\textquotesingle{}intégration entre fonctions
+\item 📊 Tests de cohérence temporelle et visuelle
+\end{DoxyItemize}\hypertarget{README.md_autotoc_md40}{}\doxysubsubsection{\texorpdfstring{Tests End-\/to-\/\+End ({\ttfamily e2e/})}{Tests End-\/to-\/\+End ({\ttfamily e2e/})}}\label{README.md_autotoc_md40}
+\hypertarget{README.md_autotoc_md41}{}\doxysubsubsubsection{\texorpdfstring{{\ttfamily annotation.\+spec.\+js} (Tests principaux)}{{\ttfamily annotation.\+spec.\+js} (Tests principaux)}}\label{README.md_autotoc_md41}
+{\bfseries{Objectif}} \+: Tests complets de l\textquotesingle{}application d\textquotesingle{}annotation ~\newline
+ {\bfseries{Framework}} \+: Playwright ~\newline
+ {\bfseries{Navigateurs}} \+: Chromium, Firefox, Web\+Kit
+
+{\bfseries{Scénarios testés}} \+:
+\begin{DoxyItemize}
+\item ✅ Chargement interface principale
+\item ✅ Sélection et chargement de courses complètes
+\item ✅ Navigation entre compétitions (Budapest ↔ Montpellier)
+\item ✅ Affichage des graphiques et barres de cycles
+\item ✅ Sélection de nageurs et synchronisation des vues
+\item ✅ Interactions avec les barres de cycles
+\item ✅ Chargement et initialisation de vidéos
+\item ✅ Tests de responsivité (1200px → 400px)
+\item ✅ {\bfseries{Mise à jour dynamique des graphiques lors d\textquotesingle{}ajout de barres/annotations}}
+\item ✅ {\bfseries{Navigation vidéo via clic sur graphiques (barres/points dans \#stats, \#cyclebar, \#cycle\+\_\+stats)}}
+\item ✅ {\bfseries{Synchronisation temps réel graphiques-\/annotations-\/vidéo}}
+\item ✅ {\bfseries{Tests d\textquotesingle{}interaction utilisateur avec éléments SVG (rect, circle, path)}}
+\item ✅ {\bfseries{Vérification de synchronisation timebar-\/vidéo lors de clics sur graphiques}}
+\item ✅ {\bfseries{Tests des tableaux de données synchronisés avec graphiques}}
+\item ✅ {\bfseries{Navigation entre onglets avec persistance des graphiques}}
+\end{DoxyItemize}
+
+{\bfseries{Tests de graphiques spécialisés}} \+:
+\begin{DoxyItemize}
+\item 📊 \texorpdfstring{$\ast$}{*}\texorpdfstring{$\ast$}{*}\#cyclebar\texorpdfstring{$\ast$}{*}\texorpdfstring{$\ast$}{*} \+: Distance par cycle (interactions rect/circle)
+\item 📊 \texorpdfstring{$\ast$}{*}\texorpdfstring{$\ast$}{*}\#stats\texorpdfstring{$\ast$}{*}\texorpdfstring{$\ast$}{*} \+: Distance par seconde (interactions rect/circle/path) ~\newline
+
+\item 📊 \texorpdfstring{$\ast$}{*}\texorpdfstring{$\ast$}{*}\#cycle\+\_\+stats\texorpdfstring{$\ast$}{*}\texorpdfstring{$\ast$}{*} \+: Fréquence de cycle par vitesse (interactions circle)
+\item 🎯 {\bfseries{Synchronisation bidirectionnelle}} \+: Graphiques ↔ Vidéo ↔ Timeline
+\item ⚙️ {\bfseries{Tests modes d\textquotesingle{}affichage}} \+: swim/last/all avec validation graphiques
+\item 🔄 {\bfseries{Persistance état}} \+: Navigation onglets sans perte de données
+\end{DoxyItemize}
+
+{\bfseries{Données mockées}} \+:
+\begin{DoxyItemize}
+\item Vidéos MP4 générées dynamiquement
+\item Métadonnées de compétitions (Budapest, Montpellier)
+\item Données de nageurs et cycles
+\item Modèles ML pour prédiction
+\end{DoxyItemize}\hypertarget{README.md_autotoc_md42}{}\doxysubsubsubsection{\texorpdfstring{{\ttfamily bars-\/functionality.\+spec.\+js}}{{\ttfamily bars-\/functionality.\+spec.\+js}}}\label{README.md_autotoc_md42}
+{\bfseries{Objectif}} \+: Tests spécifiques des fonctionnalités de barres ~\newline
+ {\bfseries{Framework}} \+: Playwright
+
+{\bfseries{Fonctionnalités testées}} \+:
+\begin{DoxyItemize}
+\item ✅ Création et affichage des barres de cycles
+\item ✅ Interactions utilisateur (clic, sélection)
+\item ✅ Synchronisation entre vues multiples
+\item ✅ Mise à jour dynamique lors des changements
+\end{DoxyItemize}
+
+{\bfseries{Helpers inclus}} \+:
+\begin{DoxyItemize}
+\item {\ttfamily load\+Test\+Race()} -\/ Chargement standard d\textquotesingle{}une course
+\item {\ttfamily create\+Mock\+Bar\+Data()} -\/ Génération de données de test
+\end{DoxyItemize}\hypertarget{README.md_autotoc_md43}{}\doxysubsubsubsection{\texorpdfstring{{\ttfamily complete.\+spec.\+js}}{{\ttfamily complete.\+spec.\+js}}}\label{README.md_autotoc_md43}
+{\bfseries{Objectif}} \+: Tests complets avec intégration vidéo ~\newline
+ {\bfseries{Framework}} \+: Playwright
+
+{\bfseries{Scénarios avancés}} \+:
+\begin{DoxyItemize}
+\item ✅ Chargement complet application + vidéo
+\item ✅ Tests avec vidéos longues (5+ secondes)
+\item ✅ Validation du cycle complet de l\textquotesingle{}application
+\end{DoxyItemize}\hypertarget{README.md_autotoc_md44}{}\doxysubsubsubsection{\texorpdfstring{{\ttfamily video.\+spec.\+js}}{{\ttfamily video.\+spec.\+js}}}\label{README.md_autotoc_md44}
+{\bfseries{Objectif}} \+: Tests spécifiques du système vidéo ~\newline
+ {\bfseries{Framework}} \+: Playwright
+
+{\bfseries{Tests vidéo}} \+:
+\begin{DoxyItemize}
+\item ✅ Chargement et affichage de vidéos mockées
+\item ✅ Contrôles vidéo (play/pause/seek)
+\item ✅ Synchronisation vidéo-\/annotations
+\end{DoxyItemize}\hypertarget{README.md_autotoc_md45}{}\doxysubsubsubsection{\texorpdfstring{{\ttfamily basic.\+spec.\+js}}{{\ttfamily basic.\+spec.\+js}}}\label{README.md_autotoc_md45}
+{\bfseries{Objectif}} \+: Tests de base du serveur et connectivité ~\newline
+ {\bfseries{Framework}} \+: Playwright
+
+{\bfseries{Tests fondamentaux}} \+:
+\begin{DoxyItemize}
+\item ✅ Chargement application via HTTP
+\item ✅ Mocks de base (package.\+json, endpoints essentiels)
+\item ✅ Validation de la connectivité serveur
+\end{DoxyItemize}\hypertarget{README.md_autotoc_md46}{}\doxysubsection{\texorpdfstring{🛠️ Utilitaires de Test}{🛠️ Utilitaires de Test}}\label{README.md_autotoc_md46}
+\hypertarget{README.md_autotoc_md47}{}\doxysubsubsubsection{\texorpdfstring{{\ttfamily utils/video-\/generator.\+js}}{{\ttfamily utils/video-\/generator.\+js}}}\label{README.md_autotoc_md47}
+{\bfseries{Objectif}} \+: Génération de vidéos MP4 minimales pour tests ~\newline
+ {\bfseries{Fonctionnalités}} \+:
+\begin{DoxyItemize}
+\item Création de vidéos MP4 valides avec durée/résolution personnalisées
+\item Optimisation pour tests rapides
+\item Format compatible avec les navigateurs
+\end{DoxyItemize}\hypertarget{README.md_autotoc_md48}{}\doxysubsubsubsection{\texorpdfstring{{\ttfamily fixtures.\+js}}{{\ttfamily fixtures.\+js}}}\label{README.md_autotoc_md48}
+{\bfseries{Objectif}} \+: Configuration commune pour tests E2E ~\newline
+ {\bfseries{Fonctionnalités}} \+:
+\begin{DoxyItemize}
+\item Configuration serveur de développement
+\item Mocks réseau partagés
+\item Utilities communes Playwright
+\end{DoxyItemize}\hypertarget{README.md_autotoc_md49}{}\doxysubsection{\texorpdfstring{📊 Couverture de Test}{📊 Couverture de Test}}\label{README.md_autotoc_md49}
+\hypertarget{README.md_autotoc_md50}{}\doxysubsubsection{\texorpdfstring{✅ Complètement Testé}{✅ Complètement Testé}}\label{README.md_autotoc_md50}
+
+\begin{DoxyItemize}
+\item {\bfseries{Logique pure}} \+: Calculs, transformations, formatage
+\item {\bfseries{Fonctions simples}} \+: {\ttfamily find\+Cycle\+Index\+At\+Frame}, {\ttfamily mode\+\_\+color}, formatage temps
+\item {\bfseries{Rendu SVG}} \+: Création éléments, attributs D3
+\item {\bfseries{Interface utilisateur}} \+: Navigation, sélections, chargements
+\end{DoxyItemize}\hypertarget{README.md_autotoc_md51}{}\doxysubsubsection{\texorpdfstring{⚠️ Partiellement Testé}{⚠️ Partiellement Testé}}\label{README.md_autotoc_md51}
+
+\begin{DoxyItemize}
+\item {\bfseries{Fonctions complexes}} \+: {\ttfamily update\+Bars\+From\+Event}, {\ttfamily make\+Bar}
+\item {\bfseries{Intégrations lourdes}} \+: Modules avec nombreuses dépendances
+\end{DoxyItemize}\hypertarget{README.md_autotoc_md52}{}\doxysubsubsection{\texorpdfstring{🎯 Recommandations E2E}{🎯 Recommandations E2E}}\label{README.md_autotoc_md52}
+
+\begin{DoxyItemize}
+\item {\bfseries{Rendu visuel complet}} \+: Validation de l\textquotesingle{}affichage réel
+\item {\bfseries{Interactions utilisateur complexes}} \+: Workflows complets
+\item {\bfseries{Performance}} \+: Tests avec vraies données volumineuses
+\end{DoxyItemize}\hypertarget{README.md_autotoc_md53}{}\doxysubsection{\texorpdfstring{🚀 Exécution des Tests}{🚀 Exécution des Tests}}\label{README.md_autotoc_md53}
+\hypertarget{README.md_autotoc_md54}{}\doxysubsubsection{\texorpdfstring{Tests Unitaires et Intégration}{Tests Unitaires et Intégration}}\label{README.md_autotoc_md54}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\#\ Tous\ les\ tests\ Vitest}
+\DoxyCodeLine{npm\ test}
+\DoxyCodeLine{}
+\DoxyCodeLine{\#\ Tests\ unitaires\ seulement}
+\DoxyCodeLine{npm\ test\ unit/}
+\DoxyCodeLine{}
+\DoxyCodeLine{\#\ Tests\ d'intégration\ seulement\ \ }
+\DoxyCodeLine{npm\ test\ integration/}
+\DoxyCodeLine{}
+\DoxyCodeLine{\#\ Mode\ watch\ pour\ développement}
+\DoxyCodeLine{npm\ test\ -\/-\/watch}
+
+\end{DoxyCode}
+\hypertarget{README.md_autotoc_md55}{}\doxysubsubsection{\texorpdfstring{Tests E2E}{Tests E2E}}\label{README.md_autotoc_md55}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\#\ Tous\ les\ tests\ E2E}
+\DoxyCodeLine{npx\ playwright\ test}
+\DoxyCodeLine{}
+\DoxyCodeLine{\#\ Tests\ spécifiques}
+\DoxyCodeLine{npx\ playwright\ test\ annotation.spec.js}
+\DoxyCodeLine{npx\ playwright\ test\ bars-\/functionality.spec.js}
+\DoxyCodeLine{}
+\DoxyCodeLine{\#\ Mode\ debug}
+\DoxyCodeLine{npx\ playwright\ test\ -\/-\/debug}
+\DoxyCodeLine{}
+\DoxyCodeLine{\#\ Tests\ avec\ interface\ graphique}
+\DoxyCodeLine{npx\ playwright\ test\ -\/-\/ui}
+
+\end{DoxyCode}
+\hypertarget{README.md_autotoc_md56}{}\doxysubsubsection{\texorpdfstring{Configuration et Mocks}{Configuration et Mocks}}\label{README.md_autotoc_md56}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\#\ Installation\ des\ dépendances}
+\DoxyCodeLine{npm\ install}
+\DoxyCodeLine{}
+\DoxyCodeLine{\#\ Setup\ Playwright}
+\DoxyCodeLine{npx\ playwright\ install}
+
+\end{DoxyCode}
+\hypertarget{README.md_autotoc_md57}{}\doxysubsection{\texorpdfstring{📈 Métriques de Test}{📈 Métriques de Test}}\label{README.md_autotoc_md57}
+\hypertarget{README.md_autotoc_md58}{}\doxysubsubsection{\texorpdfstring{Performance}{Performance}}\label{README.md_autotoc_md58}
+
+\begin{DoxyItemize}
+\item {\bfseries{Tests unitaires}} \+: \texorpdfstring{$<$}{<} 100ms par test
+\item {\bfseries{Tests intégration}} \+: \texorpdfstring{$<$}{<} 500ms par test ~\newline
+
+\item {\bfseries{Tests E2E}} \+: \texorpdfstring{$<$}{<} 30s par scénario complet
+\end{DoxyItemize}\hypertarget{README.md_autotoc_md59}{}\doxysubsubsection{\texorpdfstring{Robustesse}{Robustesse}}\label{README.md_autotoc_md59}
+
+\begin{DoxyItemize}
+\item {\bfseries{Cas limites}} \+: Données vides, valeurs extrêmes, types invalides
+\item {\bfseries{Gestion d\textquotesingle{}erreurs}} \+: Exceptions, timeouts, échecs réseau
+\item {\bfseries{Compatibilité}} \+: Multi-\/navigateurs, résolutions diverses
+\end{DoxyItemize}\hypertarget{README.md_autotoc_md60}{}\doxysubsection{\texorpdfstring{🔄 Maintenance}{🔄 Maintenance}}\label{README.md_autotoc_md60}
+\hypertarget{README.md_autotoc_md61}{}\doxysubsubsection{\texorpdfstring{Mise à jour de cette documentation}{Mise à jour de cette documentation}}\label{README.md_autotoc_md61}
+Ce fichier doit être mis à jour lors de \+:
+\begin{DoxyItemize}
+\item ✅ Ajout de nouveaux tests
+\item ✅ Modification de la structure des tests
+\item ✅ Changement des objectifs de couverture
+\item ✅ Évolution des outils de test
+\end{DoxyItemize}\hypertarget{README.md_autotoc_md62}{}\doxysubsubsection{\texorpdfstring{Bonnes pratiques}{Bonnes pratiques}}\label{README.md_autotoc_md62}
+
+\begin{DoxyItemize}
+\item {\bfseries{Nommage}} \+: Tests descriptifs avec objectifs clairs
+\item {\bfseries{Isolation}} \+: Chaque test doit être indépendant ~\newline
+
+\item {\bfseries{Mocks}} \+: Minimiser les dépendances externes
+\item {\bfseries{Documentation}} \+: Expliquer les choix de test complexes
+\end{DoxyItemize}
+
+\DoxyHorRuler{0}
+
+
+{\bfseries{Dernière mise à jour}} \+: Juillet 2025 ~\newline
+ {\bfseries{Maintenu par}} \+: Équipe Neptune ~\newline
+ {\bfseries{Outils}} \+: Vitest, Playwright, D3.\+js \hypertarget{README.md_autotoc_md64}{}\doxysubsection{\texorpdfstring{Lancer les tests E2E}{Lancer les tests E2E}}\label{README.md_autotoc_md64}
+npm run test\+:e2e\hypertarget{README.md_autotoc_md65}{}\doxysubsection{\texorpdfstring{Tests E2E en mode headed (avec navigateur visible)}{Tests E2E en mode headed (avec navigateur visible)}}\label{README.md_autotoc_md65}
+npx playwright test --headed\hypertarget{README.md_autotoc_md66}{}\doxysubsection{\texorpdfstring{Tests E2E d\textquotesingle{}un fichier spécifique}{Tests E2E d\textquotesingle{}un fichier spécifique}}\label{README.md_autotoc_md66}
+npx playwright test \doxylink{bars-functionality_8spec_8js}{test/e2e/bars-\/functionality.\+spec.\+js} 
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\#\#\#\ Tous\ les\ tests}
+
+\end{DoxyCode}
+ bash \hypertarget{README.md_autotoc_md67}{}\doxysubsection{\texorpdfstring{Lancer tous les tests (Vitest + Playwright)}{Lancer tous les tests (Vitest + Playwright)}}\label{README.md_autotoc_md67}
+npm run test\+:all 
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\#\#\ Types\ de\ Tests}
+\DoxyCodeLine{}
+\DoxyCodeLine{\#\#\#\ Tests\ Unitaires\ (`test/unit/`)}
+\DoxyCodeLine{}
+\DoxyCodeLine{Testent\ des\ fonctions\ individuelles\ en\ isolation\ :}
+\DoxyCodeLine{-\/\ **homography\_handler.test.js**\ :\ Tests\ des\ transformations\ homographiques}
+\DoxyCodeLine{-\/\ **side\_views.test.js**\ :\ Tests\ des\ fonctions\ de\ vue\ latérale\ et\ statistiques}
+\DoxyCodeLine{-\/\ **svg\_rendering.test.js**\ :\ Tests\ du\ rendu\ SVG}
+\DoxyCodeLine{}
+\DoxyCodeLine{\#\#\#\ Tests\ d'Intégration\ (`test/integration/`)}
+\DoxyCodeLine{}
+\DoxyCodeLine{Testent\ l'interaction\ entre\ plusieurs\ composants\ :}
+\DoxyCodeLine{-\/\ **cycles\_handler.test.js**\ :\ Tests\ de\ la\ gestion\ des\ cycles\ et\ barres\ d'annotation}
+\DoxyCodeLine{}
+\DoxyCodeLine{\#\#\#\ Tests\ E2E\ (`test/e2e/`)}
+\DoxyCodeLine{}
+\DoxyCodeLine{Testent\ l'application\ complète\ dans\ un\ navigateur\ :}
+\DoxyCodeLine{-\/\ **annotation.spec.js**\ :\ Tests\ généraux\ de\ l'application}
+\DoxyCodeLine{-\/\ **bars-\/functionality.spec.js**\ :\ Tests\ spécifiques\ aux\ barres\ d'annotation}
+\DoxyCodeLine{}
+\DoxyCodeLine{\#\#\ Configuration}
+\DoxyCodeLine{}
+\DoxyCodeLine{\#\#\#\ Vitest\ (vitest.config.js)}
+\DoxyCodeLine{}
+\DoxyCodeLine{-\/\ **Environnement**\ :\ jsdom\ pour\ simuler\ le\ DOM}
+\DoxyCodeLine{-\/\ **Globaux**\ :\ describe,\ it,\ expect\ disponibles\ sans\ import}
+\DoxyCodeLine{-\/\ **Setup**\ :\ Fichier\ \`{}test/setup.js`\ chargé\ automatiquement}
+\DoxyCodeLine{-\/\ **Coverage**\ :\ Rapport\ de\ couverture\ avec\ v8}
+\DoxyCodeLine{}
+\DoxyCodeLine{\#\#\#\ Playwright\ (playwright.config.js)}
+\DoxyCodeLine{}
+\DoxyCodeLine{-\/\ **Navigateurs**\ :\ Chrome,\ Firefox,\ Safari}
+\DoxyCodeLine{-\/\ **Serveur\ local**\ :\ Démarre\ automatiquement\ un\ serveur\ HTTP}
+\DoxyCodeLine{-\/\ **Fixtures**\ :\ Gestion\ automatique\ des\ ports\ et\ ressources}
+\DoxyCodeLine{}
+\DoxyCodeLine{\#\#\ Mocking\ et\ Fixtures}
+\DoxyCodeLine{}
+\DoxyCodeLine{\#\#\#\ Variables\ Globales\ Mockées}
+\DoxyCodeLine{}
+\DoxyCodeLine{Le\ fichier\ \`{}test/setup.js`\ configure\ automatiquement\ :}
+\DoxyCodeLine{-\/\ DOM\ via\ jsdom}
+\DoxyCodeLine{-\/\ jQuery\ et\ plugins\ UI}
+\DoxyCodeLine{-\/\ D3.js}
+\DoxyCodeLine{-\/\ PerspT\ (transformations\ de\ perspective)}
+\DoxyCodeLine{-\/\ fetch\ API}
+\DoxyCodeLine{-\/\ ResizeObserver}
+\DoxyCodeLine{}
+\DoxyCodeLine{\#\#\#\ Fixtures\ Playwright}
+\DoxyCodeLine{}
+\DoxyCodeLine{Le\ fichier\ \`{}test/e2e/fixtures.js`\ fournit\ :}
+\DoxyCodeLine{-\/\ Serveur\ HTTP\ local\ avec\ gestion\ automatique\ des\ ports}
+\DoxyCodeLine{-\/\ Génération\ de\ vidéos\ MP4\ minimales\ pour\ les\ tests}
+\DoxyCodeLine{-\/\ Mocking\ des\ requêtes\ réseau}
+\DoxyCodeLine{}
+\DoxyCodeLine{\#\#\ CI/CD\ (GitHub\ Actions)}
+\DoxyCodeLine{}
+\DoxyCodeLine{Le\ workflow\ \`{}.github/workflows/ci.yml`\ exécute\ automatiquement\ :}
+\DoxyCodeLine{}
+\DoxyCodeLine{1.\ **Setup**\ :\ Installation\ des\ dépendances}
+\DoxyCodeLine{2.\ **Lint**\ :\ Vérification\ du\ code\ avec\ ESLint\ \ }
+\DoxyCodeLine{3.\ **Tests\ Vitest**\ :\ Tests\ unitaires\ et\ d'intégration}
+\DoxyCodeLine{4.\ **Coverage**\ :\ Génération\ du\ rapport\ de\ couverture}
+\DoxyCodeLine{5.\ **Tests\ E2E**\ :\ Tests\ Playwright}
+\DoxyCodeLine{6.\ **Documentation**\ :\ Génération\ de\ la\ documentation\ Doxygen}
+\DoxyCodeLine{}
+\DoxyCodeLine{\#\#\ Bonnes\ Pratiques}
+\DoxyCodeLine{}
+\DoxyCodeLine{\#\#\#\ Écriture\ de\ Tests}
+\DoxyCodeLine{}
+\DoxyCodeLine{1.\ **Nommage**\ :\ Utilisez\ des\ descriptions\ claires}
+
+\end{DoxyCode}
+ javascript describe(\textquotesingle{}Function\+Name\textquotesingle{}, () =\texorpdfstring{$>$}{>} \{ it(\textquotesingle{}devrait faire quelque chose de spécifique\textquotesingle{}, () =\texorpdfstring{$>$}{>} \{ // test \}) \}) 
+\begin{DoxyCode}{0}
+\DoxyCodeLine{2.\ **Isolation**\ :\ Chaque\ test\ doit\ être\ indépendant}
+
+\end{DoxyCode}
+ javascript before\+Each(() =\texorpdfstring{$>$}{>} \{ // Reset des mocks/état \}) 
+\begin{DoxyCode}{0}
+\DoxyCodeLine{3.\ **Assertions\ claires**\ :\ Utilisez\ des\ matchers\ expressifs}
+
+\end{DoxyCode}
+ javascript expect(result).to\+Be\+Instance\+Of(\+Array) expect(result).to\+Have\+Length(2) expect(result\mbox{[}0\mbox{]}).to\+Be\+Type\+Of(\textquotesingle{}number\textquotesingle{}) 
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\#\#\#\ Debugging}
+\DoxyCodeLine{}
+\DoxyCodeLine{1.\ **Mode\ UI**\ :\ \`{}npm\ run\ test:ui`\ pour\ interface\ graphique}
+\DoxyCodeLine{2.\ **Tests\ spécifiques**\ :\ \`{}npx\ vitest\ run\ test/unit/specific.test.js`}
+\DoxyCodeLine{3.\ **Mode\ debug\ E2E**\ :\ \`{}npx\ playwright\ test\ -\/-\/headed\ -\/-\/debug`}
+\DoxyCodeLine{}
+\DoxyCodeLine{\#\#\ Migration\ depuis\ Mocha}
+\DoxyCodeLine{}
+\DoxyCodeLine{✅\ **Terminé**\ :\ Tous\ les\ tests\ Mocha\ ont\ été\ migrés\ vers\ Vitest}
+\DoxyCodeLine{-\/\ Suppression\ des\ fichiers\ \`{}test\_mocha.mjs`\ et\ \`{}test\_homography.mjs`}
+\DoxyCodeLine{-\/\ Nouvelle\ structure\ organisée\ en\ \`{}unit/`\ et\ \`{}integration/`}
+\DoxyCodeLine{-\/\ Workflow\ GitHub\ mis\ à\ jour}
+\DoxyCodeLine{-\/\ Commentaires\ dans\ le\ code\ source\ nettoyés}
+\DoxyCodeLine{}
+\DoxyCodeLine{\#\#\ Ressources}
+\DoxyCodeLine{}
+\DoxyCodeLine{-\/\ [Documentation\ Vitest](https://vitest.dev/)}
+\DoxyCodeLine{-\/\ [Documentation\ Playwright](https://playwright.dev/)}
+\DoxyCodeLine{-\/\ [Matchers\ Vitest](https://vitest.dev/api/expect.html)}
+\DoxyCodeLine{-\/\ [API\ Playwright](https://playwright.dev/docs/api/class-\/page)}
+\DoxyCodeLine{}
+\DoxyCodeLine{\#\#\ 📈\ Tests\ Spécialisés\ des\ Graphiques}
+\DoxyCodeLine{}
+\DoxyCodeLine{\#\#\#\ Tests\ de\ Mise\ à\ Jour\ Dynamique\ des\ Graphiques}
+\DoxyCodeLine{}
+\DoxyCodeLine{\#\#\#\#\ \`{}devrait\ mettre\ à\ jour\ dynamiquement\ les\ graphiques\ lors\ de\ l'ajout\ de\ barres`}
+\DoxyCodeLine{**Objectif**\ :\ Vérifier\ que\ les\ graphiques\ se\ mettent\ à\ jour\ en\ temps\ réel\ lors\ de\ l'ajout\ d'annotations/barres}
+\DoxyCodeLine{}
+\DoxyCodeLine{**Graphiques\ testés**\ :}
+\DoxyCodeLine{-\/\ \`{}\#cyclebar`\ -\/\ Distance\ par\ cycle\ (SVG\ ViewBox\ 0\ 0\ 200\ 200)}
+\DoxyCodeLine{-\/\ \`{}\#stats`\ -\/\ Distance\ par\ seconde\ (SVG\ ViewBox\ 0\ 0\ 200\ 200)\ \ }
+\DoxyCodeLine{-\/\ \`{}\#cycle\_stats`\ -\/\ Fréquence\ de\ cycle\ par\ vitesse\ (SVG\ ViewBox\ 0\ 0\ 200\ 200)}
+\DoxyCodeLine{}
+\DoxyCodeLine{**Processus\ de\ test**\ :}
+\DoxyCodeLine{1.\ Chargement\ complet\ d'une\ course\ (Budapest\ brasse\ hommes\ 100m\ finaleA)}
+\DoxyCodeLine{2.\ Activation\ mode\ cycle\ (`\#btn-\/cycle`)}
+\DoxyCodeLine{3.\ Comptage\ initial\ des\ éléments\ graphiques}
+\DoxyCodeLine{4.\ Simulation\ d'ajout\ d'annotations\ via\ déplacement\ timeline\ +\ clics\ vidéo}
+\DoxyCodeLine{5.\ Vérification\ que\ le\ nombre\ d'éléments\ graphiques\ ≥\ nombre\ initial}
+\DoxyCodeLine{6.\ Validation\ des\ ViewBox\ SVG\ correctes}
+\DoxyCodeLine{}
+\DoxyCodeLine{\#\#\#\ Tests\ d'Interaction\ avec\ les\ Graphiques}
+\DoxyCodeLine{}
+\DoxyCodeLine{\#\#\#\#\ \`{}devrait\ permettre\ de\ cliquer\ sur\ les\ barres\ et\ points\ des\ graphiques\ pour\ naviguer\ dans\ la\ vidéo`}
+\DoxyCodeLine{**Objectif**\ :\ Vérifier\ que\ les\ clics\ sur\ éléments\ graphiques\ déclenchent\ la\ navigation\ vidéo}
+\DoxyCodeLine{}
+\DoxyCodeLine{**Éléments\ interactifs\ testés**\ :}
+\DoxyCodeLine{-\/\ \`{}\#cyclebar\ rect`\ -\/\ Barres\ de\ cycles\ (rectangles)}
+\DoxyCodeLine{-\/\ \`{}\#cyclebar\ circle`\ -\/\ Points\ de\ cycles\ (cercles)}
+\DoxyCodeLine{-\/\ \`{}\#stats\ rect|circle|path`\ -\/\ Tous\ éléments\ graphiques\ de\ vitesse}
+\DoxyCodeLine{-\/\ \`{}\#cycle\_stats\ circle|path`\ -\/\ Éléments\ de\ fréquence}
+\DoxyCodeLine{}
+\DoxyCodeLine{**Processus\ de\ test**\ :}
+\DoxyCodeLine{1.\ Chargement\ complet\ d'une\ course\ avec\ vidéo}
+\DoxyCodeLine{2.\ Enregistrement\ temps\ vidéo\ initial\ (`video.currentTime`)}
+\DoxyCodeLine{3.\ Détection\ et\ comptage\ des\ éléments\ cliquables\ par\ graphique}
+\DoxyCodeLine{4.\ Simulation\ de\ clics\ sur\ chaque\ type\ d'élément}
+\DoxyCodeLine{5.\ Vérification\ changement\ de\ temps\ vidéo\ après\ chaque\ clic}
+\DoxyCodeLine{6.\ Validation\ synchronisation\ \`{}\#timebar`\ avec\ navigation}
+\DoxyCodeLine{}
+\DoxyCodeLine{**Logs\ de\ debug\ inclus**\ :}
+
+\end{DoxyCode}
+ javascript console.\+log(\textquotesingle{}Éléments cyclebar\+:\textquotesingle{}, \{rects, circles, lines, paths\}) console.\+log({\ttfamily Temps vidéo initial\+: \$\{initial\+Video\+Time\}}) console.\+log({\ttfamily Temps vidéo après clic\+: \$\{new\+Video\+Time\}}) 
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\#\#\#\ Tests\ de\ Synchronisation\ Graphiques-\/Annotations-\/Vidéo}
+\DoxyCodeLine{}
+\DoxyCodeLine{\#\#\#\#\ \`{}devrait\ synchroniser\ les\ graphiques\ avec\ les\ annotations\ et\ la\ vidéo\ en\ temps\ réel`}
+\DoxyCodeLine{**Objectif**\ :\ Vérifier\ la\ synchronisation\ complète\ entre\ tous\ les\ éléments\ de\ l'interface}
+\DoxyCodeLine{}
+\DoxyCodeLine{**Scénarios\ de\ synchronisation\ testés**\ :}
+\DoxyCodeLine{1.\ **Changement\ de\ nageur**\ :\ Sélection\ via\ \`{}\#swim\_switch`\ →\ mise\ à\ jour\ graphiques}
+\DoxyCodeLine{2.\ **Modes\ d'affichage**\ :\ \`{}\#kmod`\ (swim/last/aucun)\ →\ adaptation\ graphiques}
+\DoxyCodeLine{3.\ **Types\ d'annotations**\ :\ \`{}\#btn-\/respi`\ ↔\ \`{}\#btn-\/cycle`\ →\ cohérence\ visuelle}
+\DoxyCodeLine{4.\ **Navigation\ onglets**\ :\ \`{}\#tab-\/data-\/plot-\/tout`\ ↔\ \`{}\#tab-\/verification-\/charts`\ →\ persistance}
+\DoxyCodeLine{}
+\DoxyCodeLine{**Validations\ continues**\ :}
+\DoxyCodeLine{-\/\ Visibilité\ maintenue\ des\ 3\ graphiques\ après\ chaque\ changement}
+\DoxyCodeLine{-\/\ Fonctionnalité\ \`{}\#timebar`\ et\ \`{}\#vid`\ préservée}
+\DoxyCodeLine{-\/\ Classes\ CSS\ actives\ correctes\ sur\ boutons\ de\ mode}
+\DoxyCodeLine{}
+\DoxyCodeLine{\#\#\ 🎯\ Spécificités\ Techniques\ des\ Tests\ de\ Graphiques}
+\DoxyCodeLine{}
+\DoxyCodeLine{\#\#\#\ Éléments\ SVG\ Supportés}
+\DoxyCodeLine{-\/\ **Rectangles**\ (`rect`)\ :\ Barres\ de\ cycles,\ segments\ de\ données}
+\DoxyCodeLine{-\/\ **Cercles**\ (`circle`)\ :\ Points\ de\ données,\ marqueurs\ temporels}
+\DoxyCodeLine{-\/\ **Chemins**\ (`path`)\ :\ Courbes\ de\ tendance,\ lignes\ de\ données}
+\DoxyCodeLine{-\/\ **Lignes**\ (`line`)\ :\ Axes,\ séparateurs,\ connexions}
+\DoxyCodeLine{}
+\DoxyCodeLine{\#\#\#\ Assertions\ Clés}
+
+\end{DoxyCode}
+ javascript // Vérification View\+Box correctes expect(stats\+View\+Box).to\+Be(\textquotesingle{}0 0 200 200\textquotesingle{})
+
+// Vérification mise à jour éléments expect(final\+Elements).to\+Be\+Greater\+Than\+Or\+Equal(initial\+Elements)
+
+// Vérification navigation vidéo expect(final\+Video\+Time).not.\+to\+Be(initial\+Video\+Time)
+
+// Vérification visibilité maintenue await expect(page.\+locator(\textquotesingle{}\#stats\textquotesingle{})).to\+Be\+Visible() \`{}\`{}\`{}\hypertarget{README.md_autotoc_md68}{}\doxysubsubsubsection{\texorpdfstring{Gestion des Cas Limites}{Gestion des Cas Limites}}\label{README.md_autotoc_md68}
+
+\begin{DoxyItemize}
+\item {\bfseries{Graphiques vides}} \+: Tests fonctionnent même sans éléments graphiques
+\item {\bfseries{Données manquantes}} \+: Validation que les conteneurs SVG restent valides
+\item {\bfseries{Changements rapides}} \+: {\ttfamily wait\+For\+Timeout()} pour stabilisation DOM
+\item {\bfseries{États transitoires}} \+: Vérifications multiples avec retry automatique 
+\end{DoxyItemize}

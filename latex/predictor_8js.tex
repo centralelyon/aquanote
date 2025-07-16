@@ -1,0 +1,70 @@
+\doxysection{ml-\/cycle-\/predictor-\/js/js/predictor.js File Reference}
+\hypertarget{predictor_8js}{}\label{predictor_8js}\index{ml-\/cycle-\/predictor-\/js/js/predictor.js@{ml-\/cycle-\/predictor-\/js/js/predictor.js}}
+\doxysubsubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+function export \mbox{\hyperlink{predictor_8js_ae86672f71f1e26ec9b8540bd8794eb6e}{predit\+\_\+delta\+\_\+cycle\+\_\+dos}} ()
+\item 
+function \mbox{\hyperlink{predictor_8js_a8a99050389f642d2b980808c39d93cf5}{tanh\+\_\+activation}} (\mbox{\hyperlink{prettify_8js_a4a73770ab69578dc29ec14afeaf50228}{z}})
+\item 
+function \mbox{\hyperlink{predictor_8js_ad996edf512a71e69c054705b2ef7a6ad}{run\+Neat\+Network}} (input\+Norm, net)
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{predictor_8js_a59be084da8908b7d77ff34b25cd84488}{import}} \{ \mbox{\hyperlink{ml-cycle-predictor-js_2js_2utils_8js_a2a07f94dd428eed3e9248bc6cc332176}{prepare\+Input\+Data\+Dos}}, \mbox{\hyperlink{ml-cycle-predictor-js_2js_2utils_8js_a2fa73204af5dc1890fd616314e4cf259}{normalize\+Input}}, \mbox{\hyperlink{ml-cycle-predictor-js_2js_2utils_8js_a5791fd2cf73a94241c774f9ea9415bc1}{denormalize\+Output}}, \mbox{\hyperlink{ml-cycle-predictor-js_2js_2utils_8js_a4e92c362e181ba43fab0a18b72501f71}{prepare\+Input\+Data\+Freestyle}} \} \mbox{\hyperlink{jquery-ui_8js_ace03b192fd101a1c5648340bc09b7229}{from}} \textquotesingle{}./\mbox{\hyperlink{main_8js_a2e1c8cb1a275ecd4c6fdeb7c95982fca}{utils.\+js}}\textquotesingle{}
+\item 
+let \mbox{\hyperlink{predictor_8js_a48755074e42f8920bba56b3bd999d59b}{model}} = \{\}
+\item 
+\mbox{\hyperlink{setup_8js_a92b303b76a3f942ea819498907d5e83c}{const}} \mbox{\hyperlink{predictor_8js_ab77ef059ac1df673580af1c332965f29}{activations}}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Function Documentation}
+\Hypertarget{predictor_8js_ae86672f71f1e26ec9b8540bd8794eb6e}\index{predictor.js@{predictor.js}!predit\_delta\_cycle\_dos@{predit\_delta\_cycle\_dos}}
+\index{predit\_delta\_cycle\_dos@{predit\_delta\_cycle\_dos}!predictor.js@{predictor.js}}
+\doxysubsubsection{\texorpdfstring{predit\_delta\_cycle\_dos()}{predit\_delta\_cycle\_dos()}}
+{\footnotesize\ttfamily \label{predictor_8js_ae86672f71f1e26ec9b8540bd8794eb6e} 
+function export predit\+\_\+delta\+\_\+cycle\+\_\+dos (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})}
+
+\Hypertarget{predictor_8js_ad996edf512a71e69c054705b2ef7a6ad}\index{predictor.js@{predictor.js}!runNeatNetwork@{runNeatNetwork}}
+\index{runNeatNetwork@{runNeatNetwork}!predictor.js@{predictor.js}}
+\doxysubsubsection{\texorpdfstring{runNeatNetwork()}{runNeatNetwork()}}
+{\footnotesize\ttfamily \label{predictor_8js_ad996edf512a71e69c054705b2ef7a6ad} 
+function run\+Neat\+Network (\begin{DoxyParamCaption}\item[{}]{input\+Norm}{, }\item[{}]{net}{}\end{DoxyParamCaption})}
+
+\Hypertarget{predictor_8js_a8a99050389f642d2b980808c39d93cf5}\index{predictor.js@{predictor.js}!tanh\_activation@{tanh\_activation}}
+\index{tanh\_activation@{tanh\_activation}!predictor.js@{predictor.js}}
+\doxysubsubsection{\texorpdfstring{tanh\_activation()}{tanh\_activation()}}
+{\footnotesize\ttfamily \label{predictor_8js_a8a99050389f642d2b980808c39d93cf5} 
+function tanh\+\_\+activation (\begin{DoxyParamCaption}\item[{}]{z}{}\end{DoxyParamCaption})}
+
+
+
+\doxysubsection{Variable Documentation}
+\Hypertarget{predictor_8js_ab77ef059ac1df673580af1c332965f29}\index{predictor.js@{predictor.js}!activations@{activations}}
+\index{activations@{activations}!predictor.js@{predictor.js}}
+\doxysubsubsection{\texorpdfstring{activations}{activations}}
+{\footnotesize\ttfamily \label{predictor_8js_ab77ef059ac1df673580af1c332965f29} 
+\mbox{\hyperlink{setup_8js_a92b303b76a3f942ea819498907d5e83c}{const}} activations}
+
+{\bfseries Initial value\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{=\ \{}
+\DoxyCodeLine{\ \ tanh:\ \mbox{\hyperlink{predictor_8js_a8a99050389f642d2b980808c39d93cf5}{tanh\_activation}},}
+\DoxyCodeLine{\ \ }
+\DoxyCodeLine{\}}
+
+\end{DoxyCode}
+\Hypertarget{predictor_8js_a59be084da8908b7d77ff34b25cd84488}\index{predictor.js@{predictor.js}!import@{import}}
+\index{import@{import}!predictor.js@{predictor.js}}
+\doxysubsubsection{\texorpdfstring{import}{import}}
+{\footnotesize\ttfamily \label{predictor_8js_a59be084da8908b7d77ff34b25cd84488} 
+import \{ \mbox{\hyperlink{ml-cycle-predictor-js_2js_2utils_8js_a2a07f94dd428eed3e9248bc6cc332176}{prepare\+Input\+Data\+Dos}}, \mbox{\hyperlink{ml-cycle-predictor-js_2js_2utils_8js_a2fa73204af5dc1890fd616314e4cf259}{normalize\+Input}}, \mbox{\hyperlink{ml-cycle-predictor-js_2js_2utils_8js_a5791fd2cf73a94241c774f9ea9415bc1}{denormalize\+Output}}, \mbox{\hyperlink{ml-cycle-predictor-js_2js_2utils_8js_a4e92c362e181ba43fab0a18b72501f71}{prepare\+Input\+Data\+Freestyle}} \} \mbox{\hyperlink{jquery-ui_8js_ace03b192fd101a1c5648340bc09b7229}{from}} \textquotesingle{}./\mbox{\hyperlink{main_8js_a2e1c8cb1a275ecd4c6fdeb7c95982fca}{utils.\+js}}\textquotesingle{}}
+
+\Hypertarget{predictor_8js_a48755074e42f8920bba56b3bd999d59b}\index{predictor.js@{predictor.js}!model@{model}}
+\index{model@{model}!predictor.js@{predictor.js}}
+\doxysubsubsection{\texorpdfstring{model}{model}}
+{\footnotesize\ttfamily \label{predictor_8js_a48755074e42f8920bba56b3bd999d59b} 
+let model = \{\}}
+

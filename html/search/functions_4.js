@@ -19,13 +19,12 @@ var searchData=
   ['createenhancedtrakbox_16',['createEnhancedTrakBox',['../video-generator_8js.html#ae0351a2277b51cc381ddedb4ba4c9685',1,'video-generator.js']]],
   ['creategeneratedmp4_17',['createGeneratedMP4',['../video-generator_8js.html#a617f581291990258bf53c7f2e2f16762',1,'video-generator.js']]],
   ['createminimalmp4_18',['createMinimalMP4',['../video-generator_8js.html#a104b324e6cbbde279a480160b7047d3d',1,'video-generator.js']]],
-  ['createmockbardata_19',['createMockBarData',['../bars-functionality_8spec_8js.html#afc6059bee7a6e7ac4464789ebb8d7af3',1,'bars-functionality.spec.js']]],
-  ['createrealisticvideodata_20',['createRealisticVideoData',['../video-generator_8js.html#a07ef85c7c26be84684a57b23c06f5a59',1,'video-generator.js']]],
-  ['createsimplevalidmp4_21',['createSimpleValidMP4',['../video-generator_8js.html#a211c922f82a72dc4037f8b7470d3cd5d',1,'video-generator.js']]],
-  ['createultrasimplestblbox_22',['createUltraSimpleStblBox',['../video-generator_8js.html#af043d1543884c50fc28f10cf9b0344bc',1,'video-generator.js']]],
-  ['createuserdatabox_23',['createUserDataBox',['../video-generator_8js.html#a29f25e32ee2daf1d145074140e8ffe51',1,'video-generator.js']]],
-  ['createwindow_24',['createWindow',['../index_8js.html#a09d41327820c296c44d49bfbd93f0d17',1,'index.js']]],
-  ['curate_5fannotate_5fdata_25',['curate_annotate_data',['../data__handler_8js.html#adfef8a0167182d5f9a72ed47fc9d6d99',1,'data_handler.js']]],
-  ['curate_5fdata_26',['curate_data',['../data__handler_8js.html#a2d5b5bfa696baeca2c12f1b38b895dc6',1,'data_handler.js']]],
-  ['currate_5fevents_27',['currate_events',['../data__handler_8js.html#a91aeb7184ea62ad2625b96fb3d50cdd2',1,'data_handler.js']]]
+  ['createrealisticvideodata_19',['createRealisticVideoData',['../video-generator_8js.html#a07ef85c7c26be84684a57b23c06f5a59',1,'video-generator.js']]],
+  ['createsimplevalidmp4_20',['createSimpleValidMP4',['../video-generator_8js.html#a211c922f82a72dc4037f8b7470d3cd5d',1,'video-generator.js']]],
+  ['createultrasimplestblbox_21',['createUltraSimpleStblBox',['../video-generator_8js.html#af043d1543884c50fc28f10cf9b0344bc',1,'video-generator.js']]],
+  ['createuserdatabox_22',['createUserDataBox',['../video-generator_8js.html#a29f25e32ee2daf1d145074140e8ffe51',1,'video-generator.js']]],
+  ['createwindow_23',['createWindow',['../index_8js.html#a09d41327820c296c44d49bfbd93f0d17',1,'index.js']]],
+  ['curate_5fannotate_5fdata_24',['curate_annotate_data',['../data__handler_8js.html#adfef8a0167182d5f9a72ed47fc9d6d99',1,'data_handler.js']]],
+  ['curate_5fdata_25',['curate_data',['../data__handler_8js.html#a2d5b5bfa696baeca2c12f1b38b895dc6',1,'data_handler.js']]],
+  ['currate_5fevents_26',['currate_events',['../data__handler_8js.html#a91aeb7184ea62ad2625b96fb3d50cdd2',1,'data_handler.js']]]
 ];

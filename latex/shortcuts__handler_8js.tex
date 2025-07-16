@@ -1,0 +1,159 @@
+\doxysection{assets/js/shortcuts\+\_\+handler.js File Reference}
+\hypertarget{shortcuts__handler_8js}{}\label{shortcuts__handler_8js}\index{assets/js/shortcuts\_handler.js@{assets/js/shortcuts\_handler.js}}
+\doxysubsubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+function export \mbox{\hyperlink{shortcuts__handler_8js_a8d98d536c81ce597a944132d4bf41813}{simulate\+Mouse\+Click}} ()
+\item 
+function export \mbox{\hyperlink{shortcuts__handler_8js_a9e3f4f7d0c998f00550d016a73cdea22}{edit\+\_\+position\+Curseur}} (\mbox{\hyperlink{refactor-script_8js_a9336ebf25087d91c818ee6e9ec29f8c1}{x}})
+\begin{DoxyCompactList}\small\item\em Modifie la position du curseur d\textquotesingle{}annotation Setter pour la variable globale position\+Curseur. \end{DoxyCompactList}\item 
+function export \mbox{\hyperlink{shortcuts__handler_8js_a0996c50ef260b56d3821f35ff62d357d}{edit\+\_\+ttop}} (\mbox{\hyperlink{refactor-script_8js_a9336ebf25087d91c818ee6e9ec29f8c1}{x}})
+\begin{DoxyCompactList}\small\item\em Modifie la position verticale de la vidéo Setter pour la variable globale ttop. \end{DoxyCompactList}\item 
+function export \mbox{\hyperlink{shortcuts__handler_8js_a30d60228be805669583877bd20625cf8}{edit\+\_\+tleft}} (\mbox{\hyperlink{refactor-script_8js_a9336ebf25087d91c818ee6e9ec29f8c1}{x}})
+\begin{DoxyCompactList}\small\item\em Modifie la position horizontale de la vidéo Setter pour la variable globale tleft. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsubsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{shortcuts__handler_8js_a59be084da8908b7d77ff34b25cd84488}{import}} \{ \mbox{\hyperlink{refactor-script_8js_a5aeeb87843f9100d6009620b1b7638f5}{selected\+\_\+swim}},\mbox{\hyperlink{refactor-script_8js_af415bb07ae6ca417bec9e640c430c074}{temp\+\_\+start}}, \mbox{\hyperlink{refactor-script_8js_a7d49c9eee9666a212f9d767375a396d5}{selected\+\_\+cycle}}, \mbox{\hyperlink{refactor-script_8js_a64181cd89af57c694f49213a9d8a6a48}{edit\+\_\+selected\+\_\+cycle}}, clic\+\_\+souris\+\_\+video, \mbox{\hyperlink{refactor-script_8js_a6f0627870573134d598b640ad43daffc}{zoom}}, \mbox{\hyperlink{refactor-script_8js_a32d18a275278edf8d4f315db51f2a95e}{zoom\+\_\+step}}, \mbox{\hyperlink{refactor-script_8js_ac3bffcab8b14b08f04fca75ee090f1f1}{plot\+\_\+cursor}}, \mbox{\hyperlink{refactor-script_8js_ae8e56d32115d66e6ddfd15be88ecd3ba}{annotate}} \} \mbox{\hyperlink{jquery-ui_8js_ace03b192fd101a1c5648340bc09b7229}{from}} "{}./refactor-\/script.\+js"{}
+\item 
+export let \mbox{\hyperlink{shortcuts__handler_8js_a121897050f5e093b326ca856aeea3419}{position\+Curseur}} = 0
+\begin{DoxyCompactList}\small\item\em Position du curseur d\textquotesingle{}annotation (entre 0 et 50 mètres) Décrit la position actuelle du curseur d\textquotesingle{}annotation dans la piscine. \end{DoxyCompactList}\item 
+export let \mbox{\hyperlink{shortcuts__handler_8js_add22407fe57528e4e215f5cb2a416c42}{tleft}}
+\begin{DoxyCompactList}\small\item\em Position horizontale de la vidéo lors du déplacement Coordonnée X de la vidéo pour le système de drag \& drop. \end{DoxyCompactList}\item 
+export let \mbox{\hyperlink{shortcuts__handler_8js_a472a8464efdd5379d9bbabc329ba833b}{ttop}}
+\begin{DoxyCompactList}\small\item\em Position verticale de la vidéo lors du déplacement Coordonnée Y de la vidéo pour le système de drag \& drop. \end{DoxyCompactList}\item 
+let \mbox{\hyperlink{shortcuts__handler_8js_a681e036bf546638eb23e6e925d209bd8}{vid}}
+\item 
+\mbox{\hyperlink{setup_8js_a8ac3c63e523598549c2264ad7042f8af}{window}} \mbox{\hyperlink{shortcuts__handler_8js_a4a3cee409e050fc2f3373806476a5d96}{onkeyup}}
+\item 
+\mbox{\hyperlink{setup_8js_a8ac3c63e523598549c2264ad7042f8af}{window}} \mbox{\hyperlink{shortcuts__handler_8js_adfbcc1893a1602fe7c329a35832735ec}{onkeydown}}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Function Documentation}
+\Hypertarget{shortcuts__handler_8js_a9e3f4f7d0c998f00550d016a73cdea22}\index{shortcuts\_handler.js@{shortcuts\_handler.js}!edit\_positionCurseur@{edit\_positionCurseur}}
+\index{edit\_positionCurseur@{edit\_positionCurseur}!shortcuts\_handler.js@{shortcuts\_handler.js}}
+\doxysubsubsection{\texorpdfstring{edit\_positionCurseur()}{edit\_positionCurseur()}}
+{\footnotesize\ttfamily \label{shortcuts__handler_8js_a9e3f4f7d0c998f00550d016a73cdea22} 
+function export edit\+\_\+position\+Curseur (\begin{DoxyParamCaption}\item[{}]{x}{}\end{DoxyParamCaption})}
+
+
+
+Modifie la position du curseur d\textquotesingle{}annotation Setter pour la variable globale position\+Curseur. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em \{number\}} & x Nouvelle position du curseur (0-\/50) \\
+\hline
+\end{DoxyParams}
+\Hypertarget{shortcuts__handler_8js_a30d60228be805669583877bd20625cf8}\index{shortcuts\_handler.js@{shortcuts\_handler.js}!edit\_tleft@{edit\_tleft}}
+\index{edit\_tleft@{edit\_tleft}!shortcuts\_handler.js@{shortcuts\_handler.js}}
+\doxysubsubsection{\texorpdfstring{edit\_tleft()}{edit\_tleft()}}
+{\footnotesize\ttfamily \label{shortcuts__handler_8js_a30d60228be805669583877bd20625cf8} 
+function export edit\+\_\+tleft (\begin{DoxyParamCaption}\item[{}]{x}{}\end{DoxyParamCaption})}
+
+
+
+Modifie la position horizontale de la vidéo Setter pour la variable globale tleft. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em \{number\}} & x Nouvelle coordonnée X \\
+\hline
+\end{DoxyParams}
+\Hypertarget{shortcuts__handler_8js_a0996c50ef260b56d3821f35ff62d357d}\index{shortcuts\_handler.js@{shortcuts\_handler.js}!edit\_ttop@{edit\_ttop}}
+\index{edit\_ttop@{edit\_ttop}!shortcuts\_handler.js@{shortcuts\_handler.js}}
+\doxysubsubsection{\texorpdfstring{edit\_ttop()}{edit\_ttop()}}
+{\footnotesize\ttfamily \label{shortcuts__handler_8js_a0996c50ef260b56d3821f35ff62d357d} 
+function export edit\+\_\+ttop (\begin{DoxyParamCaption}\item[{}]{x}{}\end{DoxyParamCaption})}
+
+
+
+Modifie la position verticale de la vidéo Setter pour la variable globale ttop. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em \{number\}} & x Nouvelle coordonnée Y \\
+\hline
+\end{DoxyParams}
+\Hypertarget{shortcuts__handler_8js_a8d98d536c81ce597a944132d4bf41813}\index{shortcuts\_handler.js@{shortcuts\_handler.js}!simulateMouseClick@{simulateMouseClick}}
+\index{simulateMouseClick@{simulateMouseClick}!shortcuts\_handler.js@{shortcuts\_handler.js}}
+\doxysubsubsection{\texorpdfstring{simulateMouseClick()}{simulateMouseClick()}}
+{\footnotesize\ttfamily \label{shortcuts__handler_8js_a8d98d536c81ce597a944132d4bf41813} 
+function export simulate\+Mouse\+Click (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})}
+
+
+
+\doxysubsection{Variable Documentation}
+\Hypertarget{shortcuts__handler_8js_a59be084da8908b7d77ff34b25cd84488}\index{shortcuts\_handler.js@{shortcuts\_handler.js}!import@{import}}
+\index{import@{import}!shortcuts\_handler.js@{shortcuts\_handler.js}}
+\doxysubsubsection{\texorpdfstring{import}{import}}
+{\footnotesize\ttfamily \label{shortcuts__handler_8js_a59be084da8908b7d77ff34b25cd84488} 
+import \{ \mbox{\hyperlink{refactor-script_8js_a5aeeb87843f9100d6009620b1b7638f5}{selected\+\_\+swim}},\mbox{\hyperlink{refactor-script_8js_af415bb07ae6ca417bec9e640c430c074}{temp\+\_\+start}}, \mbox{\hyperlink{refactor-script_8js_a7d49c9eee9666a212f9d767375a396d5}{selected\+\_\+cycle}}, \mbox{\hyperlink{refactor-script_8js_a64181cd89af57c694f49213a9d8a6a48}{edit\+\_\+selected\+\_\+cycle}}, clic\+\_\+souris\+\_\+video, \mbox{\hyperlink{refactor-script_8js_a6f0627870573134d598b640ad43daffc}{zoom}}, \mbox{\hyperlink{refactor-script_8js_a32d18a275278edf8d4f315db51f2a95e}{zoom\+\_\+step}}, \mbox{\hyperlink{refactor-script_8js_ac3bffcab8b14b08f04fca75ee090f1f1}{plot\+\_\+cursor}}, \mbox{\hyperlink{refactor-script_8js_ae8e56d32115d66e6ddfd15be88ecd3ba}{annotate}} \} \mbox{\hyperlink{jquery-ui_8js_ace03b192fd101a1c5648340bc09b7229}{from}} "{}./refactor-\/script.\+js"{}}
+
+\Hypertarget{shortcuts__handler_8js_adfbcc1893a1602fe7c329a35832735ec}\index{shortcuts\_handler.js@{shortcuts\_handler.js}!onkeydown@{onkeydown}}
+\index{onkeydown@{onkeydown}!shortcuts\_handler.js@{shortcuts\_handler.js}}
+\doxysubsubsection{\texorpdfstring{onkeydown}{onkeydown}}
+{\footnotesize\ttfamily \label{shortcuts__handler_8js_adfbcc1893a1602fe7c329a35832735ec} 
+\mbox{\hyperlink{setup_8js_a8ac3c63e523598549c2264ad7042f8af}{window}} onkeydown}
+
+\Hypertarget{shortcuts__handler_8js_a4a3cee409e050fc2f3373806476a5d96}\index{shortcuts\_handler.js@{shortcuts\_handler.js}!onkeyup@{onkeyup}}
+\index{onkeyup@{onkeyup}!shortcuts\_handler.js@{shortcuts\_handler.js}}
+\doxysubsubsection{\texorpdfstring{onkeyup}{onkeyup}}
+{\footnotesize\ttfamily \label{shortcuts__handler_8js_a4a3cee409e050fc2f3373806476a5d96} 
+\mbox{\hyperlink{setup_8js_a8ac3c63e523598549c2264ad7042f8af}{window}} onkeyup}
+
+{\bfseries Initial value\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{=\ \textcolor{keyword}{function}\ (\mbox{\hyperlink{refactor-script_8js_a2c038346d47955cbe2cb91e338edd7e1}{e}})\ \{}
+\DoxyCodeLine{\ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{refactor-script_8js_a2c038346d47955cbe2cb91e338edd7e1}{e}}.keyCode\ in\ keymap)\ \{}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ keymap[\mbox{\hyperlink{refactor-script_8js_a2c038346d47955cbe2cb91e338edd7e1}{e}}.keyCode]\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{\ \ \ \ \}}
+\DoxyCodeLine{\}}
+
+\end{DoxyCode}
+\Hypertarget{shortcuts__handler_8js_a121897050f5e093b326ca856aeea3419}\index{shortcuts\_handler.js@{shortcuts\_handler.js}!positionCurseur@{positionCurseur}}
+\index{positionCurseur@{positionCurseur}!shortcuts\_handler.js@{shortcuts\_handler.js}}
+\doxysubsubsection{\texorpdfstring{positionCurseur}{positionCurseur}}
+{\footnotesize\ttfamily \label{shortcuts__handler_8js_a121897050f5e093b326ca856aeea3419} 
+export let position\+Curseur = 0}
+
+
+
+Position du curseur d\textquotesingle{}annotation (entre 0 et 50 mètres) Décrit la position actuelle du curseur d\textquotesingle{}annotation dans la piscine. 
+
+\Hypertarget{shortcuts__handler_8js_add22407fe57528e4e215f5cb2a416c42}\index{shortcuts\_handler.js@{shortcuts\_handler.js}!tleft@{tleft}}
+\index{tleft@{tleft}!shortcuts\_handler.js@{shortcuts\_handler.js}}
+\doxysubsubsection{\texorpdfstring{tleft}{tleft}}
+{\footnotesize\ttfamily \label{shortcuts__handler_8js_add22407fe57528e4e215f5cb2a416c42} 
+export let tleft}
+
+
+
+Position horizontale de la vidéo lors du déplacement Coordonnée X de la vidéo pour le système de drag \& drop. 
+
+\Hypertarget{shortcuts__handler_8js_a472a8464efdd5379d9bbabc329ba833b}\index{shortcuts\_handler.js@{shortcuts\_handler.js}!ttop@{ttop}}
+\index{ttop@{ttop}!shortcuts\_handler.js@{shortcuts\_handler.js}}
+\doxysubsubsection{\texorpdfstring{ttop}{ttop}}
+{\footnotesize\ttfamily \label{shortcuts__handler_8js_a472a8464efdd5379d9bbabc329ba833b} 
+export let ttop}
+
+
+
+Position verticale de la vidéo lors du déplacement Coordonnée Y de la vidéo pour le système de drag \& drop. 
+
+\Hypertarget{shortcuts__handler_8js_a681e036bf546638eb23e6e925d209bd8}\index{shortcuts\_handler.js@{shortcuts\_handler.js}!vid@{vid}}
+\index{vid@{vid}!shortcuts\_handler.js@{shortcuts\_handler.js}}
+\doxysubsubsection{\texorpdfstring{vid}{vid}}
+{\footnotesize\ttfamily \label{shortcuts__handler_8js_a681e036bf546638eb23e6e925d209bd8} 
+let vid}
+
+{\bfseries Initial value\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{=\ \mbox{\hyperlink{setup_8js_a9fa3fd903584388c98582833a2532aec}{document}}.getElementById(\textcolor{stringliteral}{"{}vid"{}})}
+\DoxyCodeLine{}
+\DoxyCodeLine{}
+\DoxyCodeLine{}
+\DoxyCodeLine{\textcolor{keyword}{const}\ keymap\ =\ \{\}}
+
+\end{DoxyCode}

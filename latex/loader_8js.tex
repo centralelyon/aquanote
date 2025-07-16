@@ -1,0 +1,505 @@
+\doxysection{assets/js/loader.js File Reference}
+\hypertarget{loader_8js}{}\label{loader_8js}\index{assets/js/loader.js@{assets/js/loader.js}}
+
+
+fichier d\textquotesingle{}initialisation et de chargement des courses et de leurs données, la plupart des variables globales originent de ce fichier.  
+
+
+\doxysubsubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+function async \mbox{\hyperlink{loader_8js_ac566bb0aaf5ad480ae6eaea2100c2a9f}{init}} ()
+\begin{DoxyCompactList}\small\item\em init permet d\textquotesingle{}initialiser la page en chargeant les données nécessaires. \end{DoxyCompactList}\item 
+function \mbox{\hyperlink{loader_8js_a24e6de71f45f42decf6d104b5406dcc6}{process\+Run\+Data}} (runs)
+\begin{DoxyCompactList}\small\item\em Traite les données des courses pour remplir les listes déroulantes de sélection avec les options de catégories de nage, sexe des nageurs, distance et étape de compétition. \end{DoxyCompactList}\item 
+function async \mbox{\hyperlink{loader_8js_acef264e84b1b8c451370e275f33d7652}{get\+Datas}} (comp, run)
+\begin{DoxyCompactList}\small\item\em charge les annotations de la course sélectionnée. \end{DoxyCompactList}\item 
+function async \mbox{\hyperlink{loader_8js_a6d0f6e8eb921b7b3e5437fdac816b5e8}{get\+Compets}} ()
+\begin{DoxyCompactList}\small\item\em permet de récupérer les compétitions disponibles sur le serveur. \end{DoxyCompactList}\item 
+function export \mbox{\hyperlink{loader_8js_ac1d99c0bcf8fd6676ab156fdd6f9d3bc}{setcompets}} (c)
+\begin{DoxyCompactList}\small\item\em Définit le dictionnaire des compétitions disponibles Met à jour la variable globale compets avec les compétitions fournies. \end{DoxyCompactList}\item 
+function async \mbox{\hyperlink{loader_8js_aaca267c71981413805cc4f7478cf2174}{get\+\_\+quality}} (comp, run, \mbox{\hyperlink{refactor-script_8js_a9ddaba3337dc32930489b5b02cecaff0}{actual\+\_\+side}})
+\begin{DoxyCompactList}\small\item\em permet de récupérer les options de qualité disponibles pour une compétition et une course spécifiques. \end{DoxyCompactList}\item 
+function async \mbox{\hyperlink{loader_8js_ac737e054a6fdba14cf5f30f0f0aa4221}{get\+Runs}} (comp)
+\begin{DoxyCompactList}\small\item\em retourne les courses disponibles pour une compétition spécifique et remplit les listes déroulantes avec les options de nage, sexe des nageurs, distance et étape de compétition. \end{DoxyCompactList}\item 
+function \mbox{\hyperlink{loader_8js_a593190be8c133b5d51b1944241f4cf94}{fill\+Dropdown}} (dropdown\+Id, options)
+\begin{DoxyCompactList}\small\item\em fonction qui remplit un élément $<$select$>$ avec des options. \end{DoxyCompactList}\item 
+function export \mbox{\hyperlink{loader_8js_af9081dfcd7292e40bf42472886ecbdfa}{get\+\_\+temp\+\_\+start}} (\mbox{\hyperlink{refactor-script_8js_a92a715551e2d3bfed23b62cf2b6ea4da}{meta}})
+\begin{DoxyCompactList}\small\item\em permet de récupérer le temps de départ d\textquotesingle{}une course à partir des métadonnées. \end{DoxyCompactList}\item 
+function async \mbox{\hyperlink{loader_8js_ae2873a5d4c20edc5bc6462103680aba2}{load\+\_\+run}} (run, \mbox{\hyperlink{jquery-ui_8js_a606a87425a3a6c440c6fdcbfb72c9b68}{data}}, star\+Time=null)
+\begin{DoxyCompactList}\small\item\em permet de charger une course spécifique avec ses données associées. \end{DoxyCompactList}\item 
+function export \mbox{\hyperlink{loader_8js_a408754519e0aa8c140aced9e7259046d}{edit\+\_\+temp\+\_\+end}} (\mbox{\hyperlink{refactor-script_8js_a9336ebf25087d91c818ee6e9ec29f8c1}{x}})
+\begin{DoxyCompactList}\small\item\em Modifie le temps de fin de la course Setter pour la variable globale temp\+\_\+end. \end{DoxyCompactList}\item 
+function export \mbox{\hyperlink{loader_8js_a2eb34af23c7537d863b37c7bc2651c41}{edit\+\_\+vid\+Name}} (\mbox{\hyperlink{refactor-script_8js_a9336ebf25087d91c818ee6e9ec29f8c1}{x}})
+\begin{DoxyCompactList}\small\item\em Modifie le nom de la vidéo chargée Setter pour la variable globale vid\+Name. \end{DoxyCompactList}\item 
+function \mbox{\hyperlink{loader_8js_a765709dc162380ccca191cea639bbaa3}{get\+Data\+Path}} ()
+\begin{DoxyCompactList}\small\item\em Retourne le chemin vers les données selon l\textquotesingle{}environnement (local, Git\+Hub ou Electron) \end{DoxyCompactList}\item 
+function \mbox{\hyperlink{loader_8js_ae0acc8b3eb50fc5156e03001a6d050a1}{is\+Git\+Hub\+Mode}} ()
+\begin{DoxyCompactList}\small\item\em Vérifie si on est en mode Git\+Hub (sans serveur backend) \end{DoxyCompactList}\item 
+function async \mbox{\hyperlink{loader_8js_a39c6d45bb4d64804887bd2c036d4160a}{fetch\+And\+Parse\+Csv}} (url)
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{loader_8js_a59be084da8908b7d77ff34b25cd84488}{import}}
+\item 
+export let \mbox{\hyperlink{loader_8js_a43b58cabed6cc09d4f257c45eb354c19}{selected\+\_\+comp}} = \textquotesingle{}\textquotesingle{}
+\begin{DoxyCompactList}\small\item\em contient le nom de la compétition sélectionnée. \end{DoxyCompactList}\item 
+let \mbox{\hyperlink{loader_8js_a6a80e506174362d6c7750ed2e024f90a}{ncycle}} = 20
+\item 
+\mbox{\hyperlink{setup_8js_a92b303b76a3f942ea819498907d5e83c}{const}} \mbox{\hyperlink{loader_8js_a86cbe6025a9425b06bbca4c1c0cffe4a}{query\+String}} = \mbox{\hyperlink{assets_2js_2utils_8js_abde18b8c0ea2011b3d0957c2346a1a6a}{get\+Url\+Vars}}()
+\item 
+export let \mbox{\hyperlink{loader_8js_a68fff880c79f8308c01653980c85a0f3}{pool\+\_\+size}} = \mbox{[}50,20\mbox{]}
+\begin{DoxyCompactList}\small\item\em Dimensions de la piscine. \end{DoxyCompactList}\item 
+export let \mbox{\hyperlink{loader_8js_ae8ac50cfeca27535de19fe6861288557}{compets}} =\{\}
+\item 
+export let \mbox{\hyperlink{loader_8js_a12198593ba049bd9106b2370b8846348}{selected\+\_\+run}} = \textquotesingle{}\textquotesingle{}
+\item 
+export let \mbox{\hyperlink{loader_8js_a4ee05142093ec1b0db9257d43e380d48}{datas}} = \mbox{[}$\,$\mbox{]}
+\begin{DoxyCompactList}\small\item\em contient les noms des annotations déjà réalisées \end{DoxyCompactList}\item 
+export let \mbox{\hyperlink{loader_8js_af3166f64545f88859895f6da900d17a6}{vid\+Name}}
+\item 
+export let \mbox{\hyperlink{loader_8js_ab3def73df0c71f75c809c4fc9b0db06c}{frame\+\_\+rate}} = 50
+\begin{DoxyCompactList}\small\item\em contient le nombre d\textquotesingle{}images par secondes de la vidéo. \end{DoxyCompactList}\item 
+export let \mbox{\hyperlink{loader_8js_a82849f85a8b1691736046b6da5c5f400}{mega\+Data}} = \mbox{[}$\,$\mbox{]}
+\begin{DoxyCompactList}\small\item\em = \mbox{[}t,r\mbox{]} avec t le dictionnaire de la méta de la course (distance, nageurs, vidéos, ...) et r un csv si data contient automatique, \mbox{[}\mbox{]} sinon Initialisé dans \doxylink{loader_8js_ae2873a5d4c20edc5bc6462103680aba2}{load\+\_\+run()} \end{DoxyCompactList}\item 
+export let \mbox{\hyperlink{loader_8js_afb947e393cfd66db09cec4dce7b02cc7}{curr\+\_\+swims}} = \{\}
+\begin{DoxyCompactList}\small\item\em Dictionnaire associant un id\+\_\+swimmer avec un array de data, ex \+: \{0\+:\mbox{[}\mbox{]}, 1\+:\mbox{[}\{frame\+Id\+:252, event\+:"{}cycle"{}, ...\}, \{\}, ...\mbox{]}, ...\}. \end{DoxyCompactList}\item 
+export let \mbox{\hyperlink{loader_8js_a609b55d60f55577435510216350a6270}{meters\+\_\+checkpoints}} = \mbox{[}0,25,50,75,100,125,150,175,200\mbox{]}
+\begin{DoxyCompactList}\small\item\em Liste des checkpoints utilisé, last\+\_\+checkpoint prendra une valeur parmis celles-\/là \end{DoxyCompactList}\item 
+export let \mbox{\hyperlink{loader_8js_a8bee409608717b96a4d8fab8188ebf39}{turn\+\_\+distances}} = \mbox{[}0,50,100,150,200,250,300,350,400\mbox{]}
+\begin{DoxyCompactList}\small\item\em Liste des distances où des virages peuvent survenir pour la course chargée (pas opti). \end{DoxyCompactList}\item 
+export let \mbox{\hyperlink{loader_8js_aa61dbc2f28ff507e8cffda475ffcd545}{turn\+\_\+times}}
+\begin{DoxyCompactList}\small\item\em Dictionnaire associant id\+\_\+nageur à un dictionnaire associant distance (0 (reaction), 50, 100, 150 et 200m) à un Temps (float, secondes) \end{DoxyCompactList}\item 
+export let \mbox{\hyperlink{loader_8js_a7b801ec4e9d5f6f2ad91fc5df140bdae}{inter}} = 100
+\item 
+export let \mbox{\hyperlink{loader_8js_a7224ac70482ffcce860de7632541d056}{n\+\_\+camera}} = 2
+\begin{DoxyCompactList}\small\item\em nombre de caméra disponible pour la course. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{setup_8js_a92b303b76a3f942ea819498907d5e83c}{const}} \mbox{\hyperlink{loader_8js_a5d1a20ca8ab2ecb961acabf54dd95919}{static\+Data}}
+\begin{DoxyCompactList}\small\item\em Données statiques pour le mode Git\+Hub Remplace les appels AJAX quand on ne peut pas lister les dossiers. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+fichier d\textquotesingle{}initialisation et de chargement des courses et de leurs données, la plupart des variables globales originent de ce fichier. 
+
+
+
+\doxysubsection{Function Documentation}
+\Hypertarget{loader_8js_a408754519e0aa8c140aced9e7259046d}\index{loader.js@{loader.js}!edit\_temp\_end@{edit\_temp\_end}}
+\index{edit\_temp\_end@{edit\_temp\_end}!loader.js@{loader.js}}
+\doxysubsubsection{\texorpdfstring{edit\_temp\_end()}{edit\_temp\_end()}}
+{\footnotesize\ttfamily \label{loader_8js_a408754519e0aa8c140aced9e7259046d} 
+function export edit\+\_\+temp\+\_\+end (\begin{DoxyParamCaption}\item[{}]{x}{}\end{DoxyParamCaption})}
+
+
+
+Modifie le temps de fin de la course Setter pour la variable globale temp\+\_\+end. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em \{number\}} & x Nouveau temps de fin \\
+\hline
+\end{DoxyParams}
+\Hypertarget{loader_8js_a2eb34af23c7537d863b37c7bc2651c41}\index{loader.js@{loader.js}!edit\_vidName@{edit\_vidName}}
+\index{edit\_vidName@{edit\_vidName}!loader.js@{loader.js}}
+\doxysubsubsection{\texorpdfstring{edit\_vidName()}{edit\_vidName()}}
+{\footnotesize\ttfamily \label{loader_8js_a2eb34af23c7537d863b37c7bc2651c41} 
+function export edit\+\_\+vid\+Name (\begin{DoxyParamCaption}\item[{}]{x}{}\end{DoxyParamCaption})}
+
+
+
+Modifie le nom de la vidéo chargée Setter pour la variable globale vid\+Name. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em \{string\}} & x Nouveau nom de vidéo \\
+\hline
+\end{DoxyParams}
+\Hypertarget{loader_8js_a39c6d45bb4d64804887bd2c036d4160a}\index{loader.js@{loader.js}!fetchAndParseCsv@{fetchAndParseCsv}}
+\index{fetchAndParseCsv@{fetchAndParseCsv}!loader.js@{loader.js}}
+\doxysubsubsection{\texorpdfstring{fetchAndParseCsv()}{fetchAndParseCsv()}}
+{\footnotesize\ttfamily \label{loader_8js_a39c6d45bb4d64804887bd2c036d4160a} 
+function async fetch\+And\+Parse\+Csv (\begin{DoxyParamCaption}\item[{}]{url}{}\end{DoxyParamCaption})}
+
+\Hypertarget{loader_8js_a593190be8c133b5d51b1944241f4cf94}\index{loader.js@{loader.js}!fillDropdown@{fillDropdown}}
+\index{fillDropdown@{fillDropdown}!loader.js@{loader.js}}
+\doxysubsubsection{\texorpdfstring{fillDropdown()}{fillDropdown()}}
+{\footnotesize\ttfamily \label{loader_8js_a593190be8c133b5d51b1944241f4cf94} 
+function fill\+Dropdown (\begin{DoxyParamCaption}\item[{}]{dropdown\+Id}{, }\item[{}]{options}{}\end{DoxyParamCaption})}
+
+
+
+fonction qui remplit un élément $<$select$>$ avec des options. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em \{string\}} & dropdown\+Id \\
+\hline
+{\em \{object\}} & options tableau d\textquotesingle{}options à ajouter au dropdown. \\
+\hline
+\end{DoxyParams}
+\Hypertarget{loader_8js_aaca267c71981413805cc4f7478cf2174}\index{loader.js@{loader.js}!get\_quality@{get\_quality}}
+\index{get\_quality@{get\_quality}!loader.js@{loader.js}}
+\doxysubsubsection{\texorpdfstring{get\_quality()}{get\_quality()}}
+{\footnotesize\ttfamily \label{loader_8js_aaca267c71981413805cc4f7478cf2174} 
+function async get\+\_\+quality (\begin{DoxyParamCaption}\item[{}]{comp}{, }\item[{}]{run}{, }\item[{}]{actual\+\_\+side}{}\end{DoxyParamCaption})}
+
+
+
+permet de récupérer les options de qualité disponibles pour une compétition et une course spécifiques. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em \{\texorpdfstring{$\ast$}{*}\}} & comp \\
+\hline
+{\em \{\texorpdfstring{$\ast$}{*}\}} & run \\
+\hline
+{\em \{\texorpdfstring{$\ast$}{*}\}} & actual\+\_\+side \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+\{void\} 
+\end{DoxyReturn}
+\Hypertarget{loader_8js_af9081dfcd7292e40bf42472886ecbdfa}\index{loader.js@{loader.js}!get\_temp\_start@{get\_temp\_start}}
+\index{get\_temp\_start@{get\_temp\_start}!loader.js@{loader.js}}
+\doxysubsubsection{\texorpdfstring{get\_temp\_start()}{get\_temp\_start()}}
+{\footnotesize\ttfamily \label{loader_8js_af9081dfcd7292e40bf42472886ecbdfa} 
+function export get\+\_\+temp\+\_\+start (\begin{DoxyParamCaption}\item[{}]{meta}{}\end{DoxyParamCaption})}
+
+
+
+permet de récupérer le temps de départ d\textquotesingle{}une course à partir des métadonnées. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em \{\texorpdfstring{$\ast$}{*}\}} & meta \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+
+\end{DoxyReturn}
+\Hypertarget{loader_8js_a6d0f6e8eb921b7b3e5437fdac816b5e8}\index{loader.js@{loader.js}!getCompets@{getCompets}}
+\index{getCompets@{getCompets}!loader.js@{loader.js}}
+\doxysubsubsection{\texorpdfstring{getCompets()}{getCompets()}}
+{\footnotesize\ttfamily \label{loader_8js_a6d0f6e8eb921b7b3e5437fdac816b5e8} 
+function async get\+Compets (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})}
+
+
+
+permet de récupérer les compétitions disponibles sur le serveur. 
+
+\Hypertarget{loader_8js_a765709dc162380ccca191cea639bbaa3}\index{loader.js@{loader.js}!getDataPath@{getDataPath}}
+\index{getDataPath@{getDataPath}!loader.js@{loader.js}}
+\doxysubsubsection{\texorpdfstring{getDataPath()}{getDataPath()}}
+{\footnotesize\ttfamily \label{loader_8js_a765709dc162380ccca191cea639bbaa3} 
+function get\+Data\+Path (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})}
+
+
+
+Retourne le chemin vers les données selon l\textquotesingle{}environnement (local, Git\+Hub ou Electron) 
+
+\begin{DoxyReturn}{Returns}
+\{string\} Le chemin vers les données 
+\end{DoxyReturn}
+\Hypertarget{loader_8js_acef264e84b1b8c451370e275f33d7652}\index{loader.js@{loader.js}!getDatas@{getDatas}}
+\index{getDatas@{getDatas}!loader.js@{loader.js}}
+\doxysubsubsection{\texorpdfstring{getDatas()}{getDatas()}}
+{\footnotesize\ttfamily \label{loader_8js_acef264e84b1b8c451370e275f33d7652} 
+function async get\+Datas (\begin{DoxyParamCaption}\item[{}]{comp}{, }\item[{}]{run}{}\end{DoxyParamCaption})}
+
+
+
+charge les annotations de la course sélectionnée. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em \{\texorpdfstring{$\ast$}{*}\}} & comp \\
+\hline
+{\em \{\texorpdfstring{$\ast$}{*}\}} & run \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+
+\end{DoxyReturn}
+\Hypertarget{loader_8js_ac737e054a6fdba14cf5f30f0f0aa4221}\index{loader.js@{loader.js}!getRuns@{getRuns}}
+\index{getRuns@{getRuns}!loader.js@{loader.js}}
+\doxysubsubsection{\texorpdfstring{getRuns()}{getRuns()}}
+{\footnotesize\ttfamily \label{loader_8js_ac737e054a6fdba14cf5f30f0f0aa4221} 
+function async get\+Runs (\begin{DoxyParamCaption}\item[{}]{comp}{}\end{DoxyParamCaption})}
+
+
+
+retourne les courses disponibles pour une compétition spécifique et remplit les listes déroulantes avec les options de nage, sexe des nageurs, distance et étape de compétition. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em \{\texorpdfstring{$\ast$}{*}\}} & comp \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+
+\end{DoxyReturn}
+\Hypertarget{loader_8js_ac566bb0aaf5ad480ae6eaea2100c2a9f}\index{loader.js@{loader.js}!init@{init}}
+\index{init@{init}!loader.js@{loader.js}}
+\doxysubsubsection{\texorpdfstring{init()}{init()}}
+{\footnotesize\ttfamily \label{loader_8js_ac566bb0aaf5ad480ae6eaea2100c2a9f} 
+function async init (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})}
+
+
+
+init permet d\textquotesingle{}initialiser la page en chargeant les données nécessaires. 
+
+Elle récupère les données JSON, les vidéos des courses ainsi que les annotations déjà réalisées sur cette course. \Hypertarget{loader_8js_ae0acc8b3eb50fc5156e03001a6d050a1}\index{loader.js@{loader.js}!isGitHubMode@{isGitHubMode}}
+\index{isGitHubMode@{isGitHubMode}!loader.js@{loader.js}}
+\doxysubsubsection{\texorpdfstring{isGitHubMode()}{isGitHubMode()}}
+{\footnotesize\ttfamily \label{loader_8js_ae0acc8b3eb50fc5156e03001a6d050a1} 
+function is\+Git\+Hub\+Mode (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})}
+
+
+
+Vérifie si on est en mode Git\+Hub (sans serveur backend) 
+
+\begin{DoxyReturn}{Returns}
+\{boolean\} true si on est sur Git\+Hub, false sinon 
+\end{DoxyReturn}
+\Hypertarget{loader_8js_ae2873a5d4c20edc5bc6462103680aba2}\index{loader.js@{loader.js}!load\_run@{load\_run}}
+\index{load\_run@{load\_run}!loader.js@{loader.js}}
+\doxysubsubsection{\texorpdfstring{load\_run()}{load\_run()}}
+{\footnotesize\ttfamily \label{loader_8js_ae2873a5d4c20edc5bc6462103680aba2} 
+function async load\+\_\+run (\begin{DoxyParamCaption}\item[{}]{run}{, }\item[{}]{data}{, }\item[{}]{star\+Time}{ = {\ttfamily null}}\end{DoxyParamCaption})}
+
+
+
+permet de charger une course spécifique avec ses données associées. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em \{\texorpdfstring{$\ast$}{*}\}} & run \\
+\hline
+{\em \{\texorpdfstring{$\ast$}{*}\}} & data \\
+\hline
+{\em \{\texorpdfstring{$\ast$}{*}\}} & star\+Time \\
+\hline
+\end{DoxyParams}
+\Hypertarget{loader_8js_a24e6de71f45f42decf6d104b5406dcc6}\index{loader.js@{loader.js}!processRunData@{processRunData}}
+\index{processRunData@{processRunData}!loader.js@{loader.js}}
+\doxysubsubsection{\texorpdfstring{processRunData()}{processRunData()}}
+{\footnotesize\ttfamily \label{loader_8js_a24e6de71f45f42decf6d104b5406dcc6} 
+function process\+Run\+Data (\begin{DoxyParamCaption}\item[{}]{runs}{}\end{DoxyParamCaption})}
+
+
+
+Traite les données des courses pour remplir les listes déroulantes de sélection avec les options de catégories de nage, sexe des nageurs, distance et étape de compétition. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em \{\+Array\}} & runs -\/ Tableau contenant les noms des courses. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+\{void\} 
+\end{DoxyReturn}
+\Hypertarget{loader_8js_ac1d99c0bcf8fd6676ab156fdd6f9d3bc}\index{loader.js@{loader.js}!setcompets@{setcompets}}
+\index{setcompets@{setcompets}!loader.js@{loader.js}}
+\doxysubsubsection{\texorpdfstring{setcompets()}{setcompets()}}
+{\footnotesize\ttfamily \label{loader_8js_ac1d99c0bcf8fd6676ab156fdd6f9d3bc} 
+function export setcompets (\begin{DoxyParamCaption}\item[{}]{c}{}\end{DoxyParamCaption})}
+
+
+
+Définit le dictionnaire des compétitions disponibles Met à jour la variable globale compets avec les compétitions fournies. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em \{array\}} & c Tableau des compétitions à définir \\
+\hline
+\end{DoxyParams}
+
+
+\doxysubsection{Variable Documentation}
+\Hypertarget{loader_8js_ae8ac50cfeca27535de19fe6861288557}\index{loader.js@{loader.js}!compets@{compets}}
+\index{compets@{compets}!loader.js@{loader.js}}
+\doxysubsubsection{\texorpdfstring{compets}{compets}}
+{\footnotesize\ttfamily \label{loader_8js_ae8ac50cfeca27535de19fe6861288557} 
+export let compets =\{\}}
+
+\Hypertarget{loader_8js_afb947e393cfd66db09cec4dce7b02cc7}\index{loader.js@{loader.js}!curr\_swims@{curr\_swims}}
+\index{curr\_swims@{curr\_swims}!loader.js@{loader.js}}
+\doxysubsubsection{\texorpdfstring{curr\_swims}{curr\_swims}}
+{\footnotesize\ttfamily \label{loader_8js_afb947e393cfd66db09cec4dce7b02cc7} 
+\mbox{\hyperlink{setup_8js_a8ac3c63e523598549c2264ad7042f8af}{window}} curr\+\_\+swims = \{\}}
+
+
+
+Dictionnaire associant un id\+\_\+swimmer avec un array de data, ex \+: \{0\+:\mbox{[}\mbox{]}, 1\+:\mbox{[}\{frame\+Id\+:252, event\+:"{}cycle"{}, ...\}, \{\}, ...\mbox{]}, ...\}. 
+
+\Hypertarget{loader_8js_a4ee05142093ec1b0db9257d43e380d48}\index{loader.js@{loader.js}!datas@{datas}}
+\index{datas@{datas}!loader.js@{loader.js}}
+\doxysubsubsection{\texorpdfstring{datas}{datas}}
+{\footnotesize\ttfamily \label{loader_8js_a4ee05142093ec1b0db9257d43e380d48} 
+export let datas = \mbox{[}$\,$\mbox{]}}
+
+
+
+contient les noms des annotations déjà réalisées 
+
+\Hypertarget{loader_8js_ab3def73df0c71f75c809c4fc9b0db06c}\index{loader.js@{loader.js}!frame\_rate@{frame\_rate}}
+\index{frame\_rate@{frame\_rate}!loader.js@{loader.js}}
+\doxysubsubsection{\texorpdfstring{frame\_rate}{frame\_rate}}
+{\footnotesize\ttfamily \label{loader_8js_ab3def73df0c71f75c809c4fc9b0db06c} 
+export let frame\+\_\+rate = 50}
+
+
+
+contient le nombre d\textquotesingle{}images par secondes de la vidéo. 
+
+\Hypertarget{loader_8js_a59be084da8908b7d77ff34b25cd84488}\index{loader.js@{loader.js}!import@{import}}
+\index{import@{import}!loader.js@{loader.js}}
+\doxysubsubsection{\texorpdfstring{import}{import}}
+{\footnotesize\ttfamily \label{loader_8js_a59be084da8908b7d77ff34b25cd84488} 
+import}
+
+{\bfseries Initial value\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\{\mbox{\hyperlink{main_8js_a3a5ae47e30c64b5c99d2bd3b4f09f935}{base}},\mbox{\hyperlink{main_8js_a9b0023232805e559f86302c2b89a944f}{displaySwimmers}},\ \mbox{\hyperlink{main_8js_a33bbb328fedf7321517ac1cbf4f3aa0c}{local\_bool}},\ \mbox{\hyperlink{main_8js_a72b378523573ce3e8f80a098e7e3c4ee}{setGrad}}\}\ \mbox{\hyperlink{jquery-ui_8js_ace03b192fd101a1c5648340bc09b7229}{from}}\ \textcolor{stringliteral}{"{}./main.js"{}}}
+\DoxyCodeLine{let\ flat}
+
+\end{DoxyCode}
+\Hypertarget{loader_8js_a7b801ec4e9d5f6f2ad91fc5df140bdae}\index{loader.js@{loader.js}!inter@{inter}}
+\index{inter@{inter}!loader.js@{loader.js}}
+\doxysubsubsection{\texorpdfstring{inter}{inter}}
+{\footnotesize\ttfamily \label{loader_8js_a7b801ec4e9d5f6f2ad91fc5df140bdae} 
+export let inter = 100}
+
+\Hypertarget{loader_8js_a82849f85a8b1691736046b6da5c5f400}\index{loader.js@{loader.js}!megaData@{megaData}}
+\index{megaData@{megaData}!loader.js@{loader.js}}
+\doxysubsubsection{\texorpdfstring{megaData}{megaData}}
+{\footnotesize\ttfamily \label{loader_8js_a82849f85a8b1691736046b6da5c5f400} 
+export let mega\+Data = \mbox{[}$\,$\mbox{]}}
+
+
+
+= \mbox{[}t,r\mbox{]} avec t le dictionnaire de la méta de la course (distance, nageurs, vidéos, ...) et r un csv si data contient automatique, \mbox{[}\mbox{]} sinon Initialisé dans \doxylink{loader_8js_ae2873a5d4c20edc5bc6462103680aba2}{load\+\_\+run()} 
+
+\Hypertarget{loader_8js_a609b55d60f55577435510216350a6270}\index{loader.js@{loader.js}!meters\_checkpoints@{meters\_checkpoints}}
+\index{meters\_checkpoints@{meters\_checkpoints}!loader.js@{loader.js}}
+\doxysubsubsection{\texorpdfstring{meters\_checkpoints}{meters\_checkpoints}}
+{\footnotesize\ttfamily \label{loader_8js_a609b55d60f55577435510216350a6270} 
+export let meters\+\_\+checkpoints = \mbox{[}0,25,50,75,100,125,150,175,200\mbox{]}}
+
+
+
+Liste des checkpoints utilisé, last\+\_\+checkpoint prendra une valeur parmis celles-\/là 
+
+\Hypertarget{loader_8js_a7224ac70482ffcce860de7632541d056}\index{loader.js@{loader.js}!n\_camera@{n\_camera}}
+\index{n\_camera@{n\_camera}!loader.js@{loader.js}}
+\doxysubsubsection{\texorpdfstring{n\_camera}{n\_camera}}
+{\footnotesize\ttfamily \label{loader_8js_a7224ac70482ffcce860de7632541d056} 
+export let n\+\_\+camera = 2}
+
+
+
+nombre de caméra disponible pour la course. 
+
+\Hypertarget{loader_8js_a6a80e506174362d6c7750ed2e024f90a}\index{loader.js@{loader.js}!ncycle@{ncycle}}
+\index{ncycle@{ncycle}!loader.js@{loader.js}}
+\doxysubsubsection{\texorpdfstring{ncycle}{ncycle}}
+{\footnotesize\ttfamily \label{loader_8js_a6a80e506174362d6c7750ed2e024f90a} 
+let ncycle = 20}
+
+\Hypertarget{loader_8js_a68fff880c79f8308c01653980c85a0f3}\index{loader.js@{loader.js}!pool\_size@{pool\_size}}
+\index{pool\_size@{pool\_size}!loader.js@{loader.js}}
+\doxysubsubsection{\texorpdfstring{pool\_size}{pool\_size}}
+{\footnotesize\ttfamily \label{loader_8js_a68fff880c79f8308c01653980c85a0f3} 
+export let pool\+\_\+size = \mbox{[}50,20\mbox{]}}
+
+
+
+Dimensions de la piscine. 
+
+\Hypertarget{loader_8js_a86cbe6025a9425b06bbca4c1c0cffe4a}\index{loader.js@{loader.js}!queryString@{queryString}}
+\index{queryString@{queryString}!loader.js@{loader.js}}
+\doxysubsubsection{\texorpdfstring{queryString}{queryString}}
+{\footnotesize\ttfamily \label{loader_8js_a86cbe6025a9425b06bbca4c1c0cffe4a} 
+\mbox{\hyperlink{setup_8js_a92b303b76a3f942ea819498907d5e83c}{const}} query\+String = \mbox{\hyperlink{assets_2js_2utils_8js_abde18b8c0ea2011b3d0957c2346a1a6a}{get\+Url\+Vars}}()}
+
+\Hypertarget{loader_8js_a43b58cabed6cc09d4f257c45eb354c19}\index{loader.js@{loader.js}!selected\_comp@{selected\_comp}}
+\index{selected\_comp@{selected\_comp}!loader.js@{loader.js}}
+\doxysubsubsection{\texorpdfstring{selected\_comp}{selected\_comp}}
+{\footnotesize\ttfamily \label{loader_8js_a43b58cabed6cc09d4f257c45eb354c19} 
+\mbox{\hyperlink{setup_8js_a8ac3c63e523598549c2264ad7042f8af}{window}} selected\+\_\+comp = \textquotesingle{}\textquotesingle{}}
+
+
+
+contient le nom de la compétition sélectionnée. 
+
+\Hypertarget{loader_8js_a12198593ba049bd9106b2370b8846348}\index{loader.js@{loader.js}!selected\_run@{selected\_run}}
+\index{selected\_run@{selected\_run}!loader.js@{loader.js}}
+\doxysubsubsection{\texorpdfstring{selected\_run}{selected\_run}}
+{\footnotesize\ttfamily \label{loader_8js_a12198593ba049bd9106b2370b8846348} 
+export let selected\+\_\+run = \textquotesingle{}\textquotesingle{}}
+
+\Hypertarget{loader_8js_a5d1a20ca8ab2ecb961acabf54dd95919}\index{loader.js@{loader.js}!staticData@{staticData}}
+\index{staticData@{staticData}!loader.js@{loader.js}}
+\doxysubsubsection{\texorpdfstring{staticData}{staticData}}
+{\footnotesize\ttfamily \label{loader_8js_a5d1a20ca8ab2ecb961acabf54dd95919} 
+\mbox{\hyperlink{setup_8js_a92b303b76a3f942ea819498907d5e83c}{const}} static\+Data}
+
+{\bfseries Initial value\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{=\ \{}
+\DoxyCodeLine{\ \ \ \ competitions:\ [}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ \{\ name:\ \textcolor{stringliteral}{"{}2025\_courses\_demo"{}},\ type:\ \textcolor{stringliteral}{"{}directory"{}}\ \}}
+\DoxyCodeLine{\ \ \ \ ],}
+\DoxyCodeLine{\ \ \ \ runs:\ \{}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}2025\_courses\_demo"{}}:\ [}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ \ \ \ \ \{\ name:\ \textcolor{stringliteral}{"{}2025\_courses\_demo\_translation\_carre\_100\_demifinale"{}},\ type:\ \textcolor{stringliteral}{"{}directory"{}}\ \},}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ \ \ \ \ \{\ name:\ \textcolor{stringliteral}{"{}2025\_courses\_demo\_translation\_carre\_50\_finale"{}},\ type:\ \textcolor{stringliteral}{"{}directory"{}}\ \},}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ \ \ \ \ \{\ name:\ \textcolor{stringliteral}{"{}2025\_courses\_demo\_translation\_carre\_50\_serie"{}},\ type:\ \textcolor{stringliteral}{"{}directory"{}}\ \}}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ ]}
+\DoxyCodeLine{\ \ \ \ \},}
+\DoxyCodeLine{\ \ \ \ csvFiles:\ \{}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}2025\_courses\_demo\_translation\_carre\_100\_demifinale"{}}:\ [],}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}2025\_courses\_demo\_translation\_carre\_50\_finale"{}}:\ [],}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}2025\_courses\_demo\_translation\_carre\_50\_serie"{}}:\ []}
+\DoxyCodeLine{\ \ \ \ \}}
+\DoxyCodeLine{\}}
+
+\end{DoxyCode}
+
+
+Données statiques pour le mode Git\+Hub Remplace les appels AJAX quand on ne peut pas lister les dossiers. 
+
+\Hypertarget{loader_8js_a8bee409608717b96a4d8fab8188ebf39}\index{loader.js@{loader.js}!turn\_distances@{turn\_distances}}
+\index{turn\_distances@{turn\_distances}!loader.js@{loader.js}}
+\doxysubsubsection{\texorpdfstring{turn\_distances}{turn\_distances}}
+{\footnotesize\ttfamily \label{loader_8js_a8bee409608717b96a4d8fab8188ebf39} 
+export let turn\+\_\+distances = \mbox{[}0,50,100,150,200,250,300,350,400\mbox{]}}
+
+
+
+Liste des distances où des virages peuvent survenir pour la course chargée (pas opti). 
+
+\Hypertarget{loader_8js_aa61dbc2f28ff507e8cffda475ffcd545}\index{loader.js@{loader.js}!turn\_times@{turn\_times}}
+\index{turn\_times@{turn\_times}!loader.js@{loader.js}}
+\doxysubsubsection{\texorpdfstring{turn\_times}{turn\_times}}
+{\footnotesize\ttfamily \label{loader_8js_aa61dbc2f28ff507e8cffda475ffcd545} 
+export let turn\+\_\+times}
+
+{\bfseries Initial value\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{=\ \{\ 0:\{\}\ ,1:\{\},2:\{\},3:\{\ 0:\ 1.02,\ 50:\ 10.00,\ 100:\ 20.00\ \},4:\{\},5:\{\},6:\{\},7:\{\}\}\ }
+\DoxyCodeLine{}
+\DoxyCodeLine{export\ let\ temp\_end\ =\ -\/1}
+
+\end{DoxyCode}
+
+
+Dictionnaire associant id\+\_\+nageur à un dictionnaire associant distance (0 (reaction), 50, 100, 150 et 200m) à un Temps (float, secondes) 
+
+\Hypertarget{loader_8js_af3166f64545f88859895f6da900d17a6}\index{loader.js@{loader.js}!vidName@{vidName}}
+\index{vidName@{vidName}!loader.js@{loader.js}}
+\doxysubsubsection{\texorpdfstring{vidName}{vidName}}
+{\footnotesize\ttfamily \label{loader_8js_af3166f64545f88859895f6da900d17a6} 
+export let vid\+Name}
+

@@ -1,0 +1,335 @@
+\doxysection{assets/js/data\+\_\+handler.js File Reference}
+\hypertarget{data__handler_8js}{}\label{data__handler_8js}\index{assets/js/data\_handler.js@{assets/js/data\_handler.js}}
+
+
+Gère le traitement, la transformation et l\textquotesingle{}enregistrement des données d\textquotesingle{}annotation.  
+
+
+\doxysubsubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+function export \mbox{\hyperlink{data__handler_8js_a7157e837e2b9139d2087efbde17916ab}{find\+\_\+end}} (\mbox{\hyperlink{jquery-ui_8js_a606a87425a3a6c440c6fdcbfb72c9b68}{data}}, distance)
+\begin{DoxyCompactList}\small\item\em Détermine la frame de fin de la vidéo à partir des données d\textquotesingle{}annotation. \end{DoxyCompactList}\item 
+function export \mbox{\hyperlink{data__handler_8js_adfef8a0167182d5f9a72ed47fc9d6d99}{curate\+\_\+annotate\+\_\+data}} (\mbox{\hyperlink{jquery-ui_8js_a606a87425a3a6c440c6fdcbfb72c9b68}{data}})
+\begin{DoxyCompactList}\small\item\em Transforme les données d\textquotesingle{}annotation brutes en format exploitable pour l\textquotesingle{}application (annotations manuelles ou automatiques). \end{DoxyCompactList}\item 
+function export \mbox{\hyperlink{data__handler_8js_a2d5b5bfa696baeca2c12f1b38b895dc6}{curate\+\_\+data}} (\mbox{\hyperlink{jquery-ui_8js_a606a87425a3a6c440c6fdcbfb72c9b68}{data}}, \mbox{\hyperlink{refactor-script_8js_a92a715551e2d3bfed23b62cf2b6ea4da}{meta}})
+\begin{DoxyCompactList}\small\item\em Transforme les données d\textquotesingle{}annotation pour affichage/traitement, ajuste les coordonnées et filtre les points inutiles. \end{DoxyCompactList}\item 
+function export \mbox{\hyperlink{data__handler_8js_a920e53dfe57935ec91b6d3252925e092}{get\+Avg}} (\mbox{\hyperlink{jquery-ui_8js_a606a87425a3a6c440c6fdcbfb72c9b68}{data}})
+\begin{DoxyCompactList}\small\item\em Calcule la durée maximale annotée à partir des temps présents dans les métadonnées. \end{DoxyCompactList}\item 
+function export \mbox{\hyperlink{data__handler_8js_a38f85247a1981609f472c0ced2969ccb}{add\+\_\+element\+\_\+to\+\_\+data}} (element, id\+\_\+swim)
+\begin{DoxyCompactList}\small\item\em Ajoute un élément d\textquotesingle{}annotation à la structure globale, met à jour l\textquotesingle{}historique et prédit le prochain cycle. \end{DoxyCompactList}\item 
+function export \mbox{\hyperlink{data__handler_8js_ac47e94d582e52c0e060370c488bc6836}{go\+\_\+to\+\_\+next\+\_\+cycle}} ()
+\begin{DoxyCompactList}\small\item\em Place la vidéo à l\textquotesingle{}instant prédit du prochain cycle (si disponible). \end{DoxyCompactList}\item 
+function export \mbox{\hyperlink{data__handler_8js_ae6e42a3e28c32efe3ebd3094b3f6f0de}{construct\+\_\+last\+\_\+added\+\_\+data\+\_\+table}} ()
+\begin{DoxyCompactList}\small\item\em Met à jour le tableau HTML affichant les dernières annotations ajoutées. \end{DoxyCompactList}\item 
+function export \mbox{\hyperlink{data__handler_8js_ace6a287b931a973ff0b3199854302d48}{construct\+\_\+modify\+\_\+selected\+\_\+annotation\+\_\+table}} (is\+Empty)
+\begin{DoxyCompactList}\small\item\em Met à jour le tableau de modification de l\textquotesingle{}annotation sélectionnée. \end{DoxyCompactList}\item 
+function export \mbox{\hyperlink{data__handler_8js_a9eebe0da565185e3eff791dd1568214d}{construct\+\_\+data\+\_\+row}} (\mbox{\hyperlink{jquery-ui_8js_a606a87425a3a6c440c6fdcbfb72c9b68}{data}})
+\begin{DoxyCompactList}\small\item\em Construit une ligne HTML pour une annotation donnée. \end{DoxyCompactList}\item 
+function export \mbox{\hyperlink{data__handler_8js_af355d39466442e759ffc141d68aad652}{data\+\_\+onclick}} (swimmer\+Id, event\+Id)
+\begin{DoxyCompactList}\small\item\em Gère le clic sur une annotation dans le tableau, met à jour la sélection et la vidéo. \end{DoxyCompactList}\item 
+function \mbox{\hyperlink{data__handler_8js_a4d4419097fad2e9724aa8e4c4a155382}{format\+\_\+time}} (time)
+\item 
+function export \mbox{\hyperlink{data__handler_8js_a91aeb7184ea62ad2625b96fb3d50cdd2}{currate\+\_\+events}} (events)
+\begin{DoxyCompactList}\small\item\em Trie et numérote les événements d\textquotesingle{}annotation d\textquotesingle{}un nageur. \end{DoxyCompactList}\item 
+function export \mbox{\hyperlink{data__handler_8js_a9dbbecf6fe597a4692f210f106f25b73}{make\+\_\+flat\+\_\+usable}} (\mbox{\hyperlink{jquery-ui_8js_a606a87425a3a6c440c6fdcbfb72c9b68}{data}})
+\begin{DoxyCompactList}\small\item\em Transforme la structure des flat.\+json en dictionnaire clé/valeur utilisable. \end{DoxyCompactList}\item 
+function export \mbox{\hyperlink{data__handler_8js_ac1c50b9ebc92dfb4a07286f1de64c90b}{choose\+\_\+tab}} (event, tab\+Name, elements\+Class, link\+Class)
+\begin{DoxyCompactList}\small\item\em Gère l\textquotesingle{}affichage des onglets dans l\textquotesingle{}interface. \end{DoxyCompactList}\item 
+function export \mbox{\hyperlink{data__handler_8js_aa3c1280f65cb5a9ac1b347aba244ce7c}{vide\+\_\+last\+\_\+added\+\_\+data}} ()
+\begin{DoxyCompactList}\small\item\em Vide l\textquotesingle{}historique des dernières annotations ajoutées. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsubsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{data__handler_8js_a59be084da8908b7d77ff34b25cd84488}{import}} \{ \mbox{\hyperlink{loader_8js_afb947e393cfd66db09cec4dce7b02cc7}{curr\+\_\+swims}}, \mbox{\hyperlink{loader_8js_a408754519e0aa8c140aced9e7259046d}{edit\+\_\+temp\+\_\+end}}, \mbox{\hyperlink{loader_8js_ab3def73df0c71f75c809c4fc9b0db06c}{frame\+\_\+rate}}, temp\+\_\+end, \mbox{\hyperlink{loader_8js_a7b801ec4e9d5f6f2ad91fc5df140bdae}{inter}}, \mbox{\hyperlink{loader_8js_a68fff880c79f8308c01653980c85a0f3}{pool\+\_\+size}} \} \mbox{\hyperlink{jquery-ui_8js_ace03b192fd101a1c5648340bc09b7229}{from}} "{}./loader.\+js"{}
+\item 
+let \mbox{\hyperlink{data__handler_8js_ac6242edb1adaf255ed531bbd0d29ebe5}{nb\+\_\+of\+\_\+last\+\_\+added\+\_\+data\+\_\+saved}} = 6
+\item 
+export let \mbox{\hyperlink{data__handler_8js_a2893652d12beda775f0b8540bdf5c146}{last\+\_\+added\+\_\+data}} = \mbox{[}$\,$\mbox{]}
+\item 
+let \mbox{\hyperlink{data__handler_8js_a60aa1b37e0047b2079241c0eed3f73ea}{prochain\+\_\+cycle\+\_\+predit}}
+\item 
+\mbox{\hyperlink{setup_8js_a8ac3c63e523598549c2264ad7042f8af}{window}} \mbox{\hyperlink{data__handler_8js_a96d5d55397eb74f89c4b9088d5b5ef6e}{data\+\_\+onclick}} = data\+\_\+onclick
+\item 
+\mbox{\hyperlink{setup_8js_a8ac3c63e523598549c2264ad7042f8af}{window}} \mbox{\hyperlink{data__handler_8js_a385149b61fc24b07898c0a0a8a43056d}{choose\+\_\+tab}} = choose\+\_\+tab
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Gère le traitement, la transformation et l\textquotesingle{}enregistrement des données d\textquotesingle{}annotation. 
+
+
+
+\doxysubsection{Function Documentation}
+\Hypertarget{data__handler_8js_a38f85247a1981609f472c0ced2969ccb}\index{data\_handler.js@{data\_handler.js}!add\_element\_to\_data@{add\_element\_to\_data}}
+\index{add\_element\_to\_data@{add\_element\_to\_data}!data\_handler.js@{data\_handler.js}}
+\doxysubsubsection{\texorpdfstring{add\_element\_to\_data()}{add\_element\_to\_data()}}
+{\footnotesize\ttfamily \label{data__handler_8js_a38f85247a1981609f472c0ced2969ccb} 
+function export add\+\_\+element\+\_\+to\+\_\+data (\begin{DoxyParamCaption}\item[{}]{element}{, }\item[{}]{id\+\_\+swim}{}\end{DoxyParamCaption})}
+
+
+
+Ajoute un élément d\textquotesingle{}annotation à la structure globale, met à jour l\textquotesingle{}historique et prédit le prochain cycle. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em \{\+Object\}} & element Annotation à ajouter \\
+\hline
+{\em \{number\}} & id\+\_\+swim Id du nageur \\
+\hline
+\end{DoxyParams}
+\Hypertarget{data__handler_8js_ac1c50b9ebc92dfb4a07286f1de64c90b}\index{data\_handler.js@{data\_handler.js}!choose\_tab@{choose\_tab}}
+\index{choose\_tab@{choose\_tab}!data\_handler.js@{data\_handler.js}}
+\doxysubsubsection{\texorpdfstring{choose\_tab()}{choose\_tab()}}
+{\footnotesize\ttfamily \label{data__handler_8js_ac1c50b9ebc92dfb4a07286f1de64c90b} 
+function export choose\+\_\+tab (\begin{DoxyParamCaption}\item[{}]{event}{, }\item[{}]{tab\+Name}{, }\item[{}]{elements\+Class}{, }\item[{}]{link\+Class}{}\end{DoxyParamCaption})}
+
+
+
+Gère l\textquotesingle{}affichage des onglets dans l\textquotesingle{}interface. 
+
+(tableau des évènenements, graphiques...) 
+\begin{DoxyParams}{Parameters}
+{\em \{\+Event\}} & event Événement de clic \\
+\hline
+{\em \{string\}} & tab\+Name Nom de l\textquotesingle{}onglet à afficher \\
+\hline
+{\em \{string\}} & elements\+Class Classe des éléments à masquer \\
+\hline
+{\em \{string\}} & link\+Class Classe des liens d\textquotesingle{}onglet \\
+\hline
+\end{DoxyParams}
+\Hypertarget{data__handler_8js_a9eebe0da565185e3eff791dd1568214d}\index{data\_handler.js@{data\_handler.js}!construct\_data\_row@{construct\_data\_row}}
+\index{construct\_data\_row@{construct\_data\_row}!data\_handler.js@{data\_handler.js}}
+\doxysubsubsection{\texorpdfstring{construct\_data\_row()}{construct\_data\_row()}}
+{\footnotesize\ttfamily \label{data__handler_8js_a9eebe0da565185e3eff791dd1568214d} 
+function export construct\+\_\+data\+\_\+row (\begin{DoxyParamCaption}\item[{}]{data}{}\end{DoxyParamCaption})}
+
+
+
+Construit une ligne HTML pour une annotation donnée. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em \{\+Object\}} & data Annotation à afficher \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+\{string\} Ligne HTML 
+\end{DoxyReturn}
+\Hypertarget{data__handler_8js_ae6e42a3e28c32efe3ebd3094b3f6f0de}\index{data\_handler.js@{data\_handler.js}!construct\_last\_added\_data\_table@{construct\_last\_added\_data\_table}}
+\index{construct\_last\_added\_data\_table@{construct\_last\_added\_data\_table}!data\_handler.js@{data\_handler.js}}
+\doxysubsubsection{\texorpdfstring{construct\_last\_added\_data\_table()}{construct\_last\_added\_data\_table()}}
+{\footnotesize\ttfamily \label{data__handler_8js_ae6e42a3e28c32efe3ebd3094b3f6f0de} 
+function export construct\+\_\+last\+\_\+added\+\_\+data\+\_\+table (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})}
+
+
+
+Met à jour le tableau HTML affichant les dernières annotations ajoutées. 
+
+\Hypertarget{data__handler_8js_ace6a287b931a973ff0b3199854302d48}\index{data\_handler.js@{data\_handler.js}!construct\_modify\_selected\_annotation\_table@{construct\_modify\_selected\_annotation\_table}}
+\index{construct\_modify\_selected\_annotation\_table@{construct\_modify\_selected\_annotation\_table}!data\_handler.js@{data\_handler.js}}
+\doxysubsubsection{\texorpdfstring{construct\_modify\_selected\_annotation\_table()}{construct\_modify\_selected\_annotation\_table()}}
+{\footnotesize\ttfamily \label{data__handler_8js_ace6a287b931a973ff0b3199854302d48} 
+function export construct\+\_\+modify\+\_\+selected\+\_\+annotation\+\_\+table (\begin{DoxyParamCaption}\item[{}]{is\+Empty}{}\end{DoxyParamCaption})}
+
+
+
+Met à jour le tableau de modification de l\textquotesingle{}annotation sélectionnée. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em \{boolean\}} & is\+Empty true si aucune annotation sélectionnée, false sinon \\
+\hline
+\end{DoxyParams}
+\Hypertarget{data__handler_8js_adfef8a0167182d5f9a72ed47fc9d6d99}\index{data\_handler.js@{data\_handler.js}!curate\_annotate\_data@{curate\_annotate\_data}}
+\index{curate\_annotate\_data@{curate\_annotate\_data}!data\_handler.js@{data\_handler.js}}
+\doxysubsubsection{\texorpdfstring{curate\_annotate\_data()}{curate\_annotate\_data()}}
+{\footnotesize\ttfamily \label{data__handler_8js_adfef8a0167182d5f9a72ed47fc9d6d99} 
+function export curate\+\_\+annotate\+\_\+data (\begin{DoxyParamCaption}\item[{}]{data}{}\end{DoxyParamCaption})}
+
+
+
+Transforme les données d\textquotesingle{}annotation brutes en format exploitable pour l\textquotesingle{}application (annotations manuelles ou automatiques). 
+
+
+\begin{DoxyParams}{Parameters}
+{\em \{\+Array\}} & data Données d\textquotesingle{}annotation (CSV parsé) \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+\{Array\} Données formatées 
+\end{DoxyReturn}
+\Hypertarget{data__handler_8js_a2d5b5bfa696baeca2c12f1b38b895dc6}\index{data\_handler.js@{data\_handler.js}!curate\_data@{curate\_data}}
+\index{curate\_data@{curate\_data}!data\_handler.js@{data\_handler.js}}
+\doxysubsubsection{\texorpdfstring{curate\_data()}{curate\_data()}}
+{\footnotesize\ttfamily \label{data__handler_8js_a2d5b5bfa696baeca2c12f1b38b895dc6} 
+function export curate\+\_\+data (\begin{DoxyParamCaption}\item[{}]{data}{, }\item[{}]{meta}{}\end{DoxyParamCaption})}
+
+
+
+Transforme les données d\textquotesingle{}annotation pour affichage/traitement, ajuste les coordonnées et filtre les points inutiles. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em \{\+Array\}} & data Données d\textquotesingle{}annotation (CSV parsé) \\
+\hline
+{\em \{\+Object\}} & meta Métadonnées de la course \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+\{Array\} Données formatées et filtrées 
+\end{DoxyReturn}
+\Hypertarget{data__handler_8js_a91aeb7184ea62ad2625b96fb3d50cdd2}\index{data\_handler.js@{data\_handler.js}!currate\_events@{currate\_events}}
+\index{currate\_events@{currate\_events}!data\_handler.js@{data\_handler.js}}
+\doxysubsubsection{\texorpdfstring{currate\_events()}{currate\_events()}}
+{\footnotesize\ttfamily \label{data__handler_8js_a91aeb7184ea62ad2625b96fb3d50cdd2} 
+function export currate\+\_\+events (\begin{DoxyParamCaption}\item[{}]{events}{}\end{DoxyParamCaption})}
+
+
+
+Trie et numérote les événements d\textquotesingle{}annotation d\textquotesingle{}un nageur. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em \{\+Array\}} & events Liste d\textquotesingle{}événements \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+\{Array\} Liste triée et numérotée 
+\end{DoxyReturn}
+\Hypertarget{data__handler_8js_af355d39466442e759ffc141d68aad652}\index{data\_handler.js@{data\_handler.js}!data\_onclick@{data\_onclick}}
+\index{data\_onclick@{data\_onclick}!data\_handler.js@{data\_handler.js}}
+\doxysubsubsection{\texorpdfstring{data\_onclick()}{data\_onclick()}}
+{\footnotesize\ttfamily \label{data__handler_8js_af355d39466442e759ffc141d68aad652} 
+function export data\+\_\+onclick (\begin{DoxyParamCaption}\item[{}]{swimmer\+Id}{, }\item[{}]{event\+Id}{}\end{DoxyParamCaption})}
+
+
+
+Gère le clic sur une annotation dans le tableau, met à jour la sélection et la vidéo. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em \{number\}} & swimmer\+Id Id du nageur \\
+\hline
+{\em \{number\}} & event\+Id Id de l\textquotesingle{}événement/annotation \\
+\hline
+\end{DoxyParams}
+\Hypertarget{data__handler_8js_a7157e837e2b9139d2087efbde17916ab}\index{data\_handler.js@{data\_handler.js}!find\_end@{find\_end}}
+\index{find\_end@{find\_end}!data\_handler.js@{data\_handler.js}}
+\doxysubsubsection{\texorpdfstring{find\_end()}{find\_end()}}
+{\footnotesize\ttfamily \label{data__handler_8js_a7157e837e2b9139d2087efbde17916ab} 
+function export find\+\_\+end (\begin{DoxyParamCaption}\item[{}]{data}{, }\item[{}]{distance}{}\end{DoxyParamCaption})}
+
+
+
+Détermine la frame de fin de la vidéo à partir des données d\textquotesingle{}annotation. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em \{\+Array\}} & data Données d\textquotesingle{}annotation (toutes lignes) \\
+\hline
+{\em \{number\}} & distance Distance totale de la course \\
+\hline
+\end{DoxyParams}
+\Hypertarget{data__handler_8js_a4d4419097fad2e9724aa8e4c4a155382}\index{data\_handler.js@{data\_handler.js}!format\_time@{format\_time}}
+\index{format\_time@{format\_time}!data\_handler.js@{data\_handler.js}}
+\doxysubsubsection{\texorpdfstring{format\_time()}{format\_time()}}
+{\footnotesize\ttfamily \label{data__handler_8js_a4d4419097fad2e9724aa8e4c4a155382} 
+function format\+\_\+time (\begin{DoxyParamCaption}\item[{}]{time}{}\end{DoxyParamCaption})}
+
+\Hypertarget{data__handler_8js_a920e53dfe57935ec91b6d3252925e092}\index{data\_handler.js@{data\_handler.js}!getAvg@{getAvg}}
+\index{getAvg@{getAvg}!data\_handler.js@{data\_handler.js}}
+\doxysubsubsection{\texorpdfstring{getAvg()}{getAvg()}}
+{\footnotesize\ttfamily \label{data__handler_8js_a920e53dfe57935ec91b6d3252925e092} 
+function export get\+Avg (\begin{DoxyParamCaption}\item[{}]{data}{}\end{DoxyParamCaption})}
+
+
+
+Calcule la durée maximale annotée à partir des temps présents dans les métadonnées. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em \{\+Object\}} & data Métadonnées de la course \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+\{number\} Durée maximale (secondes) ou -\/1 si non trouvée 
+\end{DoxyReturn}
+\Hypertarget{data__handler_8js_ac47e94d582e52c0e060370c488bc6836}\index{data\_handler.js@{data\_handler.js}!go\_to\_next\_cycle@{go\_to\_next\_cycle}}
+\index{go\_to\_next\_cycle@{go\_to\_next\_cycle}!data\_handler.js@{data\_handler.js}}
+\doxysubsubsection{\texorpdfstring{go\_to\_next\_cycle()}{go\_to\_next\_cycle()}}
+{\footnotesize\ttfamily \label{data__handler_8js_ac47e94d582e52c0e060370c488bc6836} 
+function export go\+\_\+to\+\_\+next\+\_\+cycle (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})}
+
+
+
+Place la vidéo à l\textquotesingle{}instant prédit du prochain cycle (si disponible). 
+
+\Hypertarget{data__handler_8js_a9dbbecf6fe597a4692f210f106f25b73}\index{data\_handler.js@{data\_handler.js}!make\_flat\_usable@{make\_flat\_usable}}
+\index{make\_flat\_usable@{make\_flat\_usable}!data\_handler.js@{data\_handler.js}}
+\doxysubsubsection{\texorpdfstring{make\_flat\_usable()}{make\_flat\_usable()}}
+{\footnotesize\ttfamily \label{data__handler_8js_a9dbbecf6fe597a4692f210f106f25b73} 
+function export make\+\_\+flat\+\_\+usable (\begin{DoxyParamCaption}\item[{}]{data}{}\end{DoxyParamCaption})}
+
+
+
+Transforme la structure des flat.\+json en dictionnaire clé/valeur utilisable. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em \{\+Array\}} & data Données flat (JSON) \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+\{Object\} Dictionnaire clé/valeur 
+\end{DoxyReturn}
+\Hypertarget{data__handler_8js_aa3c1280f65cb5a9ac1b347aba244ce7c}\index{data\_handler.js@{data\_handler.js}!vide\_last\_added\_data@{vide\_last\_added\_data}}
+\index{vide\_last\_added\_data@{vide\_last\_added\_data}!data\_handler.js@{data\_handler.js}}
+\doxysubsubsection{\texorpdfstring{vide\_last\_added\_data()}{vide\_last\_added\_data()}}
+{\footnotesize\ttfamily \label{data__handler_8js_aa3c1280f65cb5a9ac1b347aba244ce7c} 
+function export vide\+\_\+last\+\_\+added\+\_\+data (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})}
+
+
+
+Vide l\textquotesingle{}historique des dernières annotations ajoutées. 
+
+
+
+\doxysubsection{Variable Documentation}
+\Hypertarget{data__handler_8js_a385149b61fc24b07898c0a0a8a43056d}\index{data\_handler.js@{data\_handler.js}!choose\_tab@{choose\_tab}}
+\index{choose\_tab@{choose\_tab}!data\_handler.js@{data\_handler.js}}
+\doxysubsubsection{\texorpdfstring{choose\_tab}{choose\_tab}}
+{\footnotesize\ttfamily \label{data__handler_8js_a385149b61fc24b07898c0a0a8a43056d} 
+\mbox{\hyperlink{setup_8js_a8ac3c63e523598549c2264ad7042f8af}{window}} choose\+\_\+tab = choose\+\_\+tab}
+
+\Hypertarget{data__handler_8js_a96d5d55397eb74f89c4b9088d5b5ef6e}\index{data\_handler.js@{data\_handler.js}!data\_onclick@{data\_onclick}}
+\index{data\_onclick@{data\_onclick}!data\_handler.js@{data\_handler.js}}
+\doxysubsubsection{\texorpdfstring{data\_onclick}{data\_onclick}}
+{\footnotesize\ttfamily \label{data__handler_8js_a96d5d55397eb74f89c4b9088d5b5ef6e} 
+\mbox{\hyperlink{setup_8js_a8ac3c63e523598549c2264ad7042f8af}{window}} data\+\_\+onclick = data\+\_\+onclick}
+
+\Hypertarget{data__handler_8js_a59be084da8908b7d77ff34b25cd84488}\index{data\_handler.js@{data\_handler.js}!import@{import}}
+\index{import@{import}!data\_handler.js@{data\_handler.js}}
+\doxysubsubsection{\texorpdfstring{import}{import}}
+{\footnotesize\ttfamily \label{data__handler_8js_a59be084da8908b7d77ff34b25cd84488} 
+import \{ \mbox{\hyperlink{loader_8js_afb947e393cfd66db09cec4dce7b02cc7}{curr\+\_\+swims}}, \mbox{\hyperlink{loader_8js_a408754519e0aa8c140aced9e7259046d}{edit\+\_\+temp\+\_\+end}}, \mbox{\hyperlink{loader_8js_ab3def73df0c71f75c809c4fc9b0db06c}{frame\+\_\+rate}}, temp\+\_\+end, \mbox{\hyperlink{loader_8js_a7b801ec4e9d5f6f2ad91fc5df140bdae}{inter}}, \mbox{\hyperlink{loader_8js_a68fff880c79f8308c01653980c85a0f3}{pool\+\_\+size}} \} \mbox{\hyperlink{jquery-ui_8js_ace03b192fd101a1c5648340bc09b7229}{from}} "{}./loader.\+js"{}}
+
+\Hypertarget{data__handler_8js_a2893652d12beda775f0b8540bdf5c146}\index{data\_handler.js@{data\_handler.js}!last\_added\_data@{last\_added\_data}}
+\index{last\_added\_data@{last\_added\_data}!data\_handler.js@{data\_handler.js}}
+\doxysubsubsection{\texorpdfstring{last\_added\_data}{last\_added\_data}}
+{\footnotesize\ttfamily \label{data__handler_8js_a2893652d12beda775f0b8540bdf5c146} 
+export let last\+\_\+added\+\_\+data = \mbox{[}$\,$\mbox{]}}
+
+\Hypertarget{data__handler_8js_ac6242edb1adaf255ed531bbd0d29ebe5}\index{data\_handler.js@{data\_handler.js}!nb\_of\_last\_added\_data\_saved@{nb\_of\_last\_added\_data\_saved}}
+\index{nb\_of\_last\_added\_data\_saved@{nb\_of\_last\_added\_data\_saved}!data\_handler.js@{data\_handler.js}}
+\doxysubsubsection{\texorpdfstring{nb\_of\_last\_added\_data\_saved}{nb\_of\_last\_added\_data\_saved}}
+{\footnotesize\ttfamily \label{data__handler_8js_ac6242edb1adaf255ed531bbd0d29ebe5} 
+let nb\+\_\+of\+\_\+last\+\_\+added\+\_\+data\+\_\+saved = 6}
+
+\Hypertarget{data__handler_8js_a60aa1b37e0047b2079241c0eed3f73ea}\index{data\_handler.js@{data\_handler.js}!prochain\_cycle\_predit@{prochain\_cycle\_predit}}
+\index{prochain\_cycle\_predit@{prochain\_cycle\_predit}!data\_handler.js@{data\_handler.js}}
+\doxysubsubsection{\texorpdfstring{prochain\_cycle\_predit}{prochain\_cycle\_predit}}
+{\footnotesize\ttfamily \label{data__handler_8js_a60aa1b37e0047b2079241c0eed3f73ea} 
+let prochain\+\_\+cycle\+\_\+predit}
+

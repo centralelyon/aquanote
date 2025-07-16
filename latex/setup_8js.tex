@@ -1,0 +1,211 @@
+\doxysection{test/setup.js File Reference}
+\hypertarget{setup_8js}{}\label{setup_8js}\index{test/setup.js@{test/setup.js}}
+
+
+Configuration d\textquotesingle{}environnement de test pour Vitest avec JSDOM.  
+
+
+\doxysubsubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{setup_8js_ac29a167a024198d6d416d7c2b2c59768}{if}} (typeof \mbox{\hyperlink{setup_8js_a3700475af73640acaa75e91e30413e9d}{window.\+navigator}}===\textquotesingle{}undefined\textquotesingle{})
+\item 
+\mbox{\hyperlink{setup_8js_a3d828a3d8bad960119aff1cc36f41e5d}{if}} (typeof document.\+create\+Element !==\textquotesingle{}function\textquotesingle{})
+\item 
+\mbox{\hyperlink{setup_8js_a0f42ee0a33083541b4e59540d357c45b}{if}} (\mbox{\hyperlink{jquery-ui_8js_a58859d93c30e635814dc980ed86e3f84}{global.\$}} \&\&\mbox{\hyperlink{jquery-ui_8js_a83f3b7c3c34f0779122b040056625b21}{global.\$.\+fn}})
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{setup_8js_a59be084da8908b7d77ff34b25cd84488}{import}} \{ vi \} \mbox{\hyperlink{jquery-ui_8js_ace03b192fd101a1c5648340bc09b7229}{from}} \textquotesingle{}vitest\textquotesingle{}
+\item 
+\mbox{\hyperlink{cycles__handler_8js_a59be084da8908b7d77ff34b25cd84488}{import}} jquery \mbox{\hyperlink{jquery-ui_8js_ace03b192fd101a1c5648340bc09b7229}{from}} \mbox{\hyperlink{setup_8js_af4fdc44ec494c7d60de4a6a1d4e47af2}{jquery}}
+\item 
+\mbox{\hyperlink{cycles__handler_8js_a59be084da8908b7d77ff34b25cd84488}{import}} \texorpdfstring{$\ast$}{*}as d3 \mbox{\hyperlink{jquery-ui_8js_ace03b192fd101a1c5648340bc09b7229}{from}} \mbox{\hyperlink{setup_8js_a98e30b2dfb63fe5803ad44d5d671ed61}{d3}}
+\item 
+\mbox{\hyperlink{cycles__handler_8js_a59be084da8908b7d77ff34b25cd84488}{import}} fetch \mbox{\hyperlink{jquery-ui_8js_ace03b192fd101a1c5648340bc09b7229}{from}} node \mbox{\hyperlink{setup_8js_a1b07a64c11b7aa36b9034640ffee97e7}{fetch}}
+\item 
+\mbox{\hyperlink{cycles__handler_8js_a59be084da8908b7d77ff34b25cd84488}{import}} path \mbox{\hyperlink{jquery-ui_8js_ace03b192fd101a1c5648340bc09b7229}{from}} \mbox{\hyperlink{setup_8js_af49e7f78b7d19e319376116c94c43edf}{path}}
+\item 
+global \mbox{\hyperlink{setup_8js_a6693f48fd58eaad0f5461de8f800b9d3}{Resize\+Observer}}
+\item 
+\mbox{\hyperlink{setup_8js_a92b303b76a3f942ea819498907d5e83c}{const}} \mbox{\hyperlink{setup_8js_a8c5d0d34a0c59559915458a5db3c776e}{html}} = read\+File\+Sync(\textquotesingle{}./index.\+html\textquotesingle{}, \textquotesingle{}utf8\textquotesingle{})
+\item 
+global \mbox{\hyperlink{setup_8js_a56ad9d13bd3b1ac85523e35869d5e39d}{\+\_\+\+\_\+\+TEST\+\_\+\+\_\+}} = \mbox{\hyperlink{refactor-script_8js_a1a24fc2eb8c1af6d06ac15bcec47f088}{true}}
+\item 
+\mbox{\hyperlink{setup_8js_a92b303b76a3f942ea819498907d5e83c}{const}} \{ \mbox{\hyperlink{setup_8js_a8ac3c63e523598549c2264ad7042f8af}{window}} \} = new JSDOM(\mbox{\hyperlink{setup_8js_a8c5d0d34a0c59559915458a5db3c776e}{html}}, \{ run\+Scripts\+: "{}dangerously"{}, resources\+: "{}usable"{} \})
+\item 
+global \mbox{\hyperlink{setup_8js_a8ac3c63e523598549c2264ad7042f8af}{window}} = window
+\item 
+global \mbox{\hyperlink{setup_8js_a9fa3fd903584388c98582833a2532aec}{document}} = window.\+document
+\item 
+global \mbox{\hyperlink{setup_8js_a3700475af73640acaa75e91e30413e9d}{navigator}} = window.\+navigator
+\item 
+global \mbox{\hyperlink{setup_8js_a166157dab0fee6af8e7ece0059b67376}{\$}} = \mbox{\hyperlink{setup_8js_af4fdc44ec494c7d60de4a6a1d4e47af2}{jquery}}(\mbox{\hyperlink{setup_8js_a8ac3c63e523598549c2264ad7042f8af}{window}})
+\item 
+global \mbox{\hyperlink{setup_8js_acacd8844355e9c9623e7aacfabff3291}{j\+Query}} = \mbox{\hyperlink{jquery-ui_8js_a58859d93c30e635814dc980ed86e3f84}{global.\$}}
+\item 
+\mbox{\hyperlink{setup_8js_a92b303b76a3f942ea819498907d5e83c}{const}} \mbox{\hyperlink{setup_8js_a5fb436edcbf1d426827bbd231ad51a49}{persp\+TCode}} = read\+File\+Sync(\textquotesingle{}./assets/\mbox{\hyperlink{main_8js_a2e1c8cb1a275ecd4c6fdeb7c95982fca}{js}}/perspective-\/\mbox{\hyperlink{main_8js_a2e1c8cb1a275ecd4c6fdeb7c95982fca}{transform.\+min.\+js}}\textquotesingle{}, \textquotesingle{}utf8\textquotesingle{})
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Configuration d\textquotesingle{}environnement de test pour Vitest avec JSDOM. 
+
+Configure DOM, j\+Query, D3.\+js, fetch et mocks pour les tests unitaires Charge le HTML réel et initialise l\textquotesingle{}environnement de test complet 
+
+\doxysubsection{Function Documentation}
+\Hypertarget{setup_8js_a0f42ee0a33083541b4e59540d357c45b}\index{setup.js@{setup.js}!if@{if}}
+\index{if@{if}!setup.js@{setup.js}}
+\doxysubsubsection{\texorpdfstring{if()}{if()}\hspace{0.1cm}{\footnotesize\ttfamily [1/3]}}
+{\footnotesize\ttfamily \label{setup_8js_a0f42ee0a33083541b4e59540d357c45b} 
+if (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{jquery-ui_8js_a58859d93c30e635814dc980ed86e3f84}{global.\$}} \&\&global.\$.}]{fn}{}\end{DoxyParamCaption})}
+
+\Hypertarget{setup_8js_a3d828a3d8bad960119aff1cc36f41e5d}\index{setup.js@{setup.js}!if@{if}}
+\index{if@{if}!setup.js@{setup.js}}
+\doxysubsubsection{\texorpdfstring{if()}{if()}\hspace{0.1cm}{\footnotesize\ttfamily [2/3]}}
+{\footnotesize\ttfamily \label{setup_8js_a3d828a3d8bad960119aff1cc36f41e5d} 
+if (\begin{DoxyParamCaption}\item[{}]{typeof document.\+create\+Element !}{ = {\ttfamily =~\textquotesingle{}function\textquotesingle{}}}\end{DoxyParamCaption})}
+
+\Hypertarget{setup_8js_ac29a167a024198d6d416d7c2b2c59768}\index{setup.js@{setup.js}!if@{if}}
+\index{if@{if}!setup.js@{setup.js}}
+\doxysubsubsection{\texorpdfstring{if()}{if()}\hspace{0.1cm}{\footnotesize\ttfamily [3/3]}}
+{\footnotesize\ttfamily \label{setup_8js_ac29a167a024198d6d416d7c2b2c59768} 
+if (\begin{DoxyParamCaption}\item[{typeof window.}]{navigator}{ = {\ttfamily ==~\textquotesingle{}undefined\textquotesingle{}}}\end{DoxyParamCaption})}
+
+
+
+\doxysubsection{Variable Documentation}
+\Hypertarget{setup_8js_a166157dab0fee6af8e7ece0059b67376}\index{setup.js@{setup.js}!\$@{\$}}
+\index{\$@{\$}!setup.js@{setup.js}}
+\doxysubsubsection{\texorpdfstring{\$}{\$}}
+{\footnotesize\ttfamily \label{setup_8js_a166157dab0fee6af8e7ece0059b67376} 
+global \$ = \mbox{\hyperlink{setup_8js_af4fdc44ec494c7d60de4a6a1d4e47af2}{jquery}}(\mbox{\hyperlink{setup_8js_a8ac3c63e523598549c2264ad7042f8af}{window}})}
+
+\Hypertarget{setup_8js_a56ad9d13bd3b1ac85523e35869d5e39d}\index{setup.js@{setup.js}!\_\_TEST\_\_@{\_\_TEST\_\_}}
+\index{\_\_TEST\_\_@{\_\_TEST\_\_}!setup.js@{setup.js}}
+\doxysubsubsection{\texorpdfstring{\_\_TEST\_\_}{\_\_TEST\_\_}}
+{\footnotesize\ttfamily \label{setup_8js_a56ad9d13bd3b1ac85523e35869d5e39d} 
+\mbox{\hyperlink{setup_8js_a8ac3c63e523598549c2264ad7042f8af}{window}} \+\_\+\+\_\+\+TEST\+\_\+\+\_\+ = \mbox{\hyperlink{refactor-script_8js_a1a24fc2eb8c1af6d06ac15bcec47f088}{true}}}
+
+\Hypertarget{setup_8js_a92b303b76a3f942ea819498907d5e83c}\index{setup.js@{setup.js}!const@{const}}
+\index{const@{const}!setup.js@{setup.js}}
+\doxysubsubsection{\texorpdfstring{const}{const}}
+{\footnotesize\ttfamily \label{setup_8js_a92b303b76a3f942ea819498907d5e83c} 
+const \{ \mbox{\hyperlink{setup_8js_a8ac3c63e523598549c2264ad7042f8af}{window}} \} = new JSDOM(\mbox{\hyperlink{setup_8js_a8c5d0d34a0c59559915458a5db3c776e}{html}}, \{ run\+Scripts\+: "{}dangerously"{}, resources\+: "{}usable"{} \})}
+
+\Hypertarget{setup_8js_a98e30b2dfb63fe5803ad44d5d671ed61}\index{setup.js@{setup.js}!d3@{d3}}
+\index{d3@{d3}!setup.js@{setup.js}}
+\doxysubsubsection{\texorpdfstring{d3}{d3}}
+{\footnotesize\ttfamily \label{setup_8js_a98e30b2dfb63fe5803ad44d5d671ed61} 
+global d3}
+
+{\bfseries Initial value\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{=\ \mbox{\hyperlink{setup_8js_a98e30b2dfb63fe5803ad44d5d671ed61}{d3}}}
+\DoxyCodeLine{global.fetch\ =\ \mbox{\hyperlink{setup_8js_a1b07a64c11b7aa36b9034640ffee97e7}{fetch}}}
+
+\end{DoxyCode}
+\Hypertarget{setup_8js_a9fa3fd903584388c98582833a2532aec}\index{setup.js@{setup.js}!document@{document}}
+\index{document@{document}!setup.js@{setup.js}}
+\doxysubsubsection{\texorpdfstring{document}{document}}
+{\footnotesize\ttfamily \label{setup_8js_a9fa3fd903584388c98582833a2532aec} 
+global document = window.\+document}
+
+\Hypertarget{setup_8js_a1b07a64c11b7aa36b9034640ffee97e7}\index{setup.js@{setup.js}!fetch@{fetch}}
+\index{fetch@{fetch}!setup.js@{setup.js}}
+\doxysubsubsection{\texorpdfstring{fetch}{fetch}}
+{\footnotesize\ttfamily \label{setup_8js_a1b07a64c11b7aa36b9034640ffee97e7} 
+\mbox{\hyperlink{setup_8js_a8ac3c63e523598549c2264ad7042f8af}{window}} fetch}
+
+{\bfseries Initial value\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{=\ async\ \textcolor{keyword}{function}(url,\ options)\ \{}
+\DoxyCodeLine{\ \ }
+\DoxyCodeLine{\ \ \textcolor{keywordflow}{if}\ (typeof\ url\ ===\ \textcolor{stringliteral}{'string'}\ \&\&\ !url.match(/\string^https?:\(\backslash\)/\(\backslash\)}
+\DoxyCodeLine{\ \ \ \ }
+\DoxyCodeLine{\ \ \ \ \textcolor{keyword}{const}\ filePath\ =\ \mbox{\hyperlink{index_8js_af49e7f78b7d19e319376116c94c43edf}{path}}.resolve(process.cwd(),\ url.replace(/\string^\(\backslash\).\(\backslash\)\(\backslash\)|\string^\(\backslash\).\(\backslash\)}
+\DoxyCodeLine{\ \ \ \ \textcolor{keywordflow}{try}\ \{}
+\DoxyCodeLine{\ \ \ \ \ \ const\ data\ =\ readFileSync(filePath,\ \textcolor{stringliteral}{'utf8'});}
+\DoxyCodeLine{\ \ \ \ \ \ return\ \{}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ ok:\ true,}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ status:\ 200,}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ json:\ async\ ()\ =>\ JSON.parse(data),}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ text:\ async\ ()\ =>\ data,}
+\DoxyCodeLine{\ \ \ \ \ \ \};}
+\DoxyCodeLine{\ \ \ \ \}\ \textcolor{keywordflow}{catch}\ (\mbox{\hyperlink{refactor-script_8js_a2c038346d47955cbe2cb91e338edd7e1}{e}})\ \{}
+\DoxyCodeLine{\ \ \ \ \ \ \textcolor{keywordflow}{return}\ \{}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ ok:\ \textcolor{keyword}{false},}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ status:\ 404,}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ statusText:\ \textcolor{stringliteral}{'Not\ Found'},}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ json:\ async\ ()\ =>\ \{\ \textcolor{keywordflow}{throw}\ \mbox{\hyperlink{refactor-script_8js_a2c038346d47955cbe2cb91e338edd7e1}{e}};\ \},}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ text:\ async\ ()\ =>\ \{\ \textcolor{keywordflow}{throw}\ \mbox{\hyperlink{refactor-script_8js_a2c038346d47955cbe2cb91e338edd7e1}{e}};\ \},}
+\DoxyCodeLine{\ \ \ \ \ \ \};}
+\DoxyCodeLine{\ \ \ \ \}}
+\DoxyCodeLine{\ \ \}}
+\DoxyCodeLine{\ \ }
+\DoxyCodeLine{\ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{setup_8js_a1b07a64c11b7aa36b9034640ffee97e7}{fetch}}(url,\ options)}
+
+\end{DoxyCode}
+\Hypertarget{setup_8js_a8c5d0d34a0c59559915458a5db3c776e}\index{setup.js@{setup.js}!html@{html}}
+\index{html@{html}!setup.js@{setup.js}}
+\doxysubsubsection{\texorpdfstring{html}{html}}
+{\footnotesize\ttfamily \label{setup_8js_a8c5d0d34a0c59559915458a5db3c776e} 
+\mbox{\hyperlink{setup_8js_a92b303b76a3f942ea819498907d5e83c}{const}} html = read\+File\+Sync(\textquotesingle{}./index.\+html\textquotesingle{}, \textquotesingle{}utf8\textquotesingle{})}
+
+\Hypertarget{setup_8js_a59be084da8908b7d77ff34b25cd84488}\index{setup.js@{setup.js}!import@{import}}
+\index{import@{import}!setup.js@{setup.js}}
+\doxysubsubsection{\texorpdfstring{import}{import}}
+{\footnotesize\ttfamily \label{setup_8js_a59be084da8908b7d77ff34b25cd84488} 
+import \{ vi \} \mbox{\hyperlink{jquery-ui_8js_ace03b192fd101a1c5648340bc09b7229}{from}} \textquotesingle{}vitest\textquotesingle{}}
+
+\Hypertarget{setup_8js_acacd8844355e9c9623e7aacfabff3291}\index{setup.js@{setup.js}!jQuery@{jQuery}}
+\index{jQuery@{jQuery}!setup.js@{setup.js}}
+\doxysubsubsection{\texorpdfstring{jQuery}{jQuery}}
+{\footnotesize\ttfamily \label{setup_8js_acacd8844355e9c9623e7aacfabff3291} 
+global j\+Query = \mbox{\hyperlink{jquery-ui_8js_a58859d93c30e635814dc980ed86e3f84}{global.\$}}}
+
+\Hypertarget{setup_8js_af4fdc44ec494c7d60de4a6a1d4e47af2}\index{setup.js@{setup.js}!jquery@{jquery}}
+\index{jquery@{jquery}!setup.js@{setup.js}}
+\doxysubsubsection{\texorpdfstring{jquery}{jquery}}
+{\footnotesize\ttfamily \label{setup_8js_af4fdc44ec494c7d60de4a6a1d4e47af2} 
+\mbox{\hyperlink{cycles__handler_8js_a59be084da8908b7d77ff34b25cd84488}{import}} jquery \mbox{\hyperlink{jquery-ui_8js_ace03b192fd101a1c5648340bc09b7229}{from}} jquery}
+
+\Hypertarget{setup_8js_a3700475af73640acaa75e91e30413e9d}\index{setup.js@{setup.js}!navigator@{navigator}}
+\index{navigator@{navigator}!setup.js@{setup.js}}
+\doxysubsubsection{\texorpdfstring{navigator}{navigator}}
+{\footnotesize\ttfamily \label{setup_8js_a3700475af73640acaa75e91e30413e9d} 
+global navigator = window.\+navigator}
+
+\Hypertarget{setup_8js_af49e7f78b7d19e319376116c94c43edf}\index{setup.js@{setup.js}!path@{path}}
+\index{path@{path}!setup.js@{setup.js}}
+\doxysubsubsection{\texorpdfstring{path}{path}}
+{\footnotesize\ttfamily \label{setup_8js_af49e7f78b7d19e319376116c94c43edf} 
+\mbox{\hyperlink{cycles__handler_8js_a59be084da8908b7d77ff34b25cd84488}{import}} path \mbox{\hyperlink{jquery-ui_8js_ace03b192fd101a1c5648340bc09b7229}{from}} path}
+
+\Hypertarget{setup_8js_a5fb436edcbf1d426827bbd231ad51a49}\index{setup.js@{setup.js}!perspTCode@{perspTCode}}
+\index{perspTCode@{perspTCode}!setup.js@{setup.js}}
+\doxysubsubsection{\texorpdfstring{perspTCode}{perspTCode}}
+{\footnotesize\ttfamily \label{setup_8js_a5fb436edcbf1d426827bbd231ad51a49} 
+\mbox{\hyperlink{setup_8js_a92b303b76a3f942ea819498907d5e83c}{const}} persp\+TCode = read\+File\+Sync(\textquotesingle{}./assets/\mbox{\hyperlink{main_8js_a2e1c8cb1a275ecd4c6fdeb7c95982fca}{js}}/perspective-\/\mbox{\hyperlink{main_8js_a2e1c8cb1a275ecd4c6fdeb7c95982fca}{transform.\+min.\+js}}\textquotesingle{}, \textquotesingle{}utf8\textquotesingle{})}
+
+\Hypertarget{setup_8js_a6693f48fd58eaad0f5461de8f800b9d3}\index{setup.js@{setup.js}!ResizeObserver@{ResizeObserver}}
+\index{ResizeObserver@{ResizeObserver}!setup.js@{setup.js}}
+\doxysubsubsection{\texorpdfstring{ResizeObserver}{ResizeObserver}}
+{\footnotesize\ttfamily \label{setup_8js_a6693f48fd58eaad0f5461de8f800b9d3} 
+global Resize\+Observer}
+
+{\bfseries Initial value\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{=\ vi.fn(()\ =>\ (\{}
+\DoxyCodeLine{\ \ observe:\ vi.fn(),}
+\DoxyCodeLine{\ \ disconnect:\ vi.fn(),}
+\DoxyCodeLine{\}))}
+
+\end{DoxyCode}
+\Hypertarget{setup_8js_a8ac3c63e523598549c2264ad7042f8af}\index{setup.js@{setup.js}!window@{window}}
+\index{window@{window}!setup.js@{setup.js}}
+\doxysubsubsection{\texorpdfstring{window}{window}}
+{\footnotesize\ttfamily \label{setup_8js_a8ac3c63e523598549c2264ad7042f8af} 
+global window = window}
+

@@ -1,0 +1,138 @@
+\doxysection{test/e2e Directory Reference}
+\hypertarget{dir_cf6dd3d856136905faaf5b7bba187d4d}{}\label{dir_cf6dd3d856136905faaf5b7bba187d4d}\index{test/e2e Directory Reference@{test/e2e Directory Reference}}
+\doxysubsubsection*{Directories}
+\begin{DoxyCompactItemize}
+\item 
+directory \mbox{\hyperlink{dir_f6cd8a29aaacf09d3de6fc0cc90a11fa}{helpers}}
+\item 
+directory \mbox{\hyperlink{dir_9e16a11f80308ad72ecefd1ae5061d4c}{tests}}
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Files}
+\begin{DoxyCompactItemize}
+\item 
+file \mbox{\hyperlink{bars-functionality_8spec_8js}{bars-\/functionality.\+spec.\+js}}
+\item 
+file \mbox{\hyperlink{basic_8spec_8js}{basic.\+spec.\+js}}
+\begin{DoxyCompactList}\small\item\em Tests E2E de base pour le serveur HTTP. \end{DoxyCompactList}\item 
+file \mbox{\hyperlink{colors-test_8spec_8js}{colors-\/test.\+spec.\+js}}
+\begin{DoxyCompactList}\small\item\em Tests E2E pour les couleurs des annotations. \end{DoxyCompactList}\item 
+file \mbox{\hyperlink{complete_8spec_8js}{complete.\+spec.\+js}}
+\item 
+file \mbox{\hyperlink{fixtures_8js}{fixtures.\+js}}
+\begin{DoxyCompactList}\small\item\em Fixtures Playwright pour les tests E2E. \end{DoxyCompactList}\item 
+file \mbox{\hyperlink{simple-video-test_8spec_8js}{simple-\/video-\/test.\+spec.\+js}}
+\begin{DoxyCompactList}\small\item\em Tests E2E simplifiés pour la lecture vidéo. \end{DoxyCompactList}\item 
+file \mbox{\hyperlink{video_8spec_8js}{video.\+spec.\+js}}
+\begin{DoxyCompactList}\small\item\em Tests E2E pour le chargement et l\textquotesingle{}affichage vidéo. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+\hypertarget{README.md_autotoc_md14}{}\doxysubsection{\texorpdfstring{Vue d\textquotesingle{}ensemble}{Vue d\textquotesingle{}ensemble}}\label{README.md_autotoc_md14}
+Le fichier de test monolithique {\ttfamily annotation.\+spec.\+js} a été réorganisé en plusieurs fichiers plus petits et spécialisés pour améliorer la maintenabilité et la lisibilité.\hypertarget{README.md_autotoc_md15}{}\doxysubsection{\texorpdfstring{Structure des fichiers}{Structure des fichiers}}\label{README.md_autotoc_md15}
+\hypertarget{README.md_autotoc_md16}{}\doxysubsubsection{\texorpdfstring{📁 helpers/}{📁 helpers/}}\label{README.md_autotoc_md16}
+Contient les utilitaires et fonctions partagées \+:
+
+
+\begin{DoxyItemize}
+\item {\bfseries{{\ttfamily \doxylink{test-helpers_8js}{test-\/helpers.\+js}}}} \+: Fonctions utilitaires pour les tests (load\+Test\+Race, navigation, etc.)
+\item {\bfseries{{\ttfamily \doxylink{mock-setup_8js}{mock-\/setup.\+js}}}} \+: Configuration centralisée des mocks réseau
+\end{DoxyItemize}\hypertarget{README.md_autotoc_md17}{}\doxysubsubsection{\texorpdfstring{📁 tests/}{📁 tests/}}\label{README.md_autotoc_md17}
+Contient les fichiers de tests spécialisés \+:
+
+
+\begin{DoxyItemize}
+\item {\bfseries{{\ttfamily \doxylink{basic-interface_8spec_8js}{basic-\/interface.\+spec.\+js}}}} \+: Tests de base de l\textquotesingle{}interface utilisateur
+\item {\bfseries{{\ttfamily \doxylink{charts-visualization_8spec_8js}{charts-\/visualization.\+spec.\+js}}}} \+: Tests des graphiques et visualisations ~\newline
+
+\item {\bfseries{{\ttfamily \doxylink{video-integration_8spec_8js}{video-\/integration.\+spec.\+js}}}} \+: Tests d\textquotesingle{}intégration vidéo
+\item {\bfseries{{\ttfamily \doxylink{annotations_8spec_8js}{annotations.\+spec.\+js}}}} \+: Tests du système d\textquotesingle{}annotations
+\item {\bfseries{{\ttfamily \doxylink{synchronization_8spec_8js}{synchronization.\+spec.\+js}}}} \+: Tests de synchronisation entre les vues
+\end{DoxyItemize}\hypertarget{README.md_autotoc_md18}{}\doxysubsubsection{\texorpdfstring{📄 Fichiers principaux}{📄 Fichiers principaux}}\label{README.md_autotoc_md18}
+
+\begin{DoxyItemize}
+\item {\bfseries{{\ttfamily annotation-\/suite.\+spec.\+js}}} \+: Point d\textquotesingle{}entrée qui importe tous les tests
+\item {\bfseries{{\ttfamily annotation.\+spec.\+js}}} \+: ⚠️ Fichier original (peut être supprimé après validation)
+\end{DoxyItemize}\hypertarget{README.md_autotoc_md19}{}\doxysubsection{\texorpdfstring{Utilisation}{Utilisation}}\label{README.md_autotoc_md19}
+\hypertarget{README.md_autotoc_md20}{}\doxysubsubsection{\texorpdfstring{Exécuter tous les tests}{Exécuter tous les tests}}\label{README.md_autotoc_md20}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{npx\ playwright\ test\ annotation-\/suite.spec.js}
+
+\end{DoxyCode}
+\hypertarget{README.md_autotoc_md21}{}\doxysubsubsection{\texorpdfstring{Exécuter des tests spécifiques}{Exécuter des tests spécifiques}}\label{README.md_autotoc_md21}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\#\ Tests\ de\ base\ uniquement}
+\DoxyCodeLine{npx\ playwright\ test\ tests/basic-\/interface.spec.js}
+\DoxyCodeLine{}
+\DoxyCodeLine{\#\ Tests\ de\ graphiques\ uniquement\ \ }
+\DoxyCodeLine{npx\ playwright\ test\ tests/charts-\/visualization.spec.js}
+\DoxyCodeLine{}
+\DoxyCodeLine{\#\ Tests\ vidéo\ uniquement}
+\DoxyCodeLine{npx\ playwright\ test\ tests/video-\/integration.spec.js}
+\DoxyCodeLine{}
+\DoxyCodeLine{\#\ Tests\ d'annotations\ uniquement}
+\DoxyCodeLine{npx\ playwright\ test\ tests/annotations.spec.js}
+\DoxyCodeLine{}
+\DoxyCodeLine{\#\ Tests\ de\ synchronisation\ uniquement}
+\DoxyCodeLine{npx\ playwright\ test\ tests/synchronization.spec.js}
+
+\end{DoxyCode}
+\hypertarget{README.md_autotoc_md22}{}\doxysubsubsection{\texorpdfstring{Exécuter par catégorie avec des tags}{Exécuter par catégorie avec des tags}}\label{README.md_autotoc_md22}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\#\ Tous\ les\ tests\ dans\ le\ dossier\ tests/}
+\DoxyCodeLine{npx\ playwright\ test\ tests/}
+\DoxyCodeLine{}
+\DoxyCodeLine{\#\ Tests\ spécifiques\ avec\ grep}
+\DoxyCodeLine{npx\ playwright\ test\ -\/-\/grep\ "{}graphiques"{}}
+\DoxyCodeLine{npx\ playwright\ test\ -\/-\/grep\ "{}annotations"{}}
+
+\end{DoxyCode}
+\hypertarget{README.md_autotoc_md23}{}\doxysubsection{\texorpdfstring{Avantages de cette structure}{Avantages de cette structure}}\label{README.md_autotoc_md23}
+
+\begin{DoxyEnumerate}
+\item {\bfseries{Maintenabilité}} \+: Chaque fichier a une responsabilité claire
+\item {\bfseries{Parallélisation}} \+: Les tests peuvent s\textquotesingle{}exécuter en parallèle plus efficacement
+\item {\bfseries{Debug}} \+: Plus facile d\textquotesingle{}isoler et déboguer des problèmes spécifiques
+\item {\bfseries{Réutilisabilité}} \+: Les helpers peuvent être réutilisés facilement
+\item {\bfseries{Lisibilité}} \+: Code plus organisé et plus facile à comprendre
+\end{DoxyEnumerate}\hypertarget{README.md_autotoc_md24}{}\doxysubsection{\texorpdfstring{Fonctions utilitaires principales}{Fonctions utilitaires principales}}\label{README.md_autotoc_md24}
+\hypertarget{README.md_autotoc_md25}{}\doxysubsubsection{\texorpdfstring{test-\/helpers.\+js}{test-\/helpers.\+js}}\label{README.md_autotoc_md25}
+
+\begin{DoxyItemize}
+\item {\ttfamily load\+Test\+Race(page)} \+: Charge une course de test complète
+\item {\ttfamily wait\+For\+Swimmer\+Selection(page)} \+: Attend que les nageurs soient disponibles
+\item {\ttfamily navigate\+To\+Charts\+Tab(page)} \+: Navigue vers l\textquotesingle{}onglet des graphiques
+\item {\ttfamily navigate\+To\+Data\+Tab(page)} \+: Navigue vers l\textquotesingle{}onglet des données
+\item {\ttfamily get\+Test\+Data()} \+: Récupère les données de test
+\item {\ttfamily mode\+\_\+color} \+: Couleurs pour les tests
+\item {\ttfamily expected\+CSSColors} \+: Couleurs CSS attendues
+\end{DoxyItemize}\hypertarget{README.md_autotoc_md26}{}\doxysubsubsection{\texorpdfstring{mock-\/setup.\+js}{mock-\/setup.\+js}}\label{README.md_autotoc_md26}
+
+\begin{DoxyItemize}
+\item {\ttfamily setup\+Mocks(page, test\+Data, test\+Data\+Path, test\+Video\+Path)} \+: Configure tous les mocks
+\item {\ttfamily setup\+Diagnostic\+Listeners(page)} \+: Configure les écouteurs de diagnostic
+\item {\ttfamily initialize\+Application(page)} \+: Initialise l\textquotesingle{}application après navigation
+\end{DoxyItemize}\hypertarget{README.md_autotoc_md27}{}\doxysubsection{\texorpdfstring{Migration depuis l\textquotesingle{}ancien fichier}{Migration depuis l\textquotesingle{}ancien fichier}}\label{README.md_autotoc_md27}
+Si vous utilisez l\textquotesingle{}ancien {\ttfamily annotation.\+spec.\+js}, vous pouvez \+:
+
+
+\begin{DoxyEnumerate}
+\item {\bfseries{Utiliser la nouvelle structure}} \+: Remplacer les imports vers {\ttfamily annotation-\/suite.\+spec.\+js}
+\item {\bfseries{Migration progressive}} \+: Utiliser les nouveaux fichiers un par un
+\item {\bfseries{Tests hybrides}} \+: Garder les deux structures temporairement
+\end{DoxyEnumerate}\hypertarget{README.md_autotoc_md28}{}\doxysubsection{\texorpdfstring{Personnalisation}{Personnalisation}}\label{README.md_autotoc_md28}
+Vous pouvez facilement \+:
+\begin{DoxyItemize}
+\item Ajouter de nouveaux fichiers de tests dans {\ttfamily tests/}
+\item Étendre les helpers avec de nouvelles fonctions utilitaires
+\item Modifier la configuration des mocks selon vos besoins
+\item Créer des sous-\/catégories de tests plus spécifiques
+\end{DoxyItemize}\hypertarget{README.md_autotoc_md29}{}\doxysubsection{\texorpdfstring{Dépendances}{Dépendances}}\label{README.md_autotoc_md29}
+Tous les fichiers utilisent \+:
+\begin{DoxyItemize}
+\item {\ttfamily ../fixtures.js} \+: Configuration Playwright commune
+\item Les helpers partagés pour éviter la duplication de code
+\item La même configuration de mocks pour la cohérence 
+\end{DoxyItemize}

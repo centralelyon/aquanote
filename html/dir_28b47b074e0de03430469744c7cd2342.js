@@ -12,5 +12,5 @@ var dir_28b47b074e0de03430469744c7cd2342 =
     [ "shortcuts_handler.js", "shortcuts__handler_8js.html", "shortcuts__handler_8js" ],
     [ "side_views.js", "side__views_8js.html", "side__views_8js" ],
     [ "utils.js", "assets_2js_2utils_8js.html", "assets_2js_2utils_8js" ],
-    [ "videoHandler.js", "videoHandler_8js.html", "videoHandler_8js" ]
+    [ "videoHandler.js", "video_handler_8js.html", "video_handler_8js" ]
 ];

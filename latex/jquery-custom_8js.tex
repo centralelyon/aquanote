@@ -1,0 +1,128 @@
+\doxysection{assets/js/jquery-\/custom.js File Reference}
+\hypertarget{jquery-custom_8js}{}\label{jquery-custom_8js}\index{assets/js/jquery-\/custom.js@{assets/js/jquery-\/custom.js}}
+\doxysubsubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{jquery-custom_8js_a43eefe2642ff20f2ef0c22ff1b3a9b22}{\$}} ("{}\#btn-\/report-\/swimmer"{}).on(\textquotesingle{}click\textquotesingle{}
+\begin{DoxyCompactList}\small\item\em Gestionnaire de clic pour ouvrir le dialogue de rapport de nageur. \end{DoxyCompactList}\item 
+function \mbox{\hyperlink{setup_8js_a9fa3fd903584388c98582833a2532aec}{document}} \mbox{\hyperlink{jquery-custom_8js_a4ad299d955e805daa50089994818c06a}{add\+Event\+Listener}} ("{}DOMContent\+Loaded"{}, function() \{ \mbox{\hyperlink{setup_8js_a92b303b76a3f942ea819498907d5e83c}{const}} \mbox{\hyperlink{jquery-custom_8js_aeff086bc08e93eb100225a5c93ed92fa}{search\+Input}}=\mbox{\hyperlink{refactor-script_8js_af902c453addf6a6fb1912e3546319985}{document.\+get\+Element\+By\+Id}}("{}search-\/input"{});search\+Input.\+add\+Event\+Listener("{}focus"{}, function() \{ shortcut\+\_\+enabled=false;\});search\+Input.\+add\+Event\+Listener("{}blur"{}, function() \{ shortcut\+\_\+enabled=\mbox{\hyperlink{refactor-script_8js_a1a24fc2eb8c1af6d06ac15bcec47f088}{true}};\});\})
+\begin{DoxyCompactList}\small\item\em Gestionnaire pour désactiver les raccourcis lorsque le champ de recherche est en focus Évite les conflits entre la saisie de texte et les raccourcis clavier de l\textquotesingle{}application. \end{DoxyCompactList}\item 
+function export \mbox{\hyperlink{jquery-custom_8js_abb5e6c5e70e2513c32312e74ca9937f0}{deactivate\+\_\+shortcut}} ()
+\begin{DoxyCompactList}\small\item\em Désactive les raccourcis clavier de l\textquotesingle{}application Utilisé notamment lors de la saisie dans les champs de texte. \end{DoxyCompactList}\item 
+function export \mbox{\hyperlink{jquery-custom_8js_a19e48eaa528d3d18dc7038e5b7d9c5a0}{activate\+\_\+shortcut}} ()
+\begin{DoxyCompactList}\small\item\em Réactive les raccourcis clavier de l\textquotesingle{}application Utilisé après la fin de saisie dans les champs de texte. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsubsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{jquery-custom_8js_a59be084da8908b7d77ff34b25cd84488}{import}} \{ \mbox{\hyperlink{loader_8js_ae2873a5d4c20edc5bc6462103680aba2}{load\+\_\+run}}\} \mbox{\hyperlink{jquery-ui_8js_ace03b192fd101a1c5648340bc09b7229}{from}} \textquotesingle{}./\mbox{\hyperlink{main_8js_a2e1c8cb1a275ecd4c6fdeb7c95982fca}{loader.\+js}}\textquotesingle{}
+\item 
+let \mbox{\hyperlink{jquery-custom_8js_ac58dc5372735ae56e68d0c3ba10fc31f}{dialog\+Start\+Time}}
+\item 
+let \mbox{\hyperlink{jquery-custom_8js_a683c35228f493eb5c22bc0ac4e63e720}{dialog\+Report}}
+\item 
+let \mbox{\hyperlink{jquery-ui_8js_acfb5ebf8920e47b6c6d297e6ca2a6ce0}{form}} let \mbox{\hyperlink{jquery-custom_8js_a0a4faaad7d5be7eaa50e41f0a8a80aaa}{all\+Fields}} = \$("{}\#prefix\+Name, \#final\+Name, \#prefix\+Name\+Edition, \#final\+Name\+Edition"{})
+\item 
+export let \mbox{\hyperlink{jquery-custom_8js_a987f258c646dc5c8873b1334f99dd411}{nageurs}}
+\item 
+\mbox{\hyperlink{setup_8js_a92b303b76a3f942ea819498907d5e83c}{const}} \mbox{\hyperlink{jquery-custom_8js_aeff086bc08e93eb100225a5c93ed92fa}{search\+Input}} = \mbox{\hyperlink{refactor-script_8js_af902c453addf6a6fb1912e3546319985}{document.\+get\+Element\+By\+Id}}(\textquotesingle{}search-\/input\textquotesingle{})
+\begin{DoxyCompactList}\small\item\em Gestionnaires d\textquotesingle{}affichage pour la liste déroulante de recherche de nageurs Contrôle la visibilité de la liste selon le focus et les clics extérieurs. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{setup_8js_a92b303b76a3f942ea819498907d5e83c}{const}} \mbox{\hyperlink{jquery-custom_8js_a884f899d5f3f43cc9359191be77b3689}{select\+Box}} = \mbox{\hyperlink{refactor-script_8js_af902c453addf6a6fb1912e3546319985}{document.\+get\+Element\+By\+Id}}(\textquotesingle{}searchable-\/select\textquotesingle{})
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Function Documentation}
+\Hypertarget{jquery-custom_8js_a43eefe2642ff20f2ef0c22ff1b3a9b22}\index{jquery-\/custom.js@{jquery-\/custom.js}!\$@{\$}}
+\index{\$@{\$}!jquery-\/custom.js@{jquery-\/custom.js}}
+\doxysubsubsection{\texorpdfstring{\$()}{\$()}}
+{\footnotesize\ttfamily \label{jquery-custom_8js_a43eefe2642ff20f2ef0c22ff1b3a9b22} 
+\$ (\begin{DoxyParamCaption}\item[{}]{"{}\#btn-\/report-\/swimmer"{}}{}\end{DoxyParamCaption})}
+
+
+
+Gestionnaire de clic pour ouvrir le dialogue de rapport de nageur. 
+
+Gestionnaire de clic sur le bouton d\textquotesingle{}édition du temps de départ Ouvre le dialogue permettant de modifier le temps de départ de la course. \Hypertarget{jquery-custom_8js_a19e48eaa528d3d18dc7038e5b7d9c5a0}\index{jquery-\/custom.js@{jquery-\/custom.js}!activate\_shortcut@{activate\_shortcut}}
+\index{activate\_shortcut@{activate\_shortcut}!jquery-\/custom.js@{jquery-\/custom.js}}
+\doxysubsubsection{\texorpdfstring{activate\_shortcut()}{activate\_shortcut()}}
+{\footnotesize\ttfamily \label{jquery-custom_8js_a19e48eaa528d3d18dc7038e5b7d9c5a0} 
+function export activate\+\_\+shortcut (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})}
+
+
+
+Réactive les raccourcis clavier de l\textquotesingle{}application Utilisé après la fin de saisie dans les champs de texte. 
+
+\Hypertarget{jquery-custom_8js_a4ad299d955e805daa50089994818c06a}\index{jquery-\/custom.js@{jquery-\/custom.js}!addEventListener@{addEventListener}}
+\index{addEventListener@{addEventListener}!jquery-\/custom.js@{jquery-\/custom.js}}
+\doxysubsubsection{\texorpdfstring{addEventListener()}{addEventListener()}}
+{\footnotesize\ttfamily \label{jquery-custom_8js_a4ad299d955e805daa50089994818c06a} 
+function \mbox{\hyperlink{setup_8js_a9fa3fd903584388c98582833a2532aec}{document}} add\+Event\+Listener (\begin{DoxyParamCaption}\item[{"{}DOMContent\+Loaded"{}}]{}{, }\item[{function() \{ \mbox{\hyperlink{setup_8js_a92b303b76a3f942ea819498907d5e83c}{const}} \mbox{\hyperlink{jquery-custom_8js_aeff086bc08e93eb100225a5c93ed92fa}{search\+Input}}=\mbox{\hyperlink{refactor-script_8js_af902c453addf6a6fb1912e3546319985}{document.\+get\+Element\+By\+Id}}("{}search-\/input"{});search\+Input.\+add\+Event\+Listener("{}focus"{}, function() \{ shortcut\+\_\+enabled=false;\});search\+Input.\+add\+Event\+Listener("{}blur"{}, function() \{ shortcut\+\_\+enabled=\mbox{\hyperlink{refactor-script_8js_a1a24fc2eb8c1af6d06ac15bcec47f088}{true}};\});\}}]{}{}\end{DoxyParamCaption})}
+
+
+
+Gestionnaire pour désactiver les raccourcis lorsque le champ de recherche est en focus Évite les conflits entre la saisie de texte et les raccourcis clavier de l\textquotesingle{}application. 
+
+\Hypertarget{jquery-custom_8js_abb5e6c5e70e2513c32312e74ca9937f0}\index{jquery-\/custom.js@{jquery-\/custom.js}!deactivate\_shortcut@{deactivate\_shortcut}}
+\index{deactivate\_shortcut@{deactivate\_shortcut}!jquery-\/custom.js@{jquery-\/custom.js}}
+\doxysubsubsection{\texorpdfstring{deactivate\_shortcut()}{deactivate\_shortcut()}}
+{\footnotesize\ttfamily \label{jquery-custom_8js_abb5e6c5e70e2513c32312e74ca9937f0} 
+function export deactivate\+\_\+shortcut (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})}
+
+
+
+Désactive les raccourcis clavier de l\textquotesingle{}application Utilisé notamment lors de la saisie dans les champs de texte. 
+
+
+
+\doxysubsection{Variable Documentation}
+\Hypertarget{jquery-custom_8js_a0a4faaad7d5be7eaa50e41f0a8a80aaa}\index{jquery-\/custom.js@{jquery-\/custom.js}!allFields@{allFields}}
+\index{allFields@{allFields}!jquery-\/custom.js@{jquery-\/custom.js}}
+\doxysubsubsection{\texorpdfstring{allFields}{allFields}}
+{\footnotesize\ttfamily \label{jquery-custom_8js_a0a4faaad7d5be7eaa50e41f0a8a80aaa} 
+let \mbox{\hyperlink{jquery-ui_8js_acfb5ebf8920e47b6c6d297e6ca2a6ce0}{form}} let all\+Fields = \$("{}\#prefix\+Name, \#final\+Name, \#prefix\+Name\+Edition, \#final\+Name\+Edition"{})}
+
+\Hypertarget{jquery-custom_8js_a683c35228f493eb5c22bc0ac4e63e720}\index{jquery-\/custom.js@{jquery-\/custom.js}!dialogReport@{dialogReport}}
+\index{dialogReport@{dialogReport}!jquery-\/custom.js@{jquery-\/custom.js}}
+\doxysubsubsection{\texorpdfstring{dialogReport}{dialogReport}}
+{\footnotesize\ttfamily \label{jquery-custom_8js_a683c35228f493eb5c22bc0ac4e63e720} 
+let dialog\+Report}
+
+\Hypertarget{jquery-custom_8js_ac58dc5372735ae56e68d0c3ba10fc31f}\index{jquery-\/custom.js@{jquery-\/custom.js}!dialogStartTime@{dialogStartTime}}
+\index{dialogStartTime@{dialogStartTime}!jquery-\/custom.js@{jquery-\/custom.js}}
+\doxysubsubsection{\texorpdfstring{dialogStartTime}{dialogStartTime}}
+{\footnotesize\ttfamily \label{jquery-custom_8js_ac58dc5372735ae56e68d0c3ba10fc31f} 
+let dialog\+Start\+Time}
+
+\Hypertarget{jquery-custom_8js_a59be084da8908b7d77ff34b25cd84488}\index{jquery-\/custom.js@{jquery-\/custom.js}!import@{import}}
+\index{import@{import}!jquery-\/custom.js@{jquery-\/custom.js}}
+\doxysubsubsection{\texorpdfstring{import}{import}}
+{\footnotesize\ttfamily \label{jquery-custom_8js_a59be084da8908b7d77ff34b25cd84488} 
+import \{ \mbox{\hyperlink{loader_8js_ae2873a5d4c20edc5bc6462103680aba2}{load\+\_\+run}}\} \mbox{\hyperlink{jquery-ui_8js_ace03b192fd101a1c5648340bc09b7229}{from}} \textquotesingle{}./\mbox{\hyperlink{main_8js_a2e1c8cb1a275ecd4c6fdeb7c95982fca}{loader.\+js}}\textquotesingle{}}
+
+\Hypertarget{jquery-custom_8js_a987f258c646dc5c8873b1334f99dd411}\index{jquery-\/custom.js@{jquery-\/custom.js}!nageurs@{nageurs}}
+\index{nageurs@{nageurs}!jquery-\/custom.js@{jquery-\/custom.js}}
+\doxysubsubsection{\texorpdfstring{nageurs}{nageurs}}
+{\footnotesize\ttfamily \label{jquery-custom_8js_a987f258c646dc5c8873b1334f99dd411} 
+export let nageurs}
+
+{\bfseries Initial value\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{=[\textcolor{stringliteral}{"{}ligne1"{}},\textcolor{stringliteral}{"{}ligne2"{}},\textcolor{stringliteral}{"{}ligne3"{}},\textcolor{stringliteral}{"{}ligne4"{}},\textcolor{stringliteral}{"{}ligne5"{}},\textcolor{stringliteral}{"{}ligne6"{}},\textcolor{stringliteral}{"{}ligne\ 7"{}},\textcolor{stringliteral}{"{}ligne8"{}}]}
+\DoxyCodeLine{export\ let\ shortcut\_enabled\ =\ \textcolor{keyword}{true}}
+
+\end{DoxyCode}
+\Hypertarget{jquery-custom_8js_aeff086bc08e93eb100225a5c93ed92fa}\index{jquery-\/custom.js@{jquery-\/custom.js}!searchInput@{searchInput}}
+\index{searchInput@{searchInput}!jquery-\/custom.js@{jquery-\/custom.js}}
+\doxysubsubsection{\texorpdfstring{searchInput}{searchInput}}
+{\footnotesize\ttfamily \label{jquery-custom_8js_aeff086bc08e93eb100225a5c93ed92fa} 
+\mbox{\hyperlink{setup_8js_a92b303b76a3f942ea819498907d5e83c}{const}} search\+Input = \mbox{\hyperlink{refactor-script_8js_af902c453addf6a6fb1912e3546319985}{document.\+get\+Element\+By\+Id}}(\textquotesingle{}search-\/input\textquotesingle{})}
+
+
+
+Gestionnaires d\textquotesingle{}affichage pour la liste déroulante de recherche de nageurs Contrôle la visibilité de la liste selon le focus et les clics extérieurs. 
+
+\Hypertarget{jquery-custom_8js_a884f899d5f3f43cc9359191be77b3689}\index{jquery-\/custom.js@{jquery-\/custom.js}!selectBox@{selectBox}}
+\index{selectBox@{selectBox}!jquery-\/custom.js@{jquery-\/custom.js}}
+\doxysubsubsection{\texorpdfstring{selectBox}{selectBox}}
+{\footnotesize\ttfamily \label{jquery-custom_8js_a884f899d5f3f43cc9359191be77b3689} 
+\mbox{\hyperlink{setup_8js_a92b303b76a3f942ea819498907d5e83c}{const}} select\+Box = \mbox{\hyperlink{refactor-script_8js_af902c453addf6a6fb1912e3546319985}{document.\+get\+Element\+By\+Id}}(\textquotesingle{}searchable-\/select\textquotesingle{})}
+

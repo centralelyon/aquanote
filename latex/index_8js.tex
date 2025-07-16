@@ -1,0 +1,64 @@
+\doxysection{index.\+js File Reference}
+\hypertarget{index_8js}{}\label{index_8js}\index{index.js@{index.js}}
+
+
+Processus principal Electron pour l\textquotesingle{}application d\textquotesingle{}annotation natation Gère la création des fenêtres, les dialogs de sélection de dossier et les événements du cycle de vie Configure la sécurité avec context\+Isolation et preload script.  
+
+
+\doxysubsubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+function \mbox{\hyperlink{index_8js_a09d41327820c296c44d49bfbd93f0d17}{create\+Window}} ()
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{index_8js_a59be084da8908b7d77ff34b25cd84488}{import}} \{ app, Browser\+Window \} \mbox{\hyperlink{jquery-ui_8js_ace03b192fd101a1c5648340bc09b7229}{from}} \textquotesingle{}electron\textquotesingle{}
+\item 
+\mbox{\hyperlink{cycles__handler_8js_a59be084da8908b7d77ff34b25cd84488}{import}} path \mbox{\hyperlink{jquery-ui_8js_ace03b192fd101a1c5648340bc09b7229}{from}} \mbox{\hyperlink{index_8js_af49e7f78b7d19e319376116c94c43edf}{path}}
+\item 
+\mbox{\hyperlink{setup_8js_a92b303b76a3f942ea819498907d5e83c}{const}} \mbox{\hyperlink{index_8js_a1a3353ab8d235e91a9acaa8d9138500f}{\+\_\+\+\_\+filename}} = file\+URLTo\+Path(import.\+meta.\+url)
+\item 
+\mbox{\hyperlink{setup_8js_a92b303b76a3f942ea819498907d5e83c}{const}} \mbox{\hyperlink{index_8js_a6c34d64cf48ac6d5a4554b9349fed791}{\+\_\+\+\_\+dirname}} = path.\+dirname(\mbox{\hyperlink{index_8js_a1a3353ab8d235e91a9acaa8d9138500f}{\+\_\+\+\_\+filename}})
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Processus principal Electron pour l\textquotesingle{}application d\textquotesingle{}annotation natation Gère la création des fenêtres, les dialogs de sélection de dossier et les événements du cycle de vie Configure la sécurité avec context\+Isolation et preload script. 
+
+
+
+\doxysubsection{Function Documentation}
+\Hypertarget{index_8js_a09d41327820c296c44d49bfbd93f0d17}\index{index.js@{index.js}!createWindow@{createWindow}}
+\index{createWindow@{createWindow}!index.js@{index.js}}
+\doxysubsubsection{\texorpdfstring{createWindow()}{createWindow()}}
+{\footnotesize\ttfamily \label{index_8js_a09d41327820c296c44d49bfbd93f0d17} 
+function create\+Window (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})}
+
+
+
+\doxysubsection{Variable Documentation}
+\Hypertarget{index_8js_a6c34d64cf48ac6d5a4554b9349fed791}\index{index.js@{index.js}!\_\_dirname@{\_\_dirname}}
+\index{\_\_dirname@{\_\_dirname}!index.js@{index.js}}
+\doxysubsubsection{\texorpdfstring{\_\_dirname}{\_\_dirname}}
+{\footnotesize\ttfamily \label{index_8js_a6c34d64cf48ac6d5a4554b9349fed791} 
+\mbox{\hyperlink{setup_8js_a92b303b76a3f942ea819498907d5e83c}{const}} \+\_\+\+\_\+dirname = path.\+dirname(\mbox{\hyperlink{index_8js_a1a3353ab8d235e91a9acaa8d9138500f}{\+\_\+\+\_\+filename}})}
+
+\Hypertarget{index_8js_a1a3353ab8d235e91a9acaa8d9138500f}\index{index.js@{index.js}!\_\_filename@{\_\_filename}}
+\index{\_\_filename@{\_\_filename}!index.js@{index.js}}
+\doxysubsubsection{\texorpdfstring{\_\_filename}{\_\_filename}}
+{\footnotesize\ttfamily \label{index_8js_a1a3353ab8d235e91a9acaa8d9138500f} 
+\mbox{\hyperlink{setup_8js_a92b303b76a3f942ea819498907d5e83c}{const}} \+\_\+\+\_\+filename = file\+URLTo\+Path(import.\+meta.\+url)}
+
+\Hypertarget{index_8js_a59be084da8908b7d77ff34b25cd84488}\index{index.js@{index.js}!import@{import}}
+\index{import@{import}!index.js@{index.js}}
+\doxysubsubsection{\texorpdfstring{import}{import}}
+{\footnotesize\ttfamily \label{index_8js_a59be084da8908b7d77ff34b25cd84488} 
+import \{ app, Browser\+Window \} \mbox{\hyperlink{jquery-ui_8js_ace03b192fd101a1c5648340bc09b7229}{from}} \textquotesingle{}electron\textquotesingle{}}
+
+\Hypertarget{index_8js_af49e7f78b7d19e319376116c94c43edf}\index{index.js@{index.js}!path@{path}}
+\index{path@{path}!index.js@{index.js}}
+\doxysubsubsection{\texorpdfstring{path}{path}}
+{\footnotesize\ttfamily \label{index_8js_af49e7f78b7d19e319376116c94c43edf} 
+\mbox{\hyperlink{cycles__handler_8js_a59be084da8908b7d77ff34b25cd84488}{import}} path \mbox{\hyperlink{jquery-ui_8js_ace03b192fd101a1c5648340bc09b7229}{from}} path}
+

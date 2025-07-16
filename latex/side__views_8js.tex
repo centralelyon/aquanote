@@ -1,0 +1,146 @@
+\doxysection{assets/js/side\+\_\+views.js File Reference}
+\hypertarget{side__views_8js}{}\label{side__views_8js}\index{assets/js/side\_views.js@{assets/js/side\_views.js}}
+
+
+Ce fichier contient les fonctions pour afficher les statistiques du nageur sélectionné ainsi que les barres de l\textquotesingle{}annotation.  
+
+
+\doxysubsubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+function export \mbox{\hyperlink{side__views_8js_a0d5a5972ad99fa58bf68904eb4d0f0a7}{draw\+\_\+stats}} (\mbox{\hyperlink{jquery-ui_8js_a606a87425a3a6c440c6fdcbfb72c9b68}{data}}, D3\+Instance=\mbox{\hyperlink{setup_8js_a98e30b2dfb63fe5803ad44d5d671ed61}{d3}})
+\begin{DoxyCompactList}\small\item\em permet d\textquotesingle{}afficher les statistiques du nageur sélectionné dans les menus à droite de la vidéo \end{DoxyCompactList}\item 
+function export \mbox{\hyperlink{side__views_8js_af7775d81b2da11a890c3e4058c5ac301}{construct\+\_\+time\+\_\+entry}} ()
+\item 
+function export \mbox{\hyperlink{side__views_8js_ab4353880f500d493d2dac54ea0cb9a01}{set\+\_\+placeholder\+\_\+of\+\_\+time\+\_\+entry}} ()
+\item 
+function export \mbox{\hyperlink{side__views_8js_a28db10b0748e69d724549b17f5ab0984}{update\+\_\+swimmer}} (id)
+\item 
+function export \mbox{\hyperlink{side__views_8js_ad783043bd4fb6c9dcf2cd93a9e11646b}{draw\+\_\+traj}} (\mbox{\hyperlink{jquery-ui_8js_a606a87425a3a6c440c6fdcbfb72c9b68}{data}}, D3\+Instance=\mbox{\hyperlink{setup_8js_a98e30b2dfb63fe5803ad44d5d671ed61}{d3}})
+\begin{DoxyCompactList}\small\item\em Dessine la trajectoire du nageur sélectionné dans le graphique latéral Affiche la progression temporelle du nageur avec ses annotations sur un graphique D3. \end{DoxyCompactList}\item 
+function export \mbox{\hyperlink{side__views_8js_a05cdf4b6769c3300c538f2d2ba755726}{draw\+Cycle\+Bars}} (\mbox{\hyperlink{jquery-ui_8js_a606a87425a3a6c440c6fdcbfb72c9b68}{data}}, d3\+Instance=\mbox{\hyperlink{setup_8js_a98e30b2dfb63fe5803ad44d5d671ed61}{d3}})
+\begin{DoxyCompactList}\small\item\em Dessine les barres de cycles dans le graphique de vérification Affiche les cycles de nage sous forme de barres colorées selon leur type. \end{DoxyCompactList}\item 
+function export \mbox{\hyperlink{side__views_8js_a7af0793e833b3bba3038738d5b69f5e8}{draw\+Cycle\+Time\+Bars}} (\mbox{\hyperlink{jquery-ui_8js_a606a87425a3a6c440c6fdcbfb72c9b68}{data}})
+\begin{DoxyCompactList}\small\item\em Dessine les barres temporelles des cycles dans le graphique de vérification Affiche la durée de chaque cycle sous forme de barres dans un graphique séparé \end{DoxyCompactList}\item 
+function \mbox{\hyperlink{side__views_8js_a10a402abf74b3109036a4113d52a18f7}{save\+\_\+data\+\_\+entry\+\_\+click}} ()
+\item 
+\mbox{\hyperlink{side__views_8js_ac7933242658dd4629eb3c1c4581a514d}{if}} (typeof \mbox{\hyperlink{setup_8js_a8ac3c63e523598549c2264ad7042f8af}{window}} !==\textquotesingle{}undefined\textquotesingle{})
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{side__views_8js_a59be084da8908b7d77ff34b25cd84488}{import}} \{ \mbox{\hyperlink{loader_8js_a82849f85a8b1691736046b6da5c5f400}{mega\+Data}}, \mbox{\hyperlink{loader_8js_afb947e393cfd66db09cec4dce7b02cc7}{curr\+\_\+swims}}, \mbox{\hyperlink{loader_8js_ab3def73df0c71f75c809c4fc9b0db06c}{frame\+\_\+rate}}, \mbox{\hyperlink{loader_8js_a8bee409608717b96a4d8fab8188ebf39}{turn\+\_\+distances}}, \mbox{\hyperlink{loader_8js_aa61dbc2f28ff507e8cffda475ffcd545}{turn\+\_\+times}}, \mbox{\hyperlink{loader_8js_a68fff880c79f8308c01653980c85a0f3}{pool\+\_\+size}} \} \mbox{\hyperlink{jquery-ui_8js_ace03b192fd101a1c5648340bc09b7229}{from}} \textquotesingle{}./\mbox{\hyperlink{main_8js_a2e1c8cb1a275ecd4c6fdeb7c95982fca}{loader.\+js}}\textquotesingle{}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Ce fichier contient les fonctions pour afficher les statistiques du nageur sélectionné ainsi que les barres de l\textquotesingle{}annotation. 
+
+
+
+\doxysubsection{Function Documentation}
+\Hypertarget{side__views_8js_af7775d81b2da11a890c3e4058c5ac301}\index{side\_views.js@{side\_views.js}!construct\_time\_entry@{construct\_time\_entry}}
+\index{construct\_time\_entry@{construct\_time\_entry}!side\_views.js@{side\_views.js}}
+\doxysubsubsection{\texorpdfstring{construct\_time\_entry()}{construct\_time\_entry()}}
+{\footnotesize\ttfamily \label{side__views_8js_af7775d81b2da11a890c3e4058c5ac301} 
+function export construct\+\_\+time\+\_\+entry (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})}
+
+\Hypertarget{side__views_8js_a0d5a5972ad99fa58bf68904eb4d0f0a7}\index{side\_views.js@{side\_views.js}!draw\_stats@{draw\_stats}}
+\index{draw\_stats@{draw\_stats}!side\_views.js@{side\_views.js}}
+\doxysubsubsection{\texorpdfstring{draw\_stats()}{draw\_stats()}}
+{\footnotesize\ttfamily \label{side__views_8js_a0d5a5972ad99fa58bf68904eb4d0f0a7} 
+function export draw\+\_\+stats (\begin{DoxyParamCaption}\item[{}]{data}{, }\item[{}]{D3\+Instance}{ = {\ttfamily \mbox{\hyperlink{setup_8js_a98e30b2dfb63fe5803ad44d5d671ed61}{d3}}}}\end{DoxyParamCaption})}
+
+
+
+permet d\textquotesingle{}afficher les statistiques du nageur sélectionné dans les menus à droite de la vidéo 
+
+
+\begin{DoxyParams}{Parameters}
+{\em \{\+Array\}} & data -\/ tableau de données du nageur \\
+\hline
+{\em \{\texorpdfstring{$\ast$}{*}\}} & D3\+Instance /sert principalement pour les tests automatisés \\
+\hline
+\end{DoxyParams}
+\Hypertarget{side__views_8js_ad783043bd4fb6c9dcf2cd93a9e11646b}\index{side\_views.js@{side\_views.js}!draw\_traj@{draw\_traj}}
+\index{draw\_traj@{draw\_traj}!side\_views.js@{side\_views.js}}
+\doxysubsubsection{\texorpdfstring{draw\_traj()}{draw\_traj()}}
+{\footnotesize\ttfamily \label{side__views_8js_ad783043bd4fb6c9dcf2cd93a9e11646b} 
+function export draw\+\_\+traj (\begin{DoxyParamCaption}\item[{}]{data}{, }\item[{}]{D3\+Instance}{ = {\ttfamily \mbox{\hyperlink{setup_8js_a98e30b2dfb63fe5803ad44d5d671ed61}{d3}}}}\end{DoxyParamCaption})}
+
+
+
+Dessine la trajectoire du nageur sélectionné dans le graphique latéral Affiche la progression temporelle du nageur avec ses annotations sur un graphique D3. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em \{array\}} & data Données d\textquotesingle{}annotation du nageur \\
+\hline
+{\em \{object\}} & D3\+Instance Instance D3 à utiliser (par défaut d3 global) \\
+\hline
+\end{DoxyParams}
+\Hypertarget{side__views_8js_a05cdf4b6769c3300c538f2d2ba755726}\index{side\_views.js@{side\_views.js}!drawCycleBars@{drawCycleBars}}
+\index{drawCycleBars@{drawCycleBars}!side\_views.js@{side\_views.js}}
+\doxysubsubsection{\texorpdfstring{drawCycleBars()}{drawCycleBars()}}
+{\footnotesize\ttfamily \label{side__views_8js_a05cdf4b6769c3300c538f2d2ba755726} 
+function export draw\+Cycle\+Bars (\begin{DoxyParamCaption}\item[{}]{data}{, }\item[{}]{d3\+Instance}{ = {\ttfamily \mbox{\hyperlink{setup_8js_a98e30b2dfb63fe5803ad44d5d671ed61}{d3}}}}\end{DoxyParamCaption})}
+
+
+
+Dessine les barres de cycles dans le graphique de vérification Affiche les cycles de nage sous forme de barres colorées selon leur type. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em \{array\}} & data Données des cycles du nageur \\
+\hline
+{\em \{object\}} & d3\+Instance Instance D3 à utiliser (par défaut d3 global) \\
+\hline
+\end{DoxyParams}
+\Hypertarget{side__views_8js_a7af0793e833b3bba3038738d5b69f5e8}\index{side\_views.js@{side\_views.js}!drawCycleTimeBars@{drawCycleTimeBars}}
+\index{drawCycleTimeBars@{drawCycleTimeBars}!side\_views.js@{side\_views.js}}
+\doxysubsubsection{\texorpdfstring{drawCycleTimeBars()}{drawCycleTimeBars()}}
+{\footnotesize\ttfamily \label{side__views_8js_a7af0793e833b3bba3038738d5b69f5e8} 
+function export draw\+Cycle\+Time\+Bars (\begin{DoxyParamCaption}\item[{}]{data}{}\end{DoxyParamCaption})}
+
+
+
+Dessine les barres temporelles des cycles dans le graphique de vérification Affiche la durée de chaque cycle sous forme de barres dans un graphique séparé 
+
+
+\begin{DoxyParams}{Parameters}
+{\em \{array\}} & data Données des cycles avec leurs durées \\
+\hline
+\end{DoxyParams}
+\Hypertarget{side__views_8js_ac7933242658dd4629eb3c1c4581a514d}\index{side\_views.js@{side\_views.js}!if@{if}}
+\index{if@{if}!side\_views.js@{side\_views.js}}
+\doxysubsubsection{\texorpdfstring{if()}{if()}}
+{\footnotesize\ttfamily \label{side__views_8js_ac7933242658dd4629eb3c1c4581a514d} 
+if (\begin{DoxyParamCaption}\item[{}]{typeof window !}{ = {\ttfamily =~\textquotesingle{}undefined\textquotesingle{}}}\end{DoxyParamCaption})}
+
+\Hypertarget{side__views_8js_a10a402abf74b3109036a4113d52a18f7}\index{side\_views.js@{side\_views.js}!save\_data\_entry\_click@{save\_data\_entry\_click}}
+\index{save\_data\_entry\_click@{save\_data\_entry\_click}!side\_views.js@{side\_views.js}}
+\doxysubsubsection{\texorpdfstring{save\_data\_entry\_click()}{save\_data\_entry\_click()}}
+{\footnotesize\ttfamily \label{side__views_8js_a10a402abf74b3109036a4113d52a18f7} 
+function save\+\_\+data\+\_\+entry\+\_\+click (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})}
+
+\Hypertarget{side__views_8js_ab4353880f500d493d2dac54ea0cb9a01}\index{side\_views.js@{side\_views.js}!set\_placeholder\_of\_time\_entry@{set\_placeholder\_of\_time\_entry}}
+\index{set\_placeholder\_of\_time\_entry@{set\_placeholder\_of\_time\_entry}!side\_views.js@{side\_views.js}}
+\doxysubsubsection{\texorpdfstring{set\_placeholder\_of\_time\_entry()}{set\_placeholder\_of\_time\_entry()}}
+{\footnotesize\ttfamily \label{side__views_8js_ab4353880f500d493d2dac54ea0cb9a01} 
+function export set\+\_\+placeholder\+\_\+of\+\_\+time\+\_\+entry (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})}
+
+\Hypertarget{side__views_8js_a28db10b0748e69d724549b17f5ab0984}\index{side\_views.js@{side\_views.js}!update\_swimmer@{update\_swimmer}}
+\index{update\_swimmer@{update\_swimmer}!side\_views.js@{side\_views.js}}
+\doxysubsubsection{\texorpdfstring{update\_swimmer()}{update\_swimmer()}}
+{\footnotesize\ttfamily \label{side__views_8js_a28db10b0748e69d724549b17f5ab0984} 
+function export update\+\_\+swimmer (\begin{DoxyParamCaption}\item[{}]{id}{}\end{DoxyParamCaption})}
+
+
+
+\doxysubsection{Variable Documentation}
+\Hypertarget{side__views_8js_a59be084da8908b7d77ff34b25cd84488}\index{side\_views.js@{side\_views.js}!import@{import}}
+\index{import@{import}!side\_views.js@{side\_views.js}}
+\doxysubsubsection{\texorpdfstring{import}{import}}
+{\footnotesize\ttfamily \label{side__views_8js_a59be084da8908b7d77ff34b25cd84488} 
+import \{ \mbox{\hyperlink{loader_8js_a82849f85a8b1691736046b6da5c5f400}{mega\+Data}}, \mbox{\hyperlink{loader_8js_afb947e393cfd66db09cec4dce7b02cc7}{curr\+\_\+swims}}, \mbox{\hyperlink{loader_8js_ab3def73df0c71f75c809c4fc9b0db06c}{frame\+\_\+rate}}, \mbox{\hyperlink{loader_8js_a8bee409608717b96a4d8fab8188ebf39}{turn\+\_\+distances}}, \mbox{\hyperlink{loader_8js_aa61dbc2f28ff507e8cffda475ffcd545}{turn\+\_\+times}}, \mbox{\hyperlink{loader_8js_a68fff880c79f8308c01653980c85a0f3}{pool\+\_\+size}} \} \mbox{\hyperlink{jquery-ui_8js_ace03b192fd101a1c5648340bc09b7229}{from}} \textquotesingle{}./\mbox{\hyperlink{main_8js_a2e1c8cb1a275ecd4c6fdeb7c95982fca}{loader.\+js}}\textquotesingle{}}
+

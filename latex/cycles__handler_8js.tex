@@ -1,0 +1,256 @@
+\doxysection{assets/js/cycles\+\_\+handler.js File Reference}
+\hypertarget{cycles__handler_8js}{}\label{cycles__handler_8js}\index{assets/js/cycles\_handler.js@{assets/js/cycles\_handler.js}}
+
+
+Ce fichier calcule et affiche les positions des barres d\textquotesingle{}annotation sur le canvas vidéo.  
+
+
+\doxysubsubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+function export \mbox{\hyperlink{cycles__handler_8js_a4360b16098585b76c39ef314521a9c10}{make\+Bar}} (\mbox{\hyperlink{jquery-ui_8js_a606a87425a3a6c440c6fdcbfb72c9b68}{data}}, idx, idswim, scale, elem\+Size, vid\+Size, \mbox{\hyperlink{refactor-script_8js_a92a715551e2d3bfed23b62cf2b6ea4da}{meta}})
+\begin{DoxyCompactList}\small\item\em Construction d\textquotesingle{}une barre d\textquotesingle{}annotation visuelle sur le canvas vidéo Crée un élément canvas avec la couleur et position appropriées selon le type d\textquotesingle{}événement. \end{DoxyCompactList}\item 
+function export \mbox{\hyperlink{cycles__handler_8js_a9ecc9746b35b323d3ceda108f8bed943}{highlight\+Cycle}} (swim, num)
+\begin{DoxyCompactList}\small\item\em Surligne visuellement un cycle spécifique dans les graphiques de vérification Réduit l\textquotesingle{}opacité de tous les éléments sauf le cycle sélectionné pour le mettre en évidence. \end{DoxyCompactList}\item 
+function export \mbox{\hyperlink{cycles__handler_8js_a39702ac50602d947bbdc2f12f395e4c9}{reset\+High}} ()
+\begin{DoxyCompactList}\small\item\em Réinitialise le surlignage des barres dans les graphiques de vérification Remet l\textquotesingle{}opacité normale à tous les éléments visuels (barres, cercles, etc.) \end{DoxyCompactList}\item 
+function export \mbox{\hyperlink{cycles__handler_8js_a1c92712d3fcaa97152f9c4a411d470d8}{update\+\_\+cycle\+\_\+rapide}} ()
+\begin{DoxyCompactList}\small\item\em Met à jour rapidement l\textquotesingle{}affichage lié aux cycles sans redessin complet Version optimisée de update\+\_\+cycle qui utilise la mise à jour partielle des barres. \end{DoxyCompactList}\item 
+function export \mbox{\hyperlink{cycles__handler_8js_aab9fcafa2c86da85040fba11113e7afb}{get\+\_\+last\+\_\+checkpoint}} (checkpoints, run\+\_\+frame\+Id)
+\begin{DoxyCompactList}\small\item\em Retourne le dernier checkpoint franchi à une frame donnée de la course Détermine quelle distance de référence (0, 25, 50, 75m etc.) a été franchie en dernier. \end{DoxyCompactList}\item 
+function export \mbox{\hyperlink{cycles__handler_8js_ac702898601460f8794044a601abe11b7}{get\+\_\+meter\+\_\+plot\+\_\+label}} (pool\+\_\+meter\+\_\+plot\+\_\+label)
+\begin{DoxyCompactList}\small\item\em Calcule la distance cumulative à partir de la position dans la piscine Convertit une position physique dans la piscine en distance totale parcourue en tenant compte des allers-\/retours. \end{DoxyCompactList}\item 
+function export \mbox{\hyperlink{cycles__handler_8js_ada18028070ffd69a522fbe18c7541283}{edit\+\_\+lab\+\_\+flipper}} (\mbox{\hyperlink{refactor-script_8js_a9336ebf25087d91c818ee6e9ec29f8c1}{x}})
+\begin{DoxyCompactList}\small\item\em Modifie l\textquotesingle{}état d\textquotesingle{}affichage des labels sur les barres d\textquotesingle{}annotation. \end{DoxyCompactList}\item 
+function export \mbox{\hyperlink{cycles__handler_8js_a4ed50c0f3d327d44ec165f8dbcb40af8}{update\+Bars\+From\+Event}} (swim, affiche\+\_\+tout=false, \mbox{\hyperlink{refactor-script_8js_a92a715551e2d3bfed23b62cf2b6ea4da}{meta}}=null)
+\begin{DoxyCompactList}\small\item\em Met à jour dynamiquement les barres d\textquotesingle{}annotation d\textquotesingle{}un nageur à partir d\textquotesingle{}un certain event\+Id (inclus). \end{DoxyCompactList}\item 
+function export \mbox{\hyperlink{cycles__handler_8js_a327957df8f91b302378493bb97d23c87}{find\+Cycle\+Index\+At\+Frame}} (swim\+Data, current\+Frame)
+\begin{DoxyCompactList}\small\item\em Trouve l\textquotesingle{}indice du cycle le plus proche (inférieur ou égal) à la frame courante de la vidéo. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsubsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{cycles__handler_8js_a59be084da8908b7d77ff34b25cd84488}{import}} \{ \mbox{\hyperlink{refactor-script_8js_a65c2791682c9938ca4e5954aedaf73bc}{display\+Mode}}, \mbox{\hyperlink{refactor-script_8js_a5aeeb87843f9100d6009620b1b7638f5}{selected\+\_\+swim}}, \mbox{\hyperlink{refactor-script_8js_af415bb07ae6ca417bec9e640c430c074}{temp\+\_\+start}}, \mbox{\hyperlink{refactor-script_8js_a7d49c9eee9666a212f9d767375a396d5}{selected\+\_\+cycle}}, \mbox{\hyperlink{refactor-script_8js_a5f6f8e4c807241d46723ead462345c08}{last\+\_\+checkpoint}}, \mbox{\hyperlink{refactor-script_8js_a1ccff62a45c449ba97167f51ec26f67b}{vue\+\_\+du\+\_\+dessus}} \} \mbox{\hyperlink{jquery-ui_8js_ace03b192fd101a1c5648340bc09b7229}{from}} \textquotesingle{}./refactor-\/\mbox{\hyperlink{main_8js_a2e1c8cb1a275ecd4c6fdeb7c95982fca}{script.\+js}}\textquotesingle{}
+\item 
+export let \mbox{\hyperlink{cycles__handler_8js_a2bed3fd3b713d1be65def8a798cd1fd7}{mode\+\_\+color}}
+\begin{DoxyCompactList}\small\item\em Dictionnaire des couleurs pour chaque type d\textquotesingle{}événement de natation Associe chaque mode d\textquotesingle{}annotation (cycle, turn, finish, etc.) à sa couleur d\textquotesingle{}affichage. \end{DoxyCompactList}\item 
+export let \mbox{\hyperlink{cycles__handler_8js_aba8f222c94f75de8f34a70a7becd018b}{lab\+\_\+flipper}} = \mbox{\hyperlink{refactor-script_8js_a1a24fc2eb8c1af6d06ac15bcec47f088}{true}}
+\begin{DoxyCompactList}\small\item\em Contrôle l\textquotesingle{}affichage des labels sur les barres d\textquotesingle{}annotation Boolean correspondant au bouton Show Labels \+: true -\/\texorpdfstring{$>$}{>} affichage des labels des annotations, false -\/\texorpdfstring{$>$}{>} pas d\textquotesingle{}affichages de ces labels. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Ce fichier calcule et affiche les positions des barres d\textquotesingle{}annotation sur le canvas vidéo. 
+
+
+
+\doxysubsection{Function Documentation}
+\Hypertarget{cycles__handler_8js_ada18028070ffd69a522fbe18c7541283}\index{cycles\_handler.js@{cycles\_handler.js}!edit\_lab\_flipper@{edit\_lab\_flipper}}
+\index{edit\_lab\_flipper@{edit\_lab\_flipper}!cycles\_handler.js@{cycles\_handler.js}}
+\doxysubsubsection{\texorpdfstring{edit\_lab\_flipper()}{edit\_lab\_flipper()}}
+{\footnotesize\ttfamily \label{cycles__handler_8js_ada18028070ffd69a522fbe18c7541283} 
+function export edit\+\_\+lab\+\_\+flipper (\begin{DoxyParamCaption}\item[{}]{x}{}\end{DoxyParamCaption})}
+
+
+
+Modifie l\textquotesingle{}état d\textquotesingle{}affichage des labels sur les barres d\textquotesingle{}annotation. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em \{boolean\}} & x Nouvel état pour l\textquotesingle{}affichage des labels \\
+\hline
+\end{DoxyParams}
+\Hypertarget{cycles__handler_8js_a327957df8f91b302378493bb97d23c87}\index{cycles\_handler.js@{cycles\_handler.js}!findCycleIndexAtFrame@{findCycleIndexAtFrame}}
+\index{findCycleIndexAtFrame@{findCycleIndexAtFrame}!cycles\_handler.js@{cycles\_handler.js}}
+\doxysubsubsection{\texorpdfstring{findCycleIndexAtFrame()}{findCycleIndexAtFrame()}}
+{\footnotesize\ttfamily \label{cycles__handler_8js_a327957df8f91b302378493bb97d23c87} 
+function export find\+Cycle\+Index\+At\+Frame (\begin{DoxyParamCaption}\item[{}]{swim\+Data}{, }\item[{}]{current\+Frame}{}\end{DoxyParamCaption})}
+
+
+
+Trouve l\textquotesingle{}indice du cycle le plus proche (inférieur ou égal) à la frame courante de la vidéo. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em \{\+Array\}} & swim\+Data -\/ Tableau des cycles pour un nageur (curr\+\_\+swims\mbox{[}swim\mbox{]}) \\
+\hline
+{\em \{number\}} & current\+Frame -\/ Frame courante de la vidéo \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+\{number\} -\/ L\textquotesingle{}indice du cycle trouvé, ou -\/1 si aucun 
+\end{DoxyReturn}
+\Hypertarget{cycles__handler_8js_aab9fcafa2c86da85040fba11113e7afb}\index{cycles\_handler.js@{cycles\_handler.js}!get\_last\_checkpoint@{get\_last\_checkpoint}}
+\index{get\_last\_checkpoint@{get\_last\_checkpoint}!cycles\_handler.js@{cycles\_handler.js}}
+\doxysubsubsection{\texorpdfstring{get\_last\_checkpoint()}{get\_last\_checkpoint()}}
+{\footnotesize\ttfamily \label{cycles__handler_8js_aab9fcafa2c86da85040fba11113e7afb} 
+function export get\+\_\+last\+\_\+checkpoint (\begin{DoxyParamCaption}\item[{}]{checkpoints}{, }\item[{}]{run\+\_\+frame\+Id}{}\end{DoxyParamCaption})}
+
+
+
+Retourne le dernier checkpoint franchi à une frame donnée de la course Détermine quelle distance de référence (0, 25, 50, 75m etc.) a été franchie en dernier. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em \{number\}} & checkpoints Array of checkpoints \+: \mbox{[}0,25,50,75,...\mbox{]} \\
+\hline
+{\em \{number\}} & run\+\_\+frame\+Id The frame\+Id of the considered position \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+\{number\} last\+\_\+checkpoint an element of checkpoints so that last\+\_\+checkpoint \texorpdfstring{$<$}{<} cumul at run\+\_\+frame\+Id \texorpdfstring{$<$}{<} next\+\_\+checkpoint 
+\end{DoxyReturn}
+\Hypertarget{cycles__handler_8js_ac702898601460f8794044a601abe11b7}\index{cycles\_handler.js@{cycles\_handler.js}!get\_meter\_plot\_label@{get\_meter\_plot\_label}}
+\index{get\_meter\_plot\_label@{get\_meter\_plot\_label}!cycles\_handler.js@{cycles\_handler.js}}
+\doxysubsubsection{\texorpdfstring{get\_meter\_plot\_label()}{get\_meter\_plot\_label()}}
+{\footnotesize\ttfamily \label{cycles__handler_8js_ac702898601460f8794044a601abe11b7} 
+function export get\+\_\+meter\+\_\+plot\+\_\+label (\begin{DoxyParamCaption}\item[{}]{pool\+\_\+meter\+\_\+plot\+\_\+label}{}\end{DoxyParamCaption})}
+
+
+
+Calcule la distance cumulative à partir de la position dans la piscine Convertit une position physique dans la piscine en distance totale parcourue en tenant compte des allers-\/retours. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em \{number\}} & pool\+\_\+meter\+\_\+plot\+\_\+label \+: pool position \+: number between 0 and 50 \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+\{number\} cumul distance 
+\end{DoxyReturn}
+\Hypertarget{cycles__handler_8js_a9ecc9746b35b323d3ceda108f8bed943}\index{cycles\_handler.js@{cycles\_handler.js}!highlightCycle@{highlightCycle}}
+\index{highlightCycle@{highlightCycle}!cycles\_handler.js@{cycles\_handler.js}}
+\doxysubsubsection{\texorpdfstring{highlightCycle()}{highlightCycle()}}
+{\footnotesize\ttfamily \label{cycles__handler_8js_a9ecc9746b35b323d3ceda108f8bed943} 
+function export highlight\+Cycle (\begin{DoxyParamCaption}\item[{}]{swim}{, }\item[{}]{num}{}\end{DoxyParamCaption})}
+
+
+
+Surligne visuellement un cycle spécifique dans les graphiques de vérification Réduit l\textquotesingle{}opacité de tous les éléments sauf le cycle sélectionné pour le mettre en évidence. 
+
+Utilisation de variables globales \+: selected\+\_\+swim
+
+
+\begin{DoxyParams}{Parameters}
+{\em \{number\}} & swim id du nageur \\
+\hline
+{\em \{number\}} & num numéro de la donnée \\
+\hline
+\end{DoxyParams}
+\Hypertarget{cycles__handler_8js_a4360b16098585b76c39ef314521a9c10}\index{cycles\_handler.js@{cycles\_handler.js}!makeBar@{makeBar}}
+\index{makeBar@{makeBar}!cycles\_handler.js@{cycles\_handler.js}}
+\doxysubsubsection{\texorpdfstring{makeBar()}{makeBar()}}
+{\footnotesize\ttfamily \label{cycles__handler_8js_a4360b16098585b76c39ef314521a9c10} 
+function export make\+Bar (\begin{DoxyParamCaption}\item[{}]{data}{, }\item[{}]{idx}{, }\item[{}]{idswim}{, }\item[{}]{scale}{, }\item[{}]{elem\+Size}{, }\item[{}]{vid\+Size}{, }\item[{}]{meta}{}\end{DoxyParamCaption})}
+
+
+
+Construction d\textquotesingle{}une barre d\textquotesingle{}annotation visuelle sur le canvas vidéo Crée un élément canvas avec la couleur et position appropriées selon le type d\textquotesingle{}événement. 
+
+Utilisation de variables globales \+: lab\+\_\+flipper frame\+\_\+rate
+
+
+\begin{DoxyParams}{Parameters}
+{\em \{dictionary\}} & data element of curr\+\_\+swims\mbox{[}id\+\_\+swim\mbox{]} \\
+\hline
+{\em \{number\}} & idx index Of data in curr\+\_\+swims\mbox{[}id\+\_\+swim\mbox{]} \\
+\hline
+{\em \{number\}} & idswim id of the swimmer \\
+\hline
+{\em \{array\}} & scale array of \mbox{[}scale width, scale height\mbox{]} \\
+\hline
+{\em \{number\}} & elem\+Size \mbox{[}twidth, theight\mbox{]} -\/\texorpdfstring{$>$}{>} size of video shown in navigateur \\
+\hline
+{\em \{number\}} & vid\+Size \mbox{[}twidth, theight\mbox{]} -\/\texorpdfstring{$>$}{>} original size of video \\
+\hline
+{\em \{number\}} & meta video meta \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+\{array\} \mbox{[}can, div\mbox{]} canvas and div 
+\end{DoxyReturn}
+\Hypertarget{cycles__handler_8js_a39702ac50602d947bbdc2f12f395e4c9}\index{cycles\_handler.js@{cycles\_handler.js}!resetHigh@{resetHigh}}
+\index{resetHigh@{resetHigh}!cycles\_handler.js@{cycles\_handler.js}}
+\doxysubsubsection{\texorpdfstring{resetHigh()}{resetHigh()}}
+{\footnotesize\ttfamily \label{cycles__handler_8js_a39702ac50602d947bbdc2f12f395e4c9} 
+function export reset\+High (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})}
+
+
+
+Réinitialise le surlignage des barres dans les graphiques de vérification Remet l\textquotesingle{}opacité normale à tous les éléments visuels (barres, cercles, etc.) 
+
+\Hypertarget{cycles__handler_8js_a1c92712d3fcaa97152f9c4a411d470d8}\index{cycles\_handler.js@{cycles\_handler.js}!update\_cycle\_rapide@{update\_cycle\_rapide}}
+\index{update\_cycle\_rapide@{update\_cycle\_rapide}!cycles\_handler.js@{cycles\_handler.js}}
+\doxysubsubsection{\texorpdfstring{update\_cycle\_rapide()}{update\_cycle\_rapide()}}
+{\footnotesize\ttfamily \label{cycles__handler_8js_a1c92712d3fcaa97152f9c4a411d470d8} 
+function export update\+\_\+cycle\+\_\+rapide (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})}
+
+
+
+Met à jour rapidement l\textquotesingle{}affichage lié aux cycles sans redessin complet Version optimisée de update\+\_\+cycle qui utilise la mise à jour partielle des barres. 
+
+\Hypertarget{cycles__handler_8js_a4ed50c0f3d327d44ec165f8dbcb40af8}\index{cycles\_handler.js@{cycles\_handler.js}!updateBarsFromEvent@{updateBarsFromEvent}}
+\index{updateBarsFromEvent@{updateBarsFromEvent}!cycles\_handler.js@{cycles\_handler.js}}
+\doxysubsubsection{\texorpdfstring{updateBarsFromEvent()}{updateBarsFromEvent()}}
+{\footnotesize\ttfamily \label{cycles__handler_8js_a4ed50c0f3d327d44ec165f8dbcb40af8} 
+function export update\+Bars\+From\+Event (\begin{DoxyParamCaption}\item[{}]{swim}{, }\item[{}]{affiche\+\_\+tout}{ = {\ttfamily false}, }\item[{}]{meta}{ = {\ttfamily null}}\end{DoxyParamCaption})}
+
+
+
+Met à jour dynamiquement les barres d\textquotesingle{}annotation d\textquotesingle{}un nageur à partir d\textquotesingle{}un certain event\+Id (inclus). 
+
+Seules les barres dont l\textquotesingle{}id d\textquotesingle{}événement est \texorpdfstring{$>$}{>}= event\+Id sont supprimées et reconstruites, les autres ne sont pas touchées. la valeur de event\+Id est déterminée généralement par la frame courante de la vidéo avec des exeption s\textquotesingle{}il faut refresh la ligne et si le mode d\textquotesingle{}affichage est 1 ou 2. 
+\begin{DoxyParams}{Parameters}
+{\em \{number\}} & swim Id du nageur \\
+\hline
+{\em \{number\}} & event\+Id Premier id d\textquotesingle{}événement à mettre à jour (inclus) \\
+\hline
+{\em \{boolean\}} & affiche\+\_\+tout Si true, affiche toutes les barres à partir du dernier virage, sinon ne met à jour que les barres des cycles depuis l\textquotesingle{}instant de la vidéo. \\
+\hline
+{\em \{object\}} & meta Métadonnées vidéo (optionnel, sinon auto-\/détecté) \\
+\hline
+\end{DoxyParams}
+
+
+\doxysubsection{Variable Documentation}
+\Hypertarget{cycles__handler_8js_a59be084da8908b7d77ff34b25cd84488}\index{cycles\_handler.js@{cycles\_handler.js}!import@{import}}
+\index{import@{import}!cycles\_handler.js@{cycles\_handler.js}}
+\doxysubsubsection{\texorpdfstring{import}{import}}
+{\footnotesize\ttfamily \label{cycles__handler_8js_a59be084da8908b7d77ff34b25cd84488} 
+import \{ \mbox{\hyperlink{refactor-script_8js_a65c2791682c9938ca4e5954aedaf73bc}{display\+Mode}}, \mbox{\hyperlink{refactor-script_8js_a5aeeb87843f9100d6009620b1b7638f5}{selected\+\_\+swim}}, \mbox{\hyperlink{refactor-script_8js_af415bb07ae6ca417bec9e640c430c074}{temp\+\_\+start}}, \mbox{\hyperlink{refactor-script_8js_a7d49c9eee9666a212f9d767375a396d5}{selected\+\_\+cycle}}, \mbox{\hyperlink{refactor-script_8js_a5f6f8e4c807241d46723ead462345c08}{last\+\_\+checkpoint}}, \mbox{\hyperlink{refactor-script_8js_a1ccff62a45c449ba97167f51ec26f67b}{vue\+\_\+du\+\_\+dessus}} \} \mbox{\hyperlink{jquery-ui_8js_ace03b192fd101a1c5648340bc09b7229}{from}} \textquotesingle{}./refactor-\/\mbox{\hyperlink{main_8js_a2e1c8cb1a275ecd4c6fdeb7c95982fca}{script.\+js}}\textquotesingle{}}
+
+\Hypertarget{cycles__handler_8js_aba8f222c94f75de8f34a70a7becd018b}\index{cycles\_handler.js@{cycles\_handler.js}!lab\_flipper@{lab\_flipper}}
+\index{lab\_flipper@{lab\_flipper}!cycles\_handler.js@{cycles\_handler.js}}
+\doxysubsubsection{\texorpdfstring{lab\_flipper}{lab\_flipper}}
+{\footnotesize\ttfamily \label{cycles__handler_8js_aba8f222c94f75de8f34a70a7becd018b} 
+export let lab\+\_\+flipper = \mbox{\hyperlink{refactor-script_8js_a1a24fc2eb8c1af6d06ac15bcec47f088}{true}}}
+
+
+
+Contrôle l\textquotesingle{}affichage des labels sur les barres d\textquotesingle{}annotation Boolean correspondant au bouton Show Labels \+: true -\/\texorpdfstring{$>$}{>} affichage des labels des annotations, false -\/\texorpdfstring{$>$}{>} pas d\textquotesingle{}affichages de ces labels. 
+
+\Hypertarget{cycles__handler_8js_a2bed3fd3b713d1be65def8a798cd1fd7}\index{cycles\_handler.js@{cycles\_handler.js}!mode\_color@{mode\_color}}
+\index{mode\_color@{mode\_color}!cycles\_handler.js@{cycles\_handler.js}}
+\doxysubsubsection{\texorpdfstring{mode\_color}{mode\_color}}
+{\footnotesize\ttfamily \label{cycles__handler_8js_a2bed3fd3b713d1be65def8a798cd1fd7} 
+export let mode\+\_\+color}
+
+{\bfseries Initial value\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{=\ \{}
+\DoxyCodeLine{\ \ \ \ \textcolor{stringliteral}{"{}enter"{}}:\ \textcolor{stringliteral}{"{}rgba(0,\ 0,\ 255,\ 0.5)"{}},}
+\DoxyCodeLine{\ \ \ \ \textcolor{stringliteral}{"{}end"{}}:\ \textcolor{stringliteral}{"{}rgba(0,\ 255,\ 0,\ 0.5)"{}},}
+\DoxyCodeLine{\ \ \ \ \textcolor{stringliteral}{"{}cycle\_droite"{}}:\ \textcolor{stringliteral}{"{}rgba(35,\ 33,\ 86,\ 0.5)"{}},}
+\DoxyCodeLine{\ \ \ \ \textcolor{stringliteral}{"{}cycle"{}}:\ \textcolor{stringliteral}{"{}rgba(35,\ 33,\ 86,\ 0.5)"{}},}
+\DoxyCodeLine{\ \ \ \ \textcolor{stringliteral}{"{}cycle\_gauche"{}}:\ \textcolor{stringliteral}{"{}rgba(35,\ 33,\ 86,\ 0.5)"{}},}
+\DoxyCodeLine{\ \ \ \ \textcolor{stringliteral}{"{}section"{}}:\ \textcolor{stringliteral}{"{}rgba(255,\ 247,\ 0,\ 0.5)"{}},}
+\DoxyCodeLine{\ \ \ \ \textcolor{stringliteral}{"{}respi"{}}:\ \textcolor{stringliteral}{"{}rgba(189,\ 56,\ 56,\ 0.5)"{}},}
+\DoxyCodeLine{\ \ \ \ \textcolor{stringliteral}{"{}respi\_gauche"{}}:\ \textcolor{stringliteral}{"{}rgba(189,\ 56,\ 56,\ 0.5)"{}},}
+\DoxyCodeLine{\ \ \ \ \textcolor{stringliteral}{"{}respi\_droite"{}}:\ \textcolor{stringliteral}{"{}rgba(189,\ 56,\ 56,\ 0.5)"{}},}
+\DoxyCodeLine{\ \ \ \ \textcolor{stringliteral}{"{}turn"{}}:\ \textcolor{stringliteral}{"{}rgba(68,\ 68,\ 68,\ 0.5)"{}},}
+\DoxyCodeLine{\ \ \ \ \textcolor{stringliteral}{"{}finish"{}}:\ \textcolor{stringliteral}{"{}rgba(52,\ 52,\ 52,\ 0.5)"{}}}
+\DoxyCodeLine{\}}
+
+\end{DoxyCode}
+
+
+Dictionnaire des couleurs pour chaque type d\textquotesingle{}événement de natation Associe chaque mode d\textquotesingle{}annotation (cycle, turn, finish, etc.) à sa couleur d\textquotesingle{}affichage. 
+

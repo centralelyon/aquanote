@@ -1,0 +1,68 @@
+name: Run Tests & Doxygen
+
+permissions:
+  contents: write
+
+on:
+  push:
+    branches: [ dev , main ] # mettez les branches que vous souhaitez surveiller
+  pull_request:
+    branches: [ dev , main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          persist-credentials: true
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps
+
+      - name: Generate test index file
+        run: node scripts/generate-test-index.js
+
+      - name: Install Doxygen
+        run: sudo apt-get update && sudo apt-get install -y doxygen graphviz
+
+      - name: Run Doxygen
+        run: doxygen Doxyfile
+
+      - name: Commit Doxygen HTML to /html
+        if: github.event_name == 'push'  # Seulement sur les push, pas sur les PR
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add html
+          git commit -m "Update Doxygen documentation [auto]" || echo "No changes to commit"
+          # Pour les PR, utiliser GITHUB_HEAD_REF, sinon GITHUB_REF_NAME
+          BRANCH_NAME="${GITHUB_HEAD_REF:-${GITHUB_REF_NAME}}"
+          git push origin HEAD:${BRANCH_NAME}
+
+      - name: Fix ESLint permissions
+        run: chmod +x ./node_modules/.bin/eslint
+
+      - name: Lint code
+        run: npm run lint
+
+      - name: Run Vitest unit tests
+        run: npm test
+
+      - name: Run Vitest with coverage
+        run: npm run test:coverage
+
+      - name: Run Playwright E2E tests
+        run: npm run test:e2e
+
+      

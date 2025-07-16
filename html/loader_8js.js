@@ -19,7 +19,6 @@ var loader_8js =
     [ "curr_swims", "loader_8js.html#afb947e393cfd66db09cec4dce7b02cc7", null ],
     [ "datas", "loader_8js.html#a4ee05142093ec1b0db9257d43e380d48", null ],
     [ "frame_rate", "loader_8js.html#ab3def73df0c71f75c809c4fc9b0db06c", null ],
-    [ "import", "loader_8js.html#a59be084da8908b7d77ff34b25cd84488", null ],
     [ "inter", "loader_8js.html#a7b801ec4e9d5f6f2ad91fc5df140bdae", null ],
     [ "megaData", "loader_8js.html#a82849f85a8b1691736046b6da5c5f400", null ],
     [ "meters_checkpoints", "loader_8js.html#a609b55d60f55577435510216350a6270", null ],

@@ -13,7 +13,5 @@ var main_8js =
     [ "setGrad", "main_8js.html#a72b378523573ce3e8f80a098e7e3c4ee", null ],
     [ "updateTable", "main_8js.html#ae17180895fea3ac07bd9d1241f813dcb", null ],
     [ "base", "main_8js.html#a3a5ae47e30c64b5c99d2bd3b4f09f935", null ],
-    [ "import", "main_8js.html#a59be084da8908b7d77ff34b25cd84488", null ],
-    [ "js", "main_8js.html#a2e1c8cb1a275ecd4c6fdeb7c95982fca", null ],
     [ "local_bool", "main_8js.html#a33bbb328fedf7321517ac1cbf4f3aa0c", null ]
 ];

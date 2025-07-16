@@ -9,7 +9,6 @@ var cycles__handler_8js =
     [ "resetHigh", "cycles__handler_8js.html#a39702ac50602d947bbdc2f12f395e4c9", null ],
     [ "update_cycle_rapide", "cycles__handler_8js.html#a1c92712d3fcaa97152f9c4a411d470d8", null ],
     [ "updateBarsFromEvent", "cycles__handler_8js.html#a4ed50c0f3d327d44ec165f8dbcb40af8", null ],
-    [ "import", "cycles__handler_8js.html#a59be084da8908b7d77ff34b25cd84488", null ],
     [ "lab_flipper", "cycles__handler_8js.html#aba8f222c94f75de8f34a70a7becd018b", null ],
     [ "mode_color", "cycles__handler_8js.html#a2bed3fd3b713d1be65def8a798cd1fd7", null ]
 ];

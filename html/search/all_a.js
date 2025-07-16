@@ -18,6 +18,6 @@ var searchData=
   ['inter_15',['inter',['../loader_8js.html#a7b801ec4e9d5f6f2ad91fc5df140bdae',1,'loader.js']]],
   ['intersect_16',['intersect',['../jquery-ui_8js.html#ace8c7fe1da1d4be90ea7ebcbe57faf51',1,'jquery-ui.js']]],
   ['isclosed_17',['isClosed',['../namespacetest__annotation__video__generee.html#addc0c0f6b9cd654245963f7a6bb15673',1,'test_annotation_video_generee']]],
-  ['isgithubmode_18',['isGitHubMode',['../loader_8js.html#ae0acc8b3eb50fc5156e03001a6d050a1',1,'loader.js']]],
+  ['isgithubmode_18',['isgithubmode',['../loader_8js.html#ae0acc8b3eb50fc5156e03001a6d050a1',1,'isGitHubMode():&#160;loader.js'],['../main_8js.html#ae0acc8b3eb50fc5156e03001a6d050a1',1,'isGitHubMode():&#160;main.js']]],
   ['iswindow_19',['isWindow',['../jquery-ui_8js.html#ab26e398f0295e1a050226bd91ecd38b8',1,'jquery-ui.js']]]
 ];

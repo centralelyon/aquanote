@@ -6,6 +6,7 @@ var main_8js =
     [ "frameId_to_RunTime", "main_8js.html#a59be9e0da3f4cacec3618edc168a13ea", null ],
     [ "getCoteActionSuffix", "main_8js.html#a4212132e599e11910cb332dc032c906f", null ],
     [ "if", "main_8js.html#ad5a8b2dc3774b7dc784d4a76b4668943", null ],
+    [ "isGitHubMode", "main_8js.html#ae0acc8b3eb50fc5156e03001a6d050a1", null ],
     [ "metrics_calculation", "main_8js.html#a433ea925f40234fce426df764372c670", null ],
     [ "set_base", "main_8js.html#a3a33dd155e17b1239c80ce1792aec6bc", null ],
     [ "set_base_url", "main_8js.html#a7684e6534137a9e583244828beaa4481", null ],

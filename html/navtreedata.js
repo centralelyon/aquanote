@@ -129,7 +129,7 @@ var NAVTREEINDEX =
 [
 "annotations_8spec_8js.html",
 "jquery-ui_8js.html#ab26e398f0295e1a050226bd91ecd38b8",
-"predictor_8js.html#a48755074e42f8920bba56b3bd999d59b"
+"predictor_8js.html"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';

@@ -119,6 +119,8 @@ $(document).ready(function(){initNavTree('main_8js.html',''); initResizable(); }
 </div><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
+<tr class="memitem:ae0acc8b3eb50fc5156e03001a6d050a1" id="r_ae0acc8b3eb50fc5156e03001a6d050a1"><td class="memItemLeft" align="right" valign="top">function&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="main_8js.html#ae0acc8b3eb50fc5156e03001a6d050a1">isGitHubMode</a> ()</td></tr>
+<tr class="separator:ae0acc8b3eb50fc5156e03001a6d050a1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3a33dd155e17b1239c80ce1792aec6bc" id="r_a3a33dd155e17b1239c80ce1792aec6bc"><td class="memItemLeft" align="right" valign="top">function export&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="main_8js.html#a3a33dd155e17b1239c80ce1792aec6bc">set_base</a> ()</td></tr>
 <tr class="memdesc:a3a33dd155e17b1239c80ce1792aec6bc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Configure l'URL de base selon l'environnement (local ou distant) Définit l'URL du serveur backend selon le mode local/distant sélectionné  <br /></td></tr>
 <tr class="separator:a3a33dd155e17b1239c80ce1792aec6bc"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -157,7 +159,7 @@ Functions</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="var-members" name="var-members"></a>
 Variables</h2></td></tr>
-<tr class="memitem:a33bbb328fedf7321517ac1cbf4f3aa0c" id="r_a33bbb328fedf7321517ac1cbf4f3aa0c"><td class="memItemLeft" align="right" valign="top">export let&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="main_8js.html#a33bbb328fedf7321517ac1cbf4f3aa0c">local_bool</a> = <a class="el" href="refactor-script_8js.html#a1a24fc2eb8c1af6d06ac15bcec47f088">true</a></td></tr>
+<tr class="memitem:a33bbb328fedf7321517ac1cbf4f3aa0c" id="r_a33bbb328fedf7321517ac1cbf4f3aa0c"><td class="memItemLeft" align="right" valign="top">export let&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="main_8js.html#a33bbb328fedf7321517ac1cbf4f3aa0c">local_bool</a> = !<a class="el" href="loader_8js.html#ae0acc8b3eb50fc5156e03001a6d050a1">isGitHubMode</a>()</td></tr>
 <tr class="separator:a33bbb328fedf7321517ac1cbf4f3aa0c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3a5ae47e30c64b5c99d2bd3b4f09f935" id="r_a3a5ae47e30c64b5c99d2bd3b4f09f935"><td class="memItemLeft" align="right" valign="top">export let&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="main_8js.html#a3a5ae47e30c64b5c99d2bd3b4f09f935">base</a> = &quot;./&quot;</td></tr>
 <tr class="separator:a3a5ae47e30c64b5c99d2bd3b4f09f935"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -287,6 +289,23 @@ Variables</h2></td></tr>
           <td>(</td>
           <td class="paramtype">&#160;</td>
           <td class="paramname"><em>typeof window !</em> = <code>=&#160;&quot;undefined&quot;&#160;&amp;&amp;&#160;!<a class="el" href="setup_8js.html#a56ad9d13bd3b1ac85523e35869d5e39d">window.__TEST__</a></code></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="ae0acc8b3eb50fc5156e03001a6d050a1" name="ae0acc8b3eb50fc5156e03001a6d050a1"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae0acc8b3eb50fc5156e03001a6d050a1">&#9670;&#160;</a></span>isGitHubMode()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">function isGitHubMode </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
           <td></td>
         </tr>
       </table>
@@ -491,7 +510,7 @@ Variables</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">export let local_bool = <a class="el" href="refactor-script_8js.html#a1a24fc2eb8c1af6d06ac15bcec47f088">true</a></td>
+          <td class="memname">export let local_bool = !<a class="el" href="loader_8js.html#ae0acc8b3eb50fc5156e03001a6d050a1">isGitHubMode</a>()</td>
         </tr>
       </table>
 </div><div class="memdoc">

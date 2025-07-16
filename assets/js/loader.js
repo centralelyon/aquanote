@@ -80,10 +80,15 @@ window.selected_comp = selected_comp; // Pour que selected_comp soit accessible 
  */
 export async function init() {
   try {
-    // Toujours utiliser courses_demo/flat.json peu importe l'environnement
-    let temp = await d3.json("courses_demo/flat.json");
-
+    // Gérer différemment selon l'environnement
+    if (isGitHubMode()) {
+      // En mode GitHub, utiliser directement le fichier flat.json comme objet
+      flat = await d3.json("courses_demo/flat.json");
+    } else {
+      // En mode local/serveur, utiliser le fichier flat.json comme tableau
+      let temp = await d3.json("courses_demo/flat.json");
       flat = make_flat_usable(temp);
+    }
       
       await getCompets();
       await getRuns(selected_comp);

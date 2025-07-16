@@ -80,25 +80,14 @@ window.selected_comp = selected_comp; // Pour que selected_comp soit accessible 
  */
 export async function init() {
   try {
-    console.log("=== INIT DEBUG ===");
-    console.log("isGitHubMode():", isGitHubMode());
-    console.log("local_bool:", local_bool);
-    console.log("window.myAPI:", window.myAPI);
-    console.log("window.location.hostname:", window.location.hostname);
-    console.log("window.location.pathname:", window.location.pathname);
-    
     // Gérer différemment selon l'environnement
     if (isGitHubMode()) {
       // En mode GitHub, utiliser directement le fichier flat.json comme objet
-      console.log("Chargement flat.json en mode GitHub");
       flat = await d3.json("courses_demo/flat.json");
-      console.log("flat.json chargé:", flat);
     } else {
       // En mode local/serveur, utiliser le fichier flat.json comme tableau
-      console.log("Chargement flat.json en mode local/serveur");
       let temp = await d3.json("courses_demo/flat.json");
       flat = make_flat_usable(temp);
-      console.log("flat.json traité:", flat);
     }
       
       await getCompets();
@@ -694,21 +683,13 @@ export async function load_run(run, data, starTime = null) {
   const errors = []; // Liste des erreurs rencontrées
 
   try {
-    console.log("=== LOAD_RUN DEBUG ===");
-    console.log("run:", run);
-    console.log("data:", data);
-    console.log("starTime:", starTime);
-    
     selected_comp = $("#competition").val();
-    console.log("selected_comp:", selected_comp);
 
     let t;
     if (window.myAPI && window.myAPI.readJsonFile) {
       // Lecture locale du JSON
       try {
-        console.log("Mode Electron - Lecture du fichier JSON:", "courses_demo", selected_comp, run, run + '.json');
         t = await window.myAPI.readJsonFile("courses_demo", selected_comp, run, run + '.json');
-        console.log("Fichier JSON chargé avec succès:", t);
       } catch (e) {
         console.error("Erreur lecture Electron:", e);
         errors.push("Fichier JSON non trouvé ou invalide : " + run + '.json');
@@ -719,14 +700,9 @@ export async function load_run(run, data, starTime = null) {
       const jsonUrl = (local_bool && !isGitHubMode()) 
         ? "http://localhost:8001/files/" + selected_comp + "/" + run + "/" + run + '.json'
         : getDataPath() + selected_comp + "/" + run + "/" + run + '.json';
-      console.log("Mode distant - URL du fichier JSON:", jsonUrl);
-      console.log("local_bool:", local_bool);
-      console.log("getDataPath():", getDataPath());
-      console.log("isGitHubMode():", isGitHubMode());
       
       try {
         t = await d3.json(jsonUrl, d3.autoType);
-        console.log("Fichier JSON chargé avec succès:", t);
       } catch (e) {
         console.error("Erreur lors du chargement du fichier JSON:", e);
         console.error("URL tentée:", jsonUrl);

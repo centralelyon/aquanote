@@ -25,7 +25,7 @@ export async function setupMocks(page, testData, testDataPath, testVideoPath, op
       status: 200,
       contentType: 'application/json',        body: JSON.stringify({
           name: "Neptune",
-          version: "1.16.0",
+          version: "1.0.0",
           server: {
             url: "http://localhost:8080"
           }
@@ -635,7 +635,7 @@ export async function setupBasicMocks(page) {
       contentType: 'application/json',
       body: JSON.stringify({
         name: "Neptune",
-        version: "1.16.0"
+        version: "1.0.0"
       })
     })
   });

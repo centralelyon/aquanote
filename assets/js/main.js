@@ -391,7 +391,7 @@ document.addEventListener("DOMContentLoaded", function() {
  * Redirige vers la page GitHub des releases
  */
 function downloadVersion() {
-    window.open('https://github.com/centralelyon/annotation/releases/tag/version.1.10.0', '_blank')
+    window.open('https://github.com/centralelyon/aquanote/releases/tag/version.1.0.0', '_blank')
     
 }
 

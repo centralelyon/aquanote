@@ -28,7 +28,7 @@ test.describe('Test de chargement vidéo', () => {
         contentType: 'application/json',
         body: JSON.stringify({
           name: "Neptune",
-          version: "1.16.0"
+          version: "1.0.0"
         })
       })
     })

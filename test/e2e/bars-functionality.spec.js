@@ -62,7 +62,7 @@ test.describe('Fonctionnalités des barres d\'annotation', () => {
         contentType: 'application/json',
         body: JSON.stringify({
           name: "Neptune",
-          version: "1.16.0",
+          version: "1.0.0",
           server: {
             url: "http://localhost:8080"
           }

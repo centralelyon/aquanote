@@ -753,16 +753,17 @@ export async function load_run(run, data, starTime = null) {
     frame_rate = (meta && !isNaN(parseInt(meta.fps))) ? parseInt(meta.fps) : 50;
     
     if (data !== "new_data" && data && data.trim() !== "") {
-      let r;
+      let r = [];
       if (window.myAPI && window.myAPI.readCsvFile) {
         try {
           r = await window.myAPI.readCsvFile("courses_demo", selected_comp, run, data);
-          if (r[0] && r[0]['startTimeEdit'] != null && starTime == null) {
+          if (!Array.isArray(r)) r = [];
+          if (r.length > 0 && r[0]['startTimeEdit'] != null && starTime == null) {
             edit_temp_start(r[0]['startTimeEdit']);
           } else {
             edit_temp_start(starTime == null ? get_temp_start(meta) : parseFloat((starTime.toString()).split(':')[1]));
           }
-        } catch {
+        } catch (e) {
           errors.push("Fichier CSV '" + data + "' introuvable ou invalide.");
           edit_temp_start(get_temp_start(meta));
         }
@@ -771,13 +772,19 @@ export async function load_run(run, data, starTime = null) {
           const csvUrl = (local_bool && !isGitHubMode())
             ? "http://localhost:8001/files/" + selected_comp + "/" + run + "/" + data
             : getDataPath() + selected_comp + "/" + run + "/" + data;
-          r = await fetchAndParseCsv(csvUrl);
-          if (r[0] && r[0]['startTimeEdit'] != null && starTime == null) {
+          // Utilise d3.csv si disponible, sinon fallback fetchAndParseCsv
+          if (typeof d3 !== "undefined" && d3.csv) {
+            r = await d3.csv(csvUrl, d3.autoType);
+          } else {
+            r = await fetchAndParseCsv(csvUrl);
+          }
+          if (!Array.isArray(r)) r = [];
+          if (r.length > 0 && r[0]['startTimeEdit'] != null && starTime == null) {
             edit_temp_start(r[0]['startTimeEdit']);
           } else {
             edit_temp_start(starTime == null ? get_temp_start(meta) : parseFloat((starTime.toString()).split(':')[1]));
           }
-        } catch {
+        } catch (e) {
           errors.push("Fichier CSV '" + data + "' introuvable ou invalide.");
           edit_temp_start(get_temp_start(meta));
         }

@@ -3,7 +3,7 @@ var indexSectionsWithContent =
   0: "$_abcdefghijklmnopqrstuvwxyzà⚠✅🎯📁📄📈📊🔄🚀🛠🧪",
   1: "lt",
   2: "abcdfghijlmprstuv",
-  3: "$_abcdefghiklmnoprstuvwz",
+  3: "$_abcdefghilmnprstuvwz",
   4: "$_abcdefghijklmnopqrstuvwxyz",
   5: "acdejmnprst"
 };

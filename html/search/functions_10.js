@@ -1,11 +1,15 @@
 var searchData=
 [
-  ['parseclip_0',['parseClip',['../jquery-ui_8js.html#aadf3e4a956e39eab8eb210ae2c4a9960',1,'jquery-ui.js']]],
-  ['parsecss_1',['parseCss',['../jquery-ui_8js.html#af380a5a5e354d228738ae9b9a2d08298',1,'jquery-ui.js']]],
-  ['plot_5fcursor_2',['plot_cursor',['../refactor-script_8js.html#ac3bffcab8b14b08f04fca75ee090f1f1',1,'refactor-script.js']]],
-  ['plot_5findicator_5flines_3',['plot_indicator_lines',['../plot__handler_8js.html#a1d8095beacaa1b243a596fa0c6d419fe',1,'plot_handler.js']]],
-  ['predit_5fdelta_5fcycle_5fdos_4',['predit_delta_cycle_dos',['../predictor_8js.html#ae86672f71f1e26ec9b8540bd8794eb6e',1,'predictor.js']]],
-  ['prepareinputdatados_5',['prepareInputDataDos',['../ml-cycle-predictor-js_2js_2utils_8js.html#a2a07f94dd428eed3e9248bc6cc332176',1,'utils.js']]],
-  ['prepareinputdatafreestyle_6',['prepareInputDataFreestyle',['../ml-cycle-predictor-js_2js_2utils_8js.html#a4e92c362e181ba43fab0a18b72501f71',1,'utils.js']]],
-  ['processrundata_7',['processRunData',['../loader_8js.html#a24e6de71f45f42decf6d104b5406dcc6',1,'loader.js']]]
+  ['save_5fdata_5fentry_5fclick_0',['save_data_entry_click',['../side__views_8js.html#a10a402abf74b3109036a4113d52a18f7',1,'side_views.js']]],
+  ['set_5fbase_1',['set_base',['../main_8js.html#a3a33dd155e17b1239c80ce1792aec6bc',1,'main.js']]],
+  ['set_5fbase_5furl_2',['set_base_url',['../main_8js.html#a7684e6534137a9e583244828beaa4481',1,'main.js']]],
+  ['set_5flocal_5fbool_3',['set_local_bool',['../main_8js.html#a46cc5c3db8f4390cf635020da958c6db',1,'main.js']]],
+  ['set_5fplaceholder_5fof_5ftime_5fentry_4',['set_placeholder_of_time_entry',['../side__views_8js.html#ab4353880f500d493d2dac54ea0cb9a01',1,'side_views.js']]],
+  ['setcompets_5',['setcompets',['../loader_8js.html#ac1d99c0bcf8fd6676ab156fdd6f9d3bc',1,'loader.js']]],
+  ['setgrad_6',['setGrad',['../main_8js.html#a72b378523573ce3e8f80a098e7e3c4ee',1,'main.js']]],
+  ['simulatemouseclick_7',['simulateMouseClick',['../shortcuts__handler_8js.html#a8d98d536c81ce597a944132d4bf41813',1,'shortcuts_handler.js']]],
+  ['spinnermodifier_8',['spinnerModifier',['../jquery-ui_8js.html#a96db88dbc065fb3aa399888bbb6cb326',1,'jquery-ui.js']]],
+  ['standardanimationoption_9',['standardAnimationOption',['../jquery-ui_8js.html#afa426092b300f812643e065a141f4fba',1,'jquery-ui.js']]],
+  ['stringparse_10',['stringParse',['../jquery-ui_8js.html#ab568518275b731bafcd22ba2afe7eaf1',1,'jquery-ui.js']]],
+  ['styledifference_11',['styleDifference',['../jquery-ui_8js.html#a4f3d1ad57acfa53c094d81fbc686ece6',1,'jquery-ui.js']]]
 ];

@@ -1016,6 +1016,11 @@ function isGitHubMode() {
  * @brief Données statiques pour le mode GitHub
  * Remplace les appels AJAX quand on ne peut pas lister les dossiers
  */
+/**
+ * Liste statique des fichiers CSV présents pour chaque course.
+ * Cette liste est utilisée en mode GitHub Pages car il n'est pas possible de lister dynamiquement le contenu d'un dossier.
+ * À mettre à jour à chaque ajout/suppression de fichier CSV dans le dépôt.
+ */
 const staticData = {
     competitions: [
         { name: "2025_courses_demo", type: "directory" }
@@ -1027,9 +1032,14 @@ const staticData = {
             { name: "2025_courses_demo_translation_carre_50_serie", type: "directory" }
         ]
     },
+    // À mettre à jour manuellement si des fichiers CSV sont ajoutés ou supprimés dans le dépôt
     csvFiles: {
-        "2025_courses_demo_translation_carre_100_demifinale": [],
-        "2025_courses_demo_translation_carre_50_finale": [],
+        "2025_courses_demo_translation_carre_100_demifinale": [
+            { name: "exemple_annotation_cycle.csv", type: "file" }
+        ],
+        "2025_courses_demo_translation_carre_50_finale": [
+            { name: "exemple_annotation_ligne_5_cycles.csv", type: "file" }
+        ],
         "2025_courses_demo_translation_carre_50_serie": []
     }
 };

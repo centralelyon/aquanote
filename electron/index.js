@@ -32,11 +32,11 @@ function createWindow() {
       contextIsolation: true,
       nodeIntegration: true,
       //enableRemoteModule: false,
-      preload: path.join(__dirname, './preload.cjs') 
+      preload: path.join(__dirname, 'preload.cjs')
     }
   });
 
-  win.loadFile(path.join(__dirname, 'index.html'));
+  win.loadFile(path.join(__dirname, '..', 'index.html'));
 }
 
 app.whenReady().then(createWindow);

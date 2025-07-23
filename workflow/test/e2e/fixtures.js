@@ -64,7 +64,7 @@ export const test = base.extend({
 
     try {
       // Use the test-specific index file for E2E tests
-      await use(`http://localhost:${port}/index-test.html`)
+      await use(`http://localhost:${port}/workflow/test/index-test.html`)
     } finally {
       // Clean up - kill server and all child processes
       if (process.platform === 'win32') {

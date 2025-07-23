@@ -16,7 +16,7 @@ import { getMeta } from './utils.js'
 import {findCycleIndexAtFrame} from "./cycles_handler.js";
 import "./plot_handler.js";
 import "./jquery-custom.js";
-import "../../ml-cycle-predictor-js/js/predictor.js";
+import "./ml-cycle-predictor-js/js/predictor.js";
 
 
 

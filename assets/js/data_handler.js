@@ -9,7 +9,7 @@ import { update_swimmer } from "./side_views.js";
 import { frameId_to_RunTime } from "./main.js";
 import { highlightCycle } from "./cycles_handler.js";
 
-import { predit_delta_cycle_dos } from "../../ml-cycle-predictor-js/js/predictor.js";
+import { predit_delta_cycle_dos } from "./ml-cycle-predictor-js/js/predictor.js";
 
 
 

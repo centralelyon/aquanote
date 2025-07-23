@@ -31,20 +31,21 @@ jobs:
         run: npx playwright install --with-deps
 
       - name: Generate test index file
-        run: node scripts/generate-test-index.js
+        run: node workflow/test/scripts/generate-test-index.js
 
       - name: Install Doxygen
         run: sudo apt-get update && sudo apt-get install -y doxygen graphviz
 
-      - name: Run Doxygen
-        run: doxygen Doxyfile
 
-      - name: Commit Doxygen HTML to /html
+      - name: Run Doxygen (workflow/docs/Doxyfile)
+        run: doxygen workflow/docs/Doxyfile
+
+      - name: Commit Doxygen HTML to workflow/docs/html
         if: github.event_name == 'push'  # Seulement sur les push, pas sur les PR
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git add html
+          git add workflow/docs/html
           git commit -m "Update Doxygen documentation [auto]" || echo "No changes to commit"
           # Pour les PR, utiliser GITHUB_HEAD_REF, sinon GITHUB_REF_NAME
           BRANCH_NAME="${GITHUB_HEAD_REF:-${GITHUB_REF_NAME}}"

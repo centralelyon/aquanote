@@ -764,7 +764,7 @@ export async function load_run(run, data, starTime = null) {
             edit_temp_start(starTime == null ? get_temp_start(meta) : parseFloat((starTime.toString()).split(':')[1]));
           }
         } catch (e) {
-          errors.push("Fichier CSV '" + data + "' introuvable ou invalide.");
+          errors.push("Fichier CSV '" + data + "' introuvable ou invalide."+e);
           edit_temp_start(get_temp_start(meta));
         }
       } else {
@@ -785,7 +785,7 @@ export async function load_run(run, data, starTime = null) {
             edit_temp_start(starTime == null ? get_temp_start(meta) : parseFloat((starTime.toString()).split(':')[1]));
           }
         } catch (e) {
-          errors.push("Fichier CSV '" + data + "' introuvable ou invalide.");
+          errors.push("Fichier CSV '" + data + "' introuvable ou invalide."+e);
           edit_temp_start(get_temp_start(meta));
         }
       }

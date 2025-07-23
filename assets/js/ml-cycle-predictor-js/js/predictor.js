@@ -1,7 +1,7 @@
 import { prepareInputDataDos, normalizeInput, denormalizeOutput, prepareInputDataFreestyle } from './utils.js';
 
 let model = {};
-fetch('./ml-cycle-predictor-js/model/best_cycle_predictor.json')
+fetch('./assets/js/ml-cycle-predictor-js/model/best_cycle_predictor.json')
   .then(response => response.json())
   .then(data => {
     model = data;

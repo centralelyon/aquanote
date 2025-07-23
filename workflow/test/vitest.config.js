@@ -16,7 +16,7 @@ export default defineConfig({
     globals: true,
     
     // Setup files
-    setupFiles: ['./test/setup.js'],
+    setupFiles: ['./workflow/tests/setup.js'],
     
     // Coverage configuration
     coverage: {
@@ -24,7 +24,7 @@ export default defineConfig({
       reporter: ['text', 'json', 'html'],
       exclude: [
         'node_modules/',
-        'test/',
+        'workflow/tests/',
         'html/',
         'latex/',
         'build/'
@@ -33,11 +33,11 @@ export default defineConfig({
     
     // Test files patterns - inclut unit et integration, exclut E2E
     include: [
-      'test/unit/**/*.{test,spec}.{js,ts}',
-      'test/integration/**/*.{test,spec}.{js,ts}',
-      'test/**/*.{test,spec}.{js,ts}'
+      'workflow/tests/unit/**/*.{test,spec}.{js,ts}',
+      'workflow/tests/integration/**/*.{test,spec}.{js,ts}',
+      'workflow/tests/**/*.{test,spec}.{js,ts}'
     ],
-    exclude: ['test/e2e/**/*'],
+    exclude: ['workflow/tests/e2e/**/*'],
     
     // Mock les modules externes si nécessaire
     server: {

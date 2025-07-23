@@ -8,6 +8,7 @@ import { fileURLToPath } from 'url'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const rootDir = join(__dirname, '..')
+const testDir = join(rootDir, 'test')
 
 /**
  * Génère un fichier index-test.html basé sur index.html
@@ -15,8 +16,8 @@ const rootDir = join(__dirname, '..')
  */
 function generateTestIndexFile() {
   try {
-    const indexPath = join(rootDir, 'index.html')
-    const testIndexPath = join(rootDir, 'index-test.html')
+    const indexPath = join(rootDir, '..', 'index.html')
+    const testIndexPath = join(testDir, 'index-test.html')
     
     // Lire le fichier index.html original
     const originalContent = readFileSync(indexPath, 'utf-8')

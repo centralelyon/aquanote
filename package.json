@@ -41,6 +41,7 @@
     "build:linux": "electron-builder -l"
   },
   "dependencies": {
+    "csv-parse": "^6.1.0",
     "node-fetch": "^3.3.2",
     "perspective-transform": "^1.1.3"
   },

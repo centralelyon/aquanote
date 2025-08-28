@@ -1,6 +1,6 @@
-import {last_added_data } from "../../assets/js/data_handler.js";
-import { curr_swims } from "../../assets/js/loader.js";
-import { selected_swim } from "../../assets/js/refactor-script.js";
+import {last_added_data } from "../../data_handler.js";
+import { curr_swims } from "../../loader.js";
+import { selected_swim } from "../../refactor-script.js";
 
 export function normalizeInput(inputData, mean, std) {
     // inputData : tableau de features dans l'ordre attendu par le modèle

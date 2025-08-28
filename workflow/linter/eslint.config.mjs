@@ -7,28 +7,27 @@
 
 import js from "@eslint/js";
 import globals from "globals";
-import { defineConfig, globalIgnores } from "eslint/config";
 
-
-export default defineConfig([
-  { files: ["**/*.{js,mjs,cjs}"], plugins: { js }, extends: ["js/recommended"] },
-  { files: ["**/*.{js,mjs,cjs}"], languageOptions: { globals: globals.browser } },
-  globalIgnores([
-    "html/", //dossiers à ignorer ou fichiers à ignorer
-    "test/",
-    "assets/js/jquery-ui.js",
-    "assets/js/perspective-transform.min.js",
-    "assets/js/*.min.js",
-    ".conda/"
-
-  ]),
+export default [
+  js.configs.recommended,
   {
+    files: ["**/*.{js,mjs,cjs}"],
     languageOptions: {
-        globals: {
-          d3: "readonly",
-          $: "readonly",
-
-        },
+      globals: {
+        ...globals.browser,
+        d3: "readonly",
+        $: "readonly",
       },
-    }
-]);
+    },
+  },
+  {
+    ignores: [
+      "html/", //dossiers à ignorer ou fichiers à ignorer
+      "workflow/test/",
+      "assets/js/jquery-ui.js",
+      "assets/js/perspective-transform.min.js",
+      "assets/js/*.min.js",
+      ".conda/"
+    ],
+  },
+];

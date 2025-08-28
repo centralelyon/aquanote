@@ -27,7 +27,8 @@ export default [
       "assets/js/jquery-ui.js",
       "assets/js/perspective-transform.min.js",
       "assets/js/*.min.js",
-      ".conda/"
+      ".conda/",
+      "workflow/docs/"
     ],
   },
 ];

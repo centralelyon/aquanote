@@ -34,7 +34,7 @@
     "test:all": "npm run test && npm run test:e2e",
     "dev": "http-server . -p 3000 -c-1 --cors",
     "serve": "http-server . -p 3000 -c-1 --cors",
-    "lint": "eslint",
+    "lint": "eslint  --config workflow/linter/eslint.config.mjs",
     "start": "npx electron",
     "build:windows": "electron-builder -w",
     "build:mac": "electron-builder -m",

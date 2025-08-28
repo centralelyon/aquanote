@@ -25,87 +25,100 @@
 var NAVTREE =
 [
   [ "annotations", "index.html", [
-    [ "ml-cycle-predictor-js", "md_ml-cycle-predictor-js_2README.html", [
-      [ "Overview", "md_ml-cycle-predictor-js_2README.html#autotoc_md1", null ],
-      [ "Project Structure", "md_ml-cycle-predictor-js_2README.html#autotoc_md2", null ],
-      [ "Files Description", "md_ml-cycle-predictor-js_2README.html#autotoc_md3", [
-        [ "Model", "md_ml-cycle-predictor-js_2README.html#autotoc_md4", null ],
-        [ "JavaScript", "md_ml-cycle-predictor-js_2README.html#autotoc_md5", null ],
-        [ "Data", "md_ml-cycle-predictor-js_2README.html#autotoc_md6", null ]
+    [ "ml-cycle-predictor-js", "md_assets_2js_2ml-cycle-predictor-js_2README.html", [
+      [ "Overview", "md_assets_2js_2ml-cycle-predictor-js_2README.html#autotoc_md1", null ],
+      [ "Files Description", "md_assets_2js_2ml-cycle-predictor-js_2README.html#autotoc_md2", [
+        [ "Model", "md_assets_2js_2ml-cycle-predictor-js_2README.html#autotoc_md3", null ],
+        [ "JavaScript", "md_assets_2js_2ml-cycle-predictor-js_2README.html#autotoc_md4", null ],
+        [ "Data", "md_assets_2js_2ml-cycle-predictor-js_2README.html#autotoc_md5", null ]
       ] ],
-      [ "Usage", "md_ml-cycle-predictor-js_2README.html#autotoc_md7", null ],
-      [ "Setup Instructions", "md_ml-cycle-predictor-js_2README.html#autotoc_md8", null ],
-      [ "License", "md_ml-cycle-predictor-js_2README.html#autotoc_md9", null ]
+      [ "Usage", "md_assets_2js_2ml-cycle-predictor-js_2README.html#autotoc_md6", null ],
+      [ "Setup Instructions", "md_assets_2js_2ml-cycle-predictor-js_2README.html#autotoc_md7", null ],
+      [ "Notes", "md_assets_2js_2ml-cycle-predictor-js_2README.html#autotoc_md8", null ],
+      [ "Files Description", "md_assets_2js_2ml-cycle-predictor-js_2README.html#autotoc_md9", [
+        [ "Model", "md_assets_2js_2ml-cycle-predictor-js_2README.html#autotoc_md10", null ],
+        [ "JavaScript", "md_assets_2js_2ml-cycle-predictor-js_2README.html#autotoc_md11", null ],
+        [ "Data", "md_assets_2js_2ml-cycle-predictor-js_2README.html#autotoc_md12", null ]
+      ] ],
+      [ "Usage", "md_assets_2js_2ml-cycle-predictor-js_2README.html#autotoc_md13", null ],
+      [ "Setup Instructions", "md_assets_2js_2ml-cycle-predictor-js_2README.html#autotoc_md14", null ]
     ] ],
-    [ "annotation", "md_README.html", [
-      [ "How to install and run in Local", "md_README.html#autotoc_md11", null ],
-      [ "Documentation", "md_README.html#autotoc_md12", null ]
+    [ "aquanote", "md_README.html", [
+      [ "How to install and run in Local", "md_README.html#autotoc_md16", null ],
+      [ "Documentation", "md_README.html#autotoc_md17", null ]
     ] ],
-    [ "Tests E2E - Structure Réorganisée", "md_test_2e2e_2README.html", [
-      [ "Vue d'ensemble", "md_test_2e2e_2README.html#autotoc_md14", null ],
-      [ "Structure des fichiers", "md_test_2e2e_2README.html#autotoc_md15", [
-        [ "📁 helpers/", "md_test_2e2e_2README.html#autotoc_md16", null ],
-        [ "📁 tests/", "md_test_2e2e_2README.html#autotoc_md17", null ],
-        [ "📄 Fichiers principaux", "md_test_2e2e_2README.html#autotoc_md18", null ]
+    [ "README", "md_workflow_2docs_2md_2README.html", null ],
+    [ "README", "md_workflow_2docs_2README.html", null ],
+    [ "README", "md_workflow_2linter_2README.html", null ],
+    [ "Tests E2E - Structure Réorganisée", "md_workflow_2test_2e2e_2README.html", [
+      [ "Vue d'ensemble", "md_workflow_2test_2e2e_2README.html#autotoc_md19", null ],
+      [ "Structure des fichiers", "md_workflow_2test_2e2e_2README.html#autotoc_md20", [
+        [ "📁 helpers/", "md_workflow_2test_2e2e_2README.html#autotoc_md21", null ],
+        [ "📁 tests/", "md_workflow_2test_2e2e_2README.html#autotoc_md22", null ],
+        [ "📄 Fichiers principaux", "md_workflow_2test_2e2e_2README.html#autotoc_md23", null ]
       ] ],
-      [ "Utilisation", "md_test_2e2e_2README.html#autotoc_md19", [
-        [ "Exécuter tous les tests", "md_test_2e2e_2README.html#autotoc_md20", null ],
-        [ "Exécuter des tests spécifiques", "md_test_2e2e_2README.html#autotoc_md21", null ],
-        [ "Exécuter par catégorie avec des tags", "md_test_2e2e_2README.html#autotoc_md22", null ]
+      [ "Utilisation", "md_workflow_2test_2e2e_2README.html#autotoc_md24", [
+        [ "Exécuter tous les tests", "md_workflow_2test_2e2e_2README.html#autotoc_md25", null ],
+        [ "Exécuter des tests spécifiques", "md_workflow_2test_2e2e_2README.html#autotoc_md26", null ],
+        [ "Exécuter par catégorie avec des tags", "md_workflow_2test_2e2e_2README.html#autotoc_md27", null ]
       ] ],
-      [ "Avantages de cette structure", "md_test_2e2e_2README.html#autotoc_md23", null ],
-      [ "Fonctions utilitaires principales", "md_test_2e2e_2README.html#autotoc_md24", [
-        [ "test-helpers.js", "md_test_2e2e_2README.html#autotoc_md25", null ],
-        [ "mock-setup.js", "md_test_2e2e_2README.html#autotoc_md26", null ]
+      [ "Avantages de cette structure", "md_workflow_2test_2e2e_2README.html#autotoc_md28", null ],
+      [ "Fonctions utilitaires principales", "md_workflow_2test_2e2e_2README.html#autotoc_md29", [
+        [ "test-helpers.js", "md_workflow_2test_2e2e_2README.html#autotoc_md30", null ],
+        [ "mock-setup.js", "md_workflow_2test_2e2e_2README.html#autotoc_md31", null ]
       ] ],
-      [ "Migration depuis l'ancien fichier", "md_test_2e2e_2README.html#autotoc_md27", null ],
-      [ "Personnalisation", "md_test_2e2e_2README.html#autotoc_md28", null ],
-      [ "Dépendances", "md_test_2e2e_2README.html#autotoc_md29", null ]
+      [ "Migration depuis l'ancien fichier", "md_workflow_2test_2e2e_2README.html#autotoc_md32", null ],
+      [ "Personnalisation", "md_workflow_2test_2e2e_2README.html#autotoc_md33", null ],
+      [ "Dépendances", "md_workflow_2test_2e2e_2README.html#autotoc_md34", null ]
     ] ],
-    [ "Documentation des Tests - Projet Neptune", "md_test_2README.html", [
-      [ "📁 Structure des Tests", "md_test_2README.html#autotoc_md31", null ],
-      [ "🧪 Types de Tests", "md_test_2README.html#autotoc_md32", [
-        [ "Tests Unitaires (<tt>unit/</tt>)", "md_test_2README.html#autotoc_md33", [
-          [ "<tt>cycles_handler.test.js</tt>", "md_test_2README.html#autotoc_md34", null ],
-          [ "<tt>homography_handler.test.js</tt>", "md_test_2README.html#autotoc_md35", null ],
-          [ "<tt>side_views.test.js</tt>", "md_test_2README.html#autotoc_md36", null ],
-          [ "<tt>svg_rendering.test.js</tt>", "md_test_2README.html#autotoc_md37", null ]
+    [ "Documentation des Tests - Projet Neptune", "md_workflow_2test_2README.html", [
+      [ "📁 Structure des Tests", "md_workflow_2test_2README.html#autotoc_md36", null ],
+      [ "🧪 Types de Tests", "md_workflow_2test_2README.html#autotoc_md37", [
+        [ "Tests Unitaires (<tt>unit/</tt>)", "md_workflow_2test_2README.html#autotoc_md38", [
+          [ "<tt>cycles_handler.test.js</tt>", "md_workflow_2test_2README.html#autotoc_md39", null ],
+          [ "<tt>homography_handler.test.js</tt>", "md_workflow_2test_2README.html#autotoc_md40", null ],
+          [ "<tt>side_views.test.js</tt>", "md_workflow_2test_2README.html#autotoc_md41", null ],
+          [ "<tt>svg_rendering.test.js</tt>", "md_workflow_2test_2README.html#autotoc_md42", null ]
         ] ],
-        [ "Tests d'Intégration (<tt>integration/</tt>)", "md_test_2README.html#autotoc_md38", [
-          [ "<tt>cycles_handler.test.js</tt>", "md_test_2README.html#autotoc_md39", null ]
+        [ "Tests d'Intégration (<tt>integration/</tt>)", "md_workflow_2test_2README.html#autotoc_md43", [
+          [ "<tt>cycles_handler.test.js</tt>", "md_workflow_2test_2README.html#autotoc_md44", null ]
         ] ],
-        [ "Tests End-to-End (<tt>e2e/</tt>)", "md_test_2README.html#autotoc_md40", [
-          [ "<tt>annotation.spec.js</tt> (Tests principaux)", "md_test_2README.html#autotoc_md41", null ],
-          [ "<tt>bars-functionality.spec.js</tt>", "md_test_2README.html#autotoc_md42", null ],
-          [ "<tt>complete.spec.js</tt>", "md_test_2README.html#autotoc_md43", null ],
-          [ "<tt>video.spec.js</tt>", "md_test_2README.html#autotoc_md44", null ],
-          [ "<tt>basic.spec.js</tt>", "md_test_2README.html#autotoc_md45", null ]
+        [ "Tests End-to-End (<tt>e2e/</tt>)", "md_workflow_2test_2README.html#autotoc_md45", [
+          [ "<tt>annotation.spec.js</tt> (Tests principaux)", "md_workflow_2test_2README.html#autotoc_md46", null ],
+          [ "<tt>bars-functionality.spec.js</tt>", "md_workflow_2test_2README.html#autotoc_md47", null ],
+          [ "<tt>complete.spec.js</tt>", "md_workflow_2test_2README.html#autotoc_md48", null ],
+          [ "<tt>video.spec.js</tt>", "md_workflow_2test_2README.html#autotoc_md49", null ],
+          [ "<tt>basic.spec.js</tt>", "md_workflow_2test_2README.html#autotoc_md50", null ]
         ] ]
       ] ],
-      [ "🛠️ Utilitaires de Test", "md_test_2README.html#autotoc_md46", null ],
-      [ "📊 Couverture de Test", "md_test_2README.html#autotoc_md49", [
-        [ "✅ Complètement Testé", "md_test_2README.html#autotoc_md50", null ],
-        [ "⚠️ Partiellement Testé", "md_test_2README.html#autotoc_md51", null ],
-        [ "🎯 Recommandations E2E", "md_test_2README.html#autotoc_md52", null ]
+      [ "🛠️ Utilitaires de Test", "md_workflow_2test_2README.html#autotoc_md51", null ],
+      [ "📊 Couverture de Test", "md_workflow_2test_2README.html#autotoc_md54", [
+        [ "✅ Complètement Testé", "md_workflow_2test_2README.html#autotoc_md55", null ],
+        [ "⚠️ Partiellement Testé", "md_workflow_2test_2README.html#autotoc_md56", null ],
+        [ "🎯 Recommandations E2E", "md_workflow_2test_2README.html#autotoc_md57", null ]
       ] ],
-      [ "🚀 Exécution des Tests", "md_test_2README.html#autotoc_md53", [
-        [ "Tests Unitaires et Intégration", "md_test_2README.html#autotoc_md54", null ],
-        [ "Tests E2E", "md_test_2README.html#autotoc_md55", null ],
-        [ "Configuration et Mocks", "md_test_2README.html#autotoc_md56", null ]
+      [ "🚀 Exécution des Tests", "md_workflow_2test_2README.html#autotoc_md58", [
+        [ "Tests Unitaires et Intégration", "md_workflow_2test_2README.html#autotoc_md59", null ],
+        [ "Tests E2E", "md_workflow_2test_2README.html#autotoc_md60", null ],
+        [ "Configuration et Mocks", "md_workflow_2test_2README.html#autotoc_md61", null ]
       ] ],
-      [ "📈 Métriques de Test", "md_test_2README.html#autotoc_md57", [
-        [ "Performance", "md_test_2README.html#autotoc_md58", null ],
-        [ "Robustesse", "md_test_2README.html#autotoc_md59", null ]
+      [ "📈 Métriques de Test", "md_workflow_2test_2README.html#autotoc_md62", [
+        [ "Performance", "md_workflow_2test_2README.html#autotoc_md63", null ],
+        [ "Robustesse", "md_workflow_2test_2README.html#autotoc_md64", null ]
       ] ],
-      [ "🔄 Maintenance", "md_test_2README.html#autotoc_md60", [
-        [ "Mise à jour de cette documentation", "md_test_2README.html#autotoc_md61", null ],
-        [ "Bonnes pratiques", "md_test_2README.html#autotoc_md62", null ]
+      [ "🔄 Maintenance", "md_workflow_2test_2README.html#autotoc_md65", [
+        [ "Mise à jour de cette documentation", "md_workflow_2test_2README.html#autotoc_md66", null ],
+        [ "Bonnes pratiques", "md_workflow_2test_2README.html#autotoc_md67", null ]
       ] ],
-      [ "Lancer les tests E2E", "md_test_2README.html#autotoc_md64", null ],
-      [ "Tests E2E en mode headed (avec navigateur visible)", "md_test_2README.html#autotoc_md65", null ],
-      [ "Tests E2E d'un fichier spécifique", "md_test_2README.html#autotoc_md66", null ],
-      [ "Lancer tous les tests (Vitest + Playwright)", "md_test_2README.html#autotoc_md67", null ]
+      [ "Lancer les tests E2E", "md_workflow_2test_2README.html#autotoc_md69", null ],
+      [ "Tests E2E en mode headed (avec navigateur visible)", "md_workflow_2test_2README.html#autotoc_md70", null ],
+      [ "Tests E2E d'un fichier spécifique", "md_workflow_2test_2README.html#autotoc_md71", null ],
+      [ "Lancer tous les tests (Vitest + Playwright)", "md_workflow_2test_2README.html#autotoc_md72", null ]
     ] ],
+    [ "README", "md_workflow_2tests_2e2e_2README.html", null ],
+    [ "README", "md_workflow_2tests_2integration_2README.html", null ],
+    [ "README", "md_workflow_2tests_2README.html", null ],
+    [ "README", "md_workflow_2tests_2unit_2README.html", null ],
     [ "Packages", "namespaces.html", [
       [ "Package List", "namespaces.html", "namespaces_dup" ],
       [ "Package Members", "namespacemembers.html", [
@@ -128,8 +141,8 @@ var NAVTREE =
 var NAVTREEINDEX =
 [
 "annotations_8spec_8js.html",
-"jquery-ui_8js.html#ab79709d3661998618c7aedb82c946095",
-"predictor_8js.html#a8a99050389f642d2b980808c39d93cf5"
+"jquery-ui_8js.html#ab166c89ccabddfd7c423a7fcb23ca84f",
+"namespacetest__annotation__video__generee.html#af100d95c5db72c0a19b7076635ac9aed"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';

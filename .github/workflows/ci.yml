@@ -30,9 +30,6 @@ jobs:
       - name: Install Playwright browsers
         run: npx playwright install --with-deps
 
-      - name: Generate test index file
-        run: node workflow/test/scripts/generate-test-index.js
-
       - name: Install Doxygen
         run: sudo apt-get update && sudo apt-get install -y doxygen graphviz
 

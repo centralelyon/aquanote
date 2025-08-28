@@ -115,10 +115,6 @@ var NAVTREE =
       [ "Tests E2E d'un fichier spécifique", "md_workflow_2test_2README.html#autotoc_md71", null ],
       [ "Lancer tous les tests (Vitest + Playwright)", "md_workflow_2test_2README.html#autotoc_md72", null ]
     ] ],
-    [ "README", "md_workflow_2tests_2e2e_2README.html", null ],
-    [ "README", "md_workflow_2tests_2integration_2README.html", null ],
-    [ "README", "md_workflow_2tests_2README.html", null ],
-    [ "README", "md_workflow_2tests_2unit_2README.html", null ],
     [ "Packages", "namespaces.html", [
       [ "Package List", "namespaces.html", "namespaces_dup" ],
       [ "Package Members", "namespacemembers.html", [
@@ -141,8 +137,8 @@ var NAVTREE =
 var NAVTREEINDEX =
 [
 "annotations_8spec_8js.html",
-"jquery-ui_8js.html#ab166c89ccabddfd7c423a7fcb23ca84f",
-"namespacetest__annotation__video__generee.html#af100d95c5db72c0a19b7076635ac9aed"
+"jquery-ui_8js.html#ab7fd4cad013d710739f7d645d2d040de",
+"plot__handler_8js.html#aaefe4f291518f6389f29251614088d9f"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';

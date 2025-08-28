@@ -33,11 +33,11 @@ export default defineConfig({
     
     // Test files patterns - inclut unit et integration, exclut E2E
     include: [
-      'workflow/tests/unit/**/*.{test,spec}.{js,ts}',
-      'workflow/tests/integration/**/*.{test,spec}.{js,ts}',
-      'workflow/tests/**/*.{test,spec}.{js,ts}'
+      'workflow/test/unit/**/*.{test,spec}.{js,ts}',
+      'workflow/test/integration/**/*.{test,spec}.{js,ts}',
+      'workflow/test/**/*.{test,spec}.{js,ts}'
     ],
-    exclude: ['workflow/tests/e2e/**/*'],
+    exclude: ['workflow/test/e2e/**/*'],
     
     // Mock les modules externes si nécessaire
     server: {

@@ -52,15 +52,15 @@ jobs:
         run: chmod +x ./node_modules/.bin/eslint
 
       - name: Lint code
-        run: npm run lint
+        run: npx eslint --config workflow/linter/eslint.config.mjs .
 
       - name: Run Vitest unit tests
-        run: npm test
+        run: npx vitest --config workflow/test/vitest.config.js
 
       - name: Run Vitest with coverage
-        run: npm run test:coverage
+        run: npx vitest --config workflow/test/vitest.config.js --coverage
 
       - name: Run Playwright E2E tests
-        run: npm run test:e2e
+        run: npx playwright test --config workflow/test/playwright.config.js
 
       

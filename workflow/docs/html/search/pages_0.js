@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['aquanote_0',['aquanote',['../md_README.html',1,'']]]
+  ['aquanote_0',['Aquanote',['../md_README.html',1,'']]]
 ];

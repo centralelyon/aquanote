@@ -98,8 +98,8 @@ $(document).ready(function(){initNavTree('md_workflow_2test_2README.html',''); i
   <div class="headertitle"><div class="title">Documentation des Tests - Projet Neptune</div></div>
 </div><!--header-->
 <div class="contents">
-<div class="textblock"><p><a class="anchor" id="autotoc_md35"></a> Ce document présente l'ensemble des tests du projet d'annotation de natation Neptune, leur organisation et leur couverture.</p>
-<h1><a class="anchor" id="autotoc_md36"></a>
+<div class="textblock"><p><a class="anchor" id="autotoc_md38"></a> Ce document présente l'ensemble des tests du projet d'annotation de natation Neptune, leur organisation et leur couverture.</p>
+<h1><a class="anchor" id="autotoc_md39"></a>
 📁 Structure des Tests</h1>
 <div class="fragment"><div class="line">test/</div>
 <div class="line">├── README.md                           # Cette documentation</div>
@@ -121,11 +121,11 @@ $(document).ready(function(){initNavTree('md_workflow_2test_2README.html',''); i
 <div class="line">    ├── bars-functionality.spec.js      # Tests fonctionnalités barres</div>
 <div class="line">    ├── complete.spec.js                # Tests complets avec vidéos</div>
 <div class="line">    └── video.spec.js                   # Tests spécifiques vidéo</div>
-</div><!-- fragment --><h1><a class="anchor" id="autotoc_md37"></a>
+</div><!-- fragment --><h1><a class="anchor" id="autotoc_md40"></a>
 🧪 Types de Tests</h1>
-<h2><a class="anchor" id="autotoc_md38"></a>
+<h2><a class="anchor" id="autotoc_md41"></a>
 Tests Unitaires (&lt;tt&gt;unit/&lt;/tt&gt;)</h2>
-<h3><a class="anchor" id="autotoc_md39"></a>
+<h3><a class="anchor" id="autotoc_md42"></a>
 &lt;tt&gt;cycles_handler.test.js&lt;/tt&gt;</h3>
 <p><b>Objectif</b> : Tester la logique pure des fonctions de gestion des cycles <br  />
  <b>Framework</b> : Vitest <br  />
@@ -139,7 +139,7 @@ Tests Unitaires (&lt;tt&gt;unit/&lt;/tt&gt;)</h2>
 <li>Gestion des cas limites (frames négatives, cycles vides)</li>
 <li>Validation de la logique de tri temporel</li>
 </ul>
-<h3><a class="anchor" id="autotoc_md40"></a>
+<h3><a class="anchor" id="autotoc_md43"></a>
 &lt;tt&gt;homography_handler.test.js&lt;/tt&gt;</h3>
 <p><b>Objectif</b> : Tester les transformations géométriques et calculs de perspective <br  />
  <b>Framework</b> : Vitest <br  />
@@ -153,7 +153,7 @@ Tests Unitaires (&lt;tt&gt;unit/&lt;/tt&gt;)</h2>
 <li>Gestion des cas limites (bords de l'image)</li>
 <li>Validation des paramètres de transformation</li>
 </ul>
-<h3><a class="anchor" id="autotoc_md41"></a>
+<h3><a class="anchor" id="autotoc_md44"></a>
 &lt;tt&gt;side_views.test.js&lt;/tt&gt;</h3>
 <p><b>Objectif</b> : Tester les fonctions de vues latérales et statistiques <br  />
  <b>Framework</b> : Vitest <br  />
@@ -167,7 +167,7 @@ Tests Unitaires (&lt;tt&gt;unit/&lt;/tt&gt;)</h2>
 <li>Calculs de distances euclidiennes</li>
 <li>Gestion des valeurs limites et erreurs</li>
 </ul>
-<h3><a class="anchor" id="autotoc_md42"></a>
+<h3><a class="anchor" id="autotoc_md45"></a>
 &lt;tt&gt;svg_rendering.test.js&lt;/tt&gt;</h3>
 <p><b>Objectif</b> : Tester le rendu SVG et les interactions D3.js <br  />
  <b>Framework</b> : Vitest + D3 <br  />
@@ -181,9 +181,9 @@ Tests Unitaires (&lt;tt&gt;unit/&lt;/tt&gt;)</h2>
 <li>Rendu des barres de cycles avec données dynamiques</li>
 <li>Validation des attributs et styles D3</li>
 </ul>
-<h2><a class="anchor" id="autotoc_md43"></a>
+<h2><a class="anchor" id="autotoc_md46"></a>
 Tests d'Intégration (&lt;tt&gt;integration/&lt;/tt&gt;)</h2>
-<h3><a class="anchor" id="autotoc_md44"></a>
+<h3><a class="anchor" id="autotoc_md47"></a>
 &lt;tt&gt;cycles_handler.test.js&lt;/tt&gt;</h3>
 <p><b>Objectif</b> : Tester l'intégration des fonctions <code><a class="el" href="cycles__handler_8js.html" title="Ce fichier calcule et affiche les positions des barres d&#39;annotation sur le canvas vidéo.">cycles_handler.js</a></code> <br  />
  <b>Framework</b> : Vitest avec mocks complets <br  />
@@ -209,9 +209,9 @@ Tests d'Intégration (&lt;tt&gt;integration/&lt;/tt&gt;)</h2>
 <li>🔄 Tests d'intégration entre fonctions</li>
 <li>📊 Tests de cohérence temporelle et visuelle</li>
 </ul>
-<h2><a class="anchor" id="autotoc_md45"></a>
+<h2><a class="anchor" id="autotoc_md48"></a>
 Tests End-to-End (&lt;tt&gt;e2e/&lt;/tt&gt;)</h2>
-<h3><a class="anchor" id="autotoc_md46"></a>
+<h3><a class="anchor" id="autotoc_md49"></a>
 &lt;tt&gt;annotation.spec.js&lt;/tt&gt; (Tests principaux)</h3>
 <p><b>Objectif</b> : Tests complets de l'application d'annotation <br  />
  <b>Framework</b> : Playwright <br  />
@@ -248,7 +248,7 @@ Tests End-to-End (&lt;tt&gt;e2e/&lt;/tt&gt;)</h2>
 <li>Données de nageurs et cycles</li>
 <li>Modèles ML pour prédiction</li>
 </ul>
-<h3><a class="anchor" id="autotoc_md47"></a>
+<h3><a class="anchor" id="autotoc_md50"></a>
 &lt;tt&gt;bars-functionality.spec.js&lt;/tt&gt;</h3>
 <p><b>Objectif</b> : Tests spécifiques des fonctionnalités de barres <br  />
  <b>Framework</b> : Playwright</p>
@@ -262,7 +262,7 @@ Tests End-to-End (&lt;tt&gt;e2e/&lt;/tt&gt;)</h2>
 <li><code>loadTestRace()</code> - Chargement standard d'une course</li>
 <li><code><a class="el" href="bars-functionality_8spec_8js.html#afc6059bee7a6e7ac4464789ebb8d7af3">createMockBarData()</a></code> - Génération de données de test</li>
 </ul>
-<h3><a class="anchor" id="autotoc_md48"></a>
+<h3><a class="anchor" id="autotoc_md51"></a>
 &lt;tt&gt;complete.spec.js&lt;/tt&gt;</h3>
 <p><b>Objectif</b> : Tests complets avec intégration vidéo <br  />
  <b>Framework</b> : Playwright</p>
@@ -271,7 +271,7 @@ Tests End-to-End (&lt;tt&gt;e2e/&lt;/tt&gt;)</h2>
 <li>✅ Tests avec vidéos longues (5+ secondes)</li>
 <li>✅ Validation du cycle complet de l'application</li>
 </ul>
-<h3><a class="anchor" id="autotoc_md49"></a>
+<h3><a class="anchor" id="autotoc_md52"></a>
 &lt;tt&gt;video.spec.js&lt;/tt&gt;</h3>
 <p><b>Objectif</b> : Tests spécifiques du système vidéo <br  />
  <b>Framework</b> : Playwright</p>
@@ -280,7 +280,7 @@ Tests End-to-End (&lt;tt&gt;e2e/&lt;/tt&gt;)</h2>
 <li>✅ Contrôles vidéo (play/pause/seek)</li>
 <li>✅ Synchronisation vidéo-annotations</li>
 </ul>
-<h3><a class="anchor" id="autotoc_md50"></a>
+<h3><a class="anchor" id="autotoc_md53"></a>
 &lt;tt&gt;basic.spec.js&lt;/tt&gt;</h3>
 <p><b>Objectif</b> : Tests de base du serveur et connectivité <br  />
  <b>Framework</b> : Playwright</p>
@@ -289,9 +289,9 @@ Tests End-to-End (&lt;tt&gt;e2e/&lt;/tt&gt;)</h2>
 <li>✅ Mocks de base (package.json, endpoints essentiels)</li>
 <li>✅ Validation de la connectivité serveur</li>
 </ul>
-<h1><a class="anchor" id="autotoc_md51"></a>
+<h1><a class="anchor" id="autotoc_md54"></a>
 🛠️ Utilitaires de Test</h1>
-<h3><a class="anchor" id="autotoc_md52"></a>
+<h3><a class="anchor" id="autotoc_md55"></a>
 &lt;tt&gt;utils/video-generator.js&lt;/tt&gt;</h3>
 <p><b>Objectif</b> : Génération de vidéos MP4 minimales pour tests <br  />
  <b>Fonctionnalités</b> :</p><ul>
@@ -299,7 +299,7 @@ Tests End-to-End (&lt;tt&gt;e2e/&lt;/tt&gt;)</h2>
 <li>Optimisation pour tests rapides</li>
 <li>Format compatible avec les navigateurs</li>
 </ul>
-<h3><a class="anchor" id="autotoc_md53"></a>
+<h3><a class="anchor" id="autotoc_md56"></a>
 &lt;tt&gt;fixtures.js&lt;/tt&gt;</h3>
 <p><b>Objectif</b> : Configuration commune pour tests E2E <br  />
  <b>Fonctionnalités</b> :</p><ul>
@@ -307,9 +307,9 @@ Tests End-to-End (&lt;tt&gt;e2e/&lt;/tt&gt;)</h2>
 <li>Mocks réseau partagés</li>
 <li>Utilities communes Playwright</li>
 </ul>
-<h1><a class="anchor" id="autotoc_md54"></a>
+<h1><a class="anchor" id="autotoc_md57"></a>
 📊 Couverture de Test</h1>
-<h2><a class="anchor" id="autotoc_md55"></a>
+<h2><a class="anchor" id="autotoc_md58"></a>
 ✅ Complètement Testé</h2>
 <ul>
 <li><b>Logique pure</b> : Calculs, transformations, formatage</li>
@@ -317,22 +317,22 @@ Tests End-to-End (&lt;tt&gt;e2e/&lt;/tt&gt;)</h2>
 <li><b>Rendu SVG</b> : Création éléments, attributs D3</li>
 <li><b>Interface utilisateur</b> : Navigation, sélections, chargements</li>
 </ul>
-<h2><a class="anchor" id="autotoc_md56"></a>
+<h2><a class="anchor" id="autotoc_md59"></a>
 ⚠️ Partiellement Testé</h2>
 <ul>
 <li><b>Fonctions complexes</b> : <code>updateBarsFromEvent</code>, <code>makeBar</code></li>
 <li><b>Intégrations lourdes</b> : Modules avec nombreuses dépendances</li>
 </ul>
-<h2><a class="anchor" id="autotoc_md57"></a>
+<h2><a class="anchor" id="autotoc_md60"></a>
 🎯 Recommandations E2E</h2>
 <ul>
 <li><b>Rendu visuel complet</b> : Validation de l'affichage réel</li>
 <li><b>Interactions utilisateur complexes</b> : Workflows complets</li>
 <li><b>Performance</b> : Tests avec vraies données volumineuses</li>
 </ul>
-<h1><a class="anchor" id="autotoc_md58"></a>
+<h1><a class="anchor" id="autotoc_md61"></a>
 🚀 Exécution des Tests</h1>
-<h2><a class="anchor" id="autotoc_md59"></a>
+<h2><a class="anchor" id="autotoc_md62"></a>
 Tests Unitaires et Intégration</h2>
 <div class="fragment"><div class="line"># Tous les tests Vitest</div>
 <div class="line">npm test</div>
@@ -345,7 +345,7 @@ Tests Unitaires et Intégration</h2>
 <div class="line"> </div>
 <div class="line"># Mode watch pour développement</div>
 <div class="line">npm test --watch</div>
-</div><!-- fragment --><h2><a class="anchor" id="autotoc_md60"></a>
+</div><!-- fragment --><h2><a class="anchor" id="autotoc_md63"></a>
 Tests E2E</h2>
 <div class="fragment"><div class="line"># Tous les tests E2E</div>
 <div class="line">npx playwright test</div>
@@ -359,16 +359,16 @@ Tests E2E</h2>
 <div class="line"> </div>
 <div class="line"># Tests avec interface graphique</div>
 <div class="line">npx playwright test --ui</div>
-</div><!-- fragment --><h2><a class="anchor" id="autotoc_md61"></a>
+</div><!-- fragment --><h2><a class="anchor" id="autotoc_md64"></a>
 Configuration et Mocks</h2>
 <div class="fragment"><div class="line"># Installation des dépendances</div>
 <div class="line">npm install</div>
 <div class="line"> </div>
 <div class="line"># Setup Playwright</div>
 <div class="line">npx playwright install</div>
-</div><!-- fragment --><h1><a class="anchor" id="autotoc_md62"></a>
+</div><!-- fragment --><h1><a class="anchor" id="autotoc_md65"></a>
 📈 Métriques de Test</h1>
-<h2><a class="anchor" id="autotoc_md63"></a>
+<h2><a class="anchor" id="autotoc_md66"></a>
 Performance</h2>
 <ul>
 <li><b>Tests unitaires</b> : &lt; 100ms par test</li>
@@ -376,16 +376,16 @@ Performance</h2>
 </li>
 <li><b>Tests E2E</b> : &lt; 30s par scénario complet</li>
 </ul>
-<h2><a class="anchor" id="autotoc_md64"></a>
+<h2><a class="anchor" id="autotoc_md67"></a>
 Robustesse</h2>
 <ul>
 <li><b>Cas limites</b> : Données vides, valeurs extrêmes, types invalides</li>
 <li><b>Gestion d'erreurs</b> : Exceptions, timeouts, échecs réseau</li>
 <li><b>Compatibilité</b> : Multi-navigateurs, résolutions diverses</li>
 </ul>
-<h1><a class="anchor" id="autotoc_md65"></a>
+<h1><a class="anchor" id="autotoc_md68"></a>
 🔄 Maintenance</h1>
-<h2><a class="anchor" id="autotoc_md66"></a>
+<h2><a class="anchor" id="autotoc_md69"></a>
 Mise à jour de cette documentation</h2>
 <p>Ce fichier doit être mis à jour lors de :</p><ul>
 <li>✅ Ajout de nouveaux tests</li>
@@ -393,7 +393,7 @@ Mise à jour de cette documentation</h2>
 <li>✅ Changement des objectifs de couverture</li>
 <li>✅ Évolution des outils de test</li>
 </ul>
-<h2><a class="anchor" id="autotoc_md67"></a>
+<h2><a class="anchor" id="autotoc_md70"></a>
 Bonnes pratiques</h2>
 <ul>
 <li><b>Nommage</b> : Tests descriptifs avec objectifs clairs</li>
@@ -406,17 +406,17 @@ Bonnes pratiques</h2>
 <p><b>Dernière mise à jour</b> : Juillet 2025 <br  />
  <b>Maintenu par</b> : Équipe Neptune <br  />
  <b>Outils</b> : Vitest, Playwright, D3.js </p>
-<h1><a class="anchor" id="autotoc_md69"></a>
+<h1><a class="anchor" id="autotoc_md72"></a>
 Lancer les tests E2E</h1>
 <p>npm run test:e2e</p>
-<h1><a class="anchor" id="autotoc_md70"></a>
+<h1><a class="anchor" id="autotoc_md73"></a>
 Tests E2E en mode headed (avec navigateur visible)</h1>
 <p>npx playwright test &ndash;headed</p>
-<h1><a class="anchor" id="autotoc_md71"></a>
+<h1><a class="anchor" id="autotoc_md74"></a>
 Tests E2E d'un fichier spécifique</h1>
 <p>npx playwright test <a class="el" href="bars-functionality_8spec_8js.html">test/e2e/bars-functionality.spec.js</a> </p><div class="fragment"><div class="line">### Tous les tests</div>
 </div><!-- fragment --><p> bash </p>
-<h1><a class="anchor" id="autotoc_md72"></a>
+<h1><a class="anchor" id="autotoc_md75"></a>
 Lancer tous les tests (Vitest + Playwright)</h1>
 <p>npm run test:all </p><div class="fragment"><div class="line">## Types de Tests</div>
 <div class="line"> </div>
@@ -580,7 +580,7 @@ Lancer tous les tests (Vitest + Playwright)</h1>
 <p>// Vérification mise à jour éléments expect(finalElements).toBeGreaterThanOrEqual(initialElements)</p>
 <p>// Vérification navigation vidéo expect(finalVideoTime).not.toBe(initialVideoTime)</p>
 <p>// Vérification visibilité maintenue await expect(page.locator('#stats')).toBeVisible() ```</p>
-<h3><a class="anchor" id="autotoc_md73"></a>
+<h3><a class="anchor" id="autotoc_md76"></a>
 Gestion des Cas Limites</h3>
 <ul>
 <li><b>Graphiques vides</b> : Tests fonctionnent même sans éléments graphiques</li>

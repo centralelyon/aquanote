@@ -1,6 +1,6 @@
 var searchData=
 [
-  ['acknowledgments_0',['Acknowledgments',['../md_README.html#autotoc_md20',1,'']]],
+  ['acknowledgments_0',['Acknowledgments',['../md_README.html#autotoc_md22',1,'']]],
   ['action_5findicator_5flines_1',['action_indicator_lines',['../plot__handler_8js.html#ab8efb43f846b4008c33b75f93a3a4314',1,'plot_handler.js']]],
   ['activate_5fshortcut_2',['activate_shortcut',['../jquery-custom_8js.html#a19e48eaa528d3d18dc7038e5b7d9c5a0',1,'jquery-custom.js']]],
   ['activations_3',['activations',['../predictor_8js.html#ab77ef059ac1df673580af1c332965f29',1,'predictor.js']]],
@@ -10,17 +10,17 @@ var searchData=
   ['align_7',['align',['../generate-test-index_8js.html#a87061853e71984e1c11ad6f01f1035b2',1,'generate-test-index.js']]],
   ['allfields_8',['allFields',['../jquery-custom_8js.html#a0a4faaad7d5be7eaa50e41f0a8a80aaa',1,'jquery-custom.js']]],
   ['alpha_9',['alpha',['../namespacetest__annotation__video__generee.html#a6847f03b3409ef8c3d76a599da5fcfac',1,'test_annotation_video_generee']]],
-  ['ancien_20fichier_10',['Migration depuis l&apos;ancien fichier',['../md_workflow_2test_2e2e_2README.html#autotoc_md35',1,'']]],
+  ['ancien_20fichier_10',['Migration depuis l&apos;ancien fichier',['../md_workflow_2test_2e2e_2README.html#autotoc_md37',1,'']]],
   ['and_20run_20locally_11',['How to install and run locally',['../md_README.html#autotoc_md18',1,'']]],
   ['animateclass_12',['animateClass',['../jquery-ui_8js.html#a1370f2121e21939f9013c1292da98102',1,'jquery-ui.js']]],
   ['annotate_13',['annotate',['../refactor-script_8js.html#ae8e56d32115d66e6ddfd15be88ecd3ba',1,'refactor-script.js']]],
-  ['annotation_20spec_20js_20tt_20tests_20principaux_14',['&lt;tt&gt;annotation.spec.js&lt;/tt&gt; (Tests principaux)',['../md_workflow_2test_2README.html#autotoc_md49',1,'']]],
+  ['annotation_20spec_20js_20tt_20tests_20principaux_14',['&lt;tt&gt;annotation.spec.js&lt;/tt&gt; (Tests principaux)',['../md_workflow_2test_2README.html#autotoc_md51',1,'']]],
   ['annotations_2espec_2ejs_15',['annotations.spec.js',['../annotations_8spec_8js.html',1,'']]],
   ['app_16',['app',['../namespacelocal.html#a0c9948ba6f9835fe554e5fd351d178f2',1,'local']]],
   ['aquanote_17',['Aquanote',['../md_README.html',1,'']]],
   ['attr_18',['attr',['../refactor-script_8js.html#aaf0ff5057b4d4b05785f3f7d105d5cea',1,'refactor-script.js']]],
-  ['avantages_20de_20cette_20structure_19',['Avantages de cette structure',['../md_workflow_2test_2e2e_2README.html#autotoc_md31',1,'']]],
-  ['avec_20des_20tags_20',['Exécuter par catégorie avec des tags',['../md_workflow_2test_2e2e_2README.html#autotoc_md30',1,'']]],
-  ['avec_20navigateur_20visible_21',['Tests E2E en mode headed (avec navigateur visible)',['../md_workflow_2test_2README.html#autotoc_md73',1,'']]],
+  ['avantages_20de_20cette_20structure_19',['Avantages de cette structure',['../md_workflow_2test_2e2e_2README.html#autotoc_md33',1,'']]],
+  ['avec_20des_20tags_20',['Exécuter par catégorie avec des tags',['../md_workflow_2test_2e2e_2README.html#autotoc_md32',1,'']]],
+  ['avec_20navigateur_20visible_21',['Tests E2E en mode headed (avec navigateur visible)',['../md_workflow_2test_2README.html#autotoc_md75',1,'']]],
   ['axis_22',['axis',['../namespacetest__annotation__video__generee.html#a88598cd6e9f0065e3eaea9356f9f7b35',1,'test_annotation_video_generee']]]
 ];

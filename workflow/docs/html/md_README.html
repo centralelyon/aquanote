@@ -98,11 +98,34 @@ $(document).ready(function(){initNavTree('md_README.html',''); initResizable(); 
   <div class="headertitle"><div class="title">Aquanote</div></div>
 </div><!--header-->
 <div class="contents">
-<div class="textblock"><p><a class="anchor" id="autotoc_md17"></a> <em>Aquanote is a user-friendly platform designed for coaches, athletes, and analysts to annotate race swimming videos.</em></p>
+<div class="textblock"><p><a class="anchor" id="autotoc_md17"></a> <em>An annotation tool for race swimming videos (using one or multiple static cameras).</em></p>
 <h1><a class="anchor" id="autotoc_md18"></a>
 How to install and run locally</h1>
-<div class="fragment"><div class="line">pip install -r requirements.txt</div>
-</div><!-- fragment --><p>And you need to run 2 servers:</p>
+<h2><a class="anchor" id="autotoc_md19"></a>
+Using &lt;tt&gt;venv&lt;/tt&gt; (recommended)</h2>
+<ol type="1">
+<li><b>Create a virtual environment:</b></li>
+</ol>
+<div class="fragment"><div class="line">python -m venv venv</div>
+</div><!-- fragment --><ol type="1">
+<li><b>Activate the environment:</b></li>
+</ol>
+<ul>
+<li>On macOS/Linux:</li>
+</ul>
+<div class="fragment"><div class="line">source venv/bin/activate</div>
+</div><!-- fragment --><ul>
+<li>On Windows:</li>
+</ul>
+<div class="fragment"><div class="line">venv\Scripts\activate</div>
+</div><!-- fragment --><ol type="1">
+<li><b>Install the module:</b></li>
+</ol>
+<div class="fragment"><div class="line">pip install --upgrade pip</div>
+<div class="line">pip install -r requirements.txt</div>
+</div><!-- fragment --><h2><a class="anchor" id="autotoc_md20"></a>
+Basic usage:</h2>
+<p>ou need to run 2 servers:</p>
 <p>1/ One that handles the mapping of files:</p>
 <div class="fragment"><div class="line">python local.py </div>
 </div><!-- fragment --><p>2/ And the other one that handles the interface:</p>
@@ -115,7 +138,7 @@ How to install and run locally</h1>
 </p>
 <p>To use the site locally, you need to pull the branch and go offline with competitions present in the <code>courses_natation_local</code> folder. (Start the folders with a <b>2</b> so they are detected, and keep the correct number of underscores <code>_</code> to avoid display issues in the dropdown menus.) <br  />
 </p>
-<h1><a class="anchor" id="autotoc_md19"></a>
+<h1><a class="anchor" id="autotoc_md21"></a>
 Documentation</h1>
 <p>All documentation can be viewed by launching the <b>index</b> file in the <code>html</code> folder, in particular the documentation for the main code located in <code>/assets/js</code>. This opens a page in your browser with sorted information about the code. <br  />
 </p>
@@ -125,7 +148,7 @@ Documentation</h1>
 </p>
 <p>Some folders are not visible in VS Code because they are hidden in <code>.vscode/settings.json</code>. This is meant to declutter the visible files, but feel free to modify this file. <br  />
 </p>
-<h1><a class="anchor" id="autotoc_md20"></a>
+<h1><a class="anchor" id="autotoc_md22"></a>
 Acknowledgments</h1>
 <p><img src="https://liris.cnrs.fr/sites/default/files/logo_liris_160_0.png" alt="" style="height:50px" class="inline"/>&#160;&#160;&#160;<img src="https://www.ec-lyon.fr/sites/default/files/styles/paragraph_image/public/content/paragraphs/images/2024-10/2024_logo-centrale-h_rouge_rvb.jpg.webp" alt="" style="height:50px" class="inline"/>&#160;&#160;&#160;<img src="https://www.natation-handisport.org/wp-content/uploads/2021/10/logo_NePTUNE_color-768x204.png" alt="" style="height:50px" class="inline"/> </p>
 </div></div><!-- contents -->

@@ -12,7 +12,7 @@ from flask_caching import Cache
 from flask_compress import Compress
 from flask_cors import CORS
 
-# base = '/media/theo/0123-4567/limoges/jeudi_aprem/compet/'
+
 base = './courses_demo'
 
 app = Flask(__name__, static_folder=base, static_url_path='/files')

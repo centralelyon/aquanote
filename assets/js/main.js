@@ -4,16 +4,16 @@
  */
 
 
-import {init,megaData,curr_swims, frame_rate, temp_end,n_camera} from "./loader.js"
-import {construct_data_row, data_onclick} from "./data_handler.js"
-import {selected_swim, temp_start, updateSwimSwitch, vue_du_dessus} from "./refactor-script.js"
+import { init, megaData, curr_swims, frame_rate, temp_end, n_camera } from "./loader.js"
+import { construct_data_row, data_onclick } from "./data_handler.js"
+import { selected_swim, temp_start, updateSwimSwitch, vue_du_dessus } from "./refactor-script.js"
 import "./plot_handler.js"
 import "./homography_handler.js"
 import "./videoHandler.js"
 import "./side_views.js"
 import "./shortcuts_handler.js"
 import { getMeta } from './utils.js'
-import {findCycleIndexAtFrame} from "./cycles_handler.js";
+import { findCycleIndexAtFrame } from "./cycles_handler.js";
 import "./plot_handler.js";
 import "./jquery-custom.js";
 import "./ml-cycle-predictor-js/js/predictor.js";
@@ -28,7 +28,7 @@ import "./ml-cycle-predictor-js/js/predictor.js";
 function isGitHubMode() {
     const isElectron = window.myAPI !== undefined;
     return !isElectron && (
-        window.location.hostname.includes('github.io') || 
+        window.location.hostname.includes('github.io') ||
         window.location.hostname.includes('githubusercontent.com') ||
         window.location.pathname.includes('/annotation/')
     );
@@ -45,10 +45,10 @@ export let base = "./";
  * @brief Configure l'URL de base selon l'environnement (local ou distant)
  * Définit l'URL du serveur backend selon le mode local/distant sélectionné
  */
-export function set_base(){
+export function set_base() {
     if (local_bool) {
         base = "http://localhost:8000/";
-        
+
     } else {
         // Mode distant - URL configurée via code externe
         base = "";
@@ -99,13 +99,13 @@ export function displaySwimmers(data) {
 
     let container = document.getElementById("swim_switch")
     let meta;
-    
+
     // Defensive check for megaData
     if (!megaData || !Array.isArray(megaData) || !megaData[0] || !megaData[0].videos) {
         console.warn('megaData not properly initialized, skipping swimmer display');
         return;
     }
-    
+
     if (n_camera > 1) {
         meta = megaData[0].videos.filter(d => (d.name.includes("fixeDroite")))[0] // done like this bcause we don't have the src yet
     }
@@ -125,7 +125,7 @@ export function displaySwimmers(data) {
         let optionClass = "swimmer-option" + (i === selected_swim ? " selected" : "");
         container.insertAdjacentHTML("beforeend", `<option class='${optionClass}' value='${i}'>${i + 1}- ${data[keys[i]].replace("�", "é")}</option>`);
     }
-    
+
     // Synchroniser la valeur du select avec selected_swim
     updateSwimSwitch();
 }
@@ -145,10 +145,10 @@ export function setGrad(curr) {
     let meta = getMeta()
 
     let end = temp_start + temp_end;
-    if(temp_end == Infinity || temp_end == -Infinity){
+    if (temp_end == Infinity || temp_end == -Infinity) {
         end = vid.duration
     }
-    
+
     let vid_end = vid.duration;
 
     if (isNaN(vid_end) && meta.maxframe) {
@@ -169,7 +169,7 @@ export function setGrad(curr) {
             + 'rgba(255,0,0,0.3) ' + (100) + '%'
             + ')'
         );
-    } else if (curr >= st && curr < end ) {
+    } else if (curr >= st && curr < end) {
         elem.css('background',
             'linear-gradient(to right,' +
             'rgba(255,0,0,1) 0%, '
@@ -226,21 +226,21 @@ export function updateTable() {
         console.error("megaData[0] ou megaData[0]['lignes'] est undefined");
         document.getElementById("swimmerNameForData").innerHTML = "Nageur: Inconnu";
     }
-    let suffixe="";
+    let suffixe = "";
     let data = curr_swims[selected_swim].filter(d => d.event !== "reaction");
     const vid = document.getElementById("vid");
-    const currentFrame = Math.floor((vid.currentTime - temp_start) * frame_rate)>0 ? Math.floor((vid.currentTime - temp_start) * frame_rate) : 0;
-    let frame_cycle_act=findCycleIndexAtFrame(data,currentFrame);
+    const currentFrame = Math.floor((vid.currentTime - temp_start) * frame_rate) > 0 ? Math.floor((vid.currentTime - temp_start) * frame_rate) : 0;
+    let frame_cycle_act = findCycleIndexAtFrame(data, currentFrame);
     // Boucle à travers les nageurs
     if (curr_swims[selected_swim]) {
         for (let j = 0; j < curr_swims[selected_swim].length; j++) {
-            suffixe='';
+            suffixe = '';
             let r = curr_swims[selected_swim][j];
-            if (j===frame_cycle_act){
-                suffixe=getCoteActionSuffix();
+            if (j === frame_cycle_act) {
+                suffixe = getCoteActionSuffix();
             }
-            const allowedModes = ["enter", "end", "respi", "section", "turn", "finish", "reaction", "cycle","cycle_gauche","cycle_droite","respi_droite","respi_gauche"];
-             // modes autorisés, a modifier pour ajouter des modes ou en enlever
+            const allowedModes = ["enter", "end", "respi", "section", "turn", "finish", "reaction", "cycle", "cycle_gauche", "cycle_droite", "respi_droite", "respi_gauche"];
+            // modes autorisés, a modifier pour ajouter des modes ou en enlever
             if (!allowedModes.includes(r["mode"])) {
                 r["mode"] = "cycle";
             }
@@ -251,14 +251,14 @@ export function updateTable() {
 
             // Ajouter à la table appropriée en fonction du mode
             if (r["mode"] == "cycle") {
-                r["mode"]+=suffixe;
+                r["mode"] += suffixe;
                 cycle_table.append(mess);
             }
             if (r["mode"] == "section" || r["mode"] == "end" || r["mode"] == "enter") {
                 intermed_table.append(mess);
             }
             if (r["mode"] == "respi") {
-                r["mode"]+=suffixe;
+                r["mode"] += suffixe;
                 respi_table.append(mess);
             }
             if (r["mode"] == "turn" || r["mode"] == "finish") {
@@ -272,7 +272,7 @@ export function updateTable() {
     // Après avoir rempli le tableau principal
     // Ajout du listener pour chaque ligne générée dynamiquement
     document.querySelectorAll("#table_bod tr[data-swimmer]").forEach(row => {
-        row.addEventListener("click", function() {
+        row.addEventListener("click", function () {
             data_onclick(
                 this.getAttribute("data-swimmer"),
                 this.getAttribute("data-event")
@@ -318,8 +318,8 @@ function getCoteActionSuffix() {
  * @param {number} frameId Numéro de la frame
  * @return {string} Temps en secondes (format string)
  */
-export function frameId_to_RunTime(frameId){
-    return ((frameId)/frame_rate).toString()
+export function frameId_to_RunTime(frameId) {
+    return ((frameId) / frame_rate).toString()
 }
 
 /**
@@ -333,11 +333,11 @@ export function frameId_to_RunTime(frameId){
  * @param {number} longueur Longueur de bassin actuelle
  * @return {object} Objet contenant tempoRow, frequenceRow, amplitudeRow, vitesseRow
  */
-export function metrics_calculation(epreuveStyle, epreuveDistance, tempo, ampli, longueur){
-    let tempoRow = (tempo[tempo.length-1]-tempo[tempo.length-2])
-    let frequenceRow = (60.0/(tempo[tempo.length-1]-tempo[tempo.length-2]))
-    let amplitudeRow = (ampli[ampli.length-1]-ampli[ampli.length-2])
-    let vitesseRow = ((ampli[ampli.length-1]-ampli[ampli.length-2])/(tempo[tempo.length-1]-tempo[tempo.length-2])).toFixed(2)
+export function metrics_calculation(epreuveStyle, epreuveDistance, tempo, ampli, longueur) {
+    let tempoRow = (tempo[tempo.length - 1] - tempo[tempo.length - 2])
+    let frequenceRow = (60.0 / (tempo[tempo.length - 1] - tempo[tempo.length - 2]))
+    let amplitudeRow = (ampli[ampli.length - 1] - ampli[ampli.length - 2])
+    let vitesseRow = ((ampli[ampli.length - 1] - ampli[ampli.length - 2]) / (tempo[tempo.length - 1] - tempo[tempo.length - 2])).toFixed(2)
 
     if (epreuveStyle === "freestyle" || epreuveStyle === "dos") {
         tempoRow *= 2;
@@ -369,17 +369,17 @@ export function metrics_calculation(epreuveStyle, epreuveDistance, tempo, ampli,
 
 
 // Ajout des listeners pour les liens Version et Aide (CSP compatible)
-document.addEventListener("DOMContentLoaded", function() {
+document.addEventListener("DOMContentLoaded", function () {
     const versionLink = document.getElementById("version-link");
     if (versionLink) {
-        versionLink.addEventListener("click", function(e) {
+        versionLink.addEventListener("click", function (e) {
             e.preventDefault();
             if (typeof downloadVersion === 'function') downloadVersion();
         });
     }
     const aideLink = document.getElementById("aide-link");
     if (aideLink) {
-        aideLink.addEventListener("click", function(e) {
+        aideLink.addEventListener("click", function (e) {
             e.preventDefault();
             if (typeof downloadRaccourcis === 'function') downloadRaccourcis();
         });
@@ -392,7 +392,7 @@ document.addEventListener("DOMContentLoaded", function() {
  */
 function downloadVersion() {
     window.open('https://github.com/centralelyon/aquanote/releases/tag/version.1.0.0', '_blank')
-    
+
 }
 
 /**
@@ -402,10 +402,10 @@ function downloadVersion() {
 function downloadRaccourcis() {
     const link = document.createElement('a');
     link.href = './assets/aide/Raccourcis_clavier_V2.jpg'; // Chemin vers ton image
-    link.download = 'Raccourcis_NepTune.jpg'; // Nom du fichier téléchargé
+    link.download = 'Raccourcis_Aquanote.jpg'; // Nom du fichier téléchargé
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-    
+
 }
 

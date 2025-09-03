@@ -1,16 +1,41 @@
 # Aquanote
 
-_Aquanote is a user-friendly platform designed for coaches, athletes, and analysts to annotate race swimming videos._
+_An annotation tool for race swimming videos (using one or multiple static cameras)._
 
 ## How to install and run locally
 
 
-```sh
+### Using `venv` (recommended)
+
+1. **Create a virtual environment:**
+
+```bash
+python -m venv venv
+```
+
+2. **Activate the environment:**
+
+* On macOS/Linux:
+
+```bash
+source venv/bin/activate
+```
+* On Windows:
+
+```bash
+venv\Scripts\activate
+```
+
+3. **Install the module:**
+
+```bash
+pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
-And you need to run 2 servers:
+### Basic usage:
 
+ou need to run 2 servers:
 
 1/ One that handles the mapping of files:
 

@@ -47,7 +47,7 @@
   },
   "build": {
     "appId": "com.enzo.annotation",
-    "productName": "Neptune",
+    "productName": "Aquanote",
     "icon": "build/icons",
     "files": [
       "**/*",

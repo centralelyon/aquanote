@@ -2,6 +2,8 @@
 
 _An annotation tool for race swimming videos (using one or multiple static cameras)._
 
+<img src="https://centralelyon.github.io/swimming/figures/aquanote.png" alt="Aquanote screenshot" style="max-width:100%;height:auto;">
+
 ## How to install and run locally
 
 
@@ -35,15 +37,15 @@ pip install -r requirements.txt
 
 ### Basic usage:
 
-ou need to run 2 servers:
+You need to run 2 servers:
 
-1/ One that handles the mapping of files:
+1/ A server to deliver the files:
 
 ```sh
 python local.py 
 ```
 
-2/ And the other one that handles the interface:
+2/ Another server that hosts the web application:
 
 ```sh
 python -m http.server
@@ -58,6 +60,10 @@ It is also possible to generate the site as an application with a simple command
 which allows you to use the site without a network connection.  
 
 To use the site locally, you need to pull the branch and go offline with competitions present in the `courses_natation_local` folder. (Start the folders with a **2** so they are detected, and keep the correct number of underscores `_` to avoid display issues in the dropdown menus.)  
+
+## Data structure and analysis
+
+Aquanote uses a specific data structure to store the annotations. It is based on a CSV file for each video, with samples provided in the [`course_demo`](courses_demo/2025_courses_demo/2025_courses_demo_translation_carre_100_demifinale) folder. Another repository is dedicated to the analysis of such data: [Aquanalysis](https://github.com/centralelyon/aquanalysis).
 
 ## Documentation  
 

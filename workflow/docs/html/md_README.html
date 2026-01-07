@@ -141,8 +141,28 @@ Basic usage:</h2>
 </p>
 <h1><a class="anchor" id="autotoc_md21"></a>
 Data structure and analysis</h1>
-<p>Aquanote uses a specific data structure to store the annotations. It is based on a CSV file for each video, with samples provided in the <a href="courses_demo/2025_courses_demo/2025_courses_demo_translation_carre_100_demifinale"><code>course_demo</code></a> folder. Another repository is dedicated to the analysis of such data: <a href="https://github.com/centralelyon/aquanalysis">Aquanalysis</a>.</p>
-<h1><a class="anchor" id="autotoc_md22"></a>
+<h2><a class="anchor" id="autotoc_md22"></a>
+Structure of annotated data</h2>
+<p>Aquanote uses a specific data structure to store the annotations. It is based on a CSV file for each video, with samples provided in the <a href="courses_demo/2025_courses_demo/2025_courses_demo_translation_carre_100_demifinale"><code>course_demo</code></a> folder. Here is a sample of such a CSV file:</p>
+<div class="fragment"><div class="line">frameId,swimmerId,swimmerName,lane,cumul,eventId,eventX,eventY,event,TempsVideo (s),Temps (s),distance (m),tempo (s),frequence (cylce/min),amplitude (m),vitesse (m/s)</div>
+<div class="line">63,4,ligne5,ligne5,3.90,0,46.1036,8,cycle,1.36,1.26,3.90,,,,</div>
+<div class="line">113,4,ligne5,ligne5,6.87,1,43.1305,8,cycle,2.36,2.26,6.87,2.00,30.00,5.95,2.97</div>
+</div><!-- fragment --><h2><a class="anchor" id="autotoc_md23"></a>
+Analysis of annotated data</h2>
+<p>To analyse the CSV file, a dedicated repository is available:</p>
+<p><b><a href="https://github.com/centralelyon/aquanalysis">aquanalysis</a></b> is a repository that contains scripts and notebooks to compute various performance metrics from the annotated data, such as speed, stroke rate, and stroke length.</p>
+<h2><a class="anchor" id="autotoc_md24"></a>
+Adding new videos</h2>
+<p>The videos provided is in the <code>courses_demo</code> folder are samples. To add your own videos, you need to follow the same structure as in the demo folder.</p>
+<p>Each competition should have its own subfolder, and then videos to used should be specified in a <code>metadata JSON</code> file located at the root of each competition folder. For example, for the demo competition the metadata file is <code>2025_courses_demo_translation_carre_50_finale</code>,</p>
+<p><b><a href="https://github.com/centralelyon/flatdir">flatdir</a></b> is a tool to flatten a directory structure and automatically generate the required JSON files at the root of each competition folder (like the <a href="courses_demo/flat.json"><code>courses_demo/flat.json</code></a> JSON).</p>
+<h2><a class="anchor" id="autotoc_md25"></a>
+Pre-processing videos</h2>
+<p>A <code>metadata JSON</code> contains information about pre-processing steps for each race to analyzed and should be created before the annotation phase. This includes temporal calibration (start and end times), spatial calibration (real-world dimensions) and athletes information (names, lanes). An example of such a JSON file is available in the demo folder: <a href="courses_demo/2025_courses_demo_translation_carre_50_finale/metadata.json"><code>courses_demo/2025_courses_demo_translation_carre_50_finale/metadata.json</code>.</a>.</p>
+<p>While some pre-processingt steps can be done directly in Aquanote, some require external video and image processing tools. We suggest two tools to achieve this:</p>
+<p><a href="https://github.com/centralelyon/ntt/"><b>ntt</b></a> for image and video processing using warppers around <b>OpenCV</b> and <b>FFmpeg</b> libraries (for instance).</p>
+<p><a href="https://github.com/centralelyon/pipeoptz/"><b>pipeoptz</b></a> to orchestrate such processing as pipelines and eventually optimize their parameters automatically.</p>
+<h1><a class="anchor" id="autotoc_md26"></a>
 Documentation</h1>
 <p>All documentation can be viewed by launching the <b>index</b> file in the <code>html</code> folder, in particular the documentation for the main code located in <code>/assets/js</code>. This opens a page in your browser with sorted information about the code. <br  />
 </p>
@@ -152,7 +172,7 @@ Documentation</h1>
 </p>
 <p>Some folders are not visible in VS Code because they are hidden in <code>.vscode/settings.json</code>. This is meant to declutter the visible files, but feel free to modify this file. <br  />
 </p>
-<h1><a class="anchor" id="autotoc_md23"></a>
+<h1><a class="anchor" id="autotoc_md27"></a>
 Acknowledgments</h1>
 <p><img src="https://liris.cnrs.fr/sites/default/files/logo_liris_160_0.png" alt="" style="height:50px" class="inline"/>&#160;&#160;&#160;<img src="https://www.ec-lyon.fr/sites/default/files/styles/paragraph_image/public/content/paragraphs/images/2024-10/2024_logo-centrale-h_rouge_rvb.jpg.webp" alt="" style="height:50px" class="inline"/>&#160;&#160;&#160;<img src="https://www.natation-handisport.org/wp-content/uploads/2021/10/logo_NePTUNE_color-768x204.png" alt="" style="height:50px" class="inline"/> </p>
 </div></div><!-- contents -->

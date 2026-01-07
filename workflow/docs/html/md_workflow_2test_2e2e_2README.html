@@ -98,20 +98,20 @@ $(document).ready(function(){initNavTree('md_workflow_2test_2e2e_2README.html','
   <div class="headertitle"><div class="title">Tests E2E - Structure Réorganisée</div></div>
 </div><!--header-->
 <div class="contents">
-<div class="textblock"><p><a class="anchor" id="autotoc_md24"></a> </p>
-<h1><a class="anchor" id="autotoc_md25"></a>
+<div class="textblock"><p><a class="anchor" id="autotoc_md28"></a> </p>
+<h1><a class="anchor" id="autotoc_md29"></a>
 Vue d'ensemble</h1>
 <p>Le fichier de test monolithique <code>annotation.spec.js</code> a été réorganisé en plusieurs fichiers plus petits et spécialisés pour améliorer la maintenabilité et la lisibilité.</p>
-<h1><a class="anchor" id="autotoc_md26"></a>
+<h1><a class="anchor" id="autotoc_md30"></a>
 Structure des fichiers</h1>
-<h2><a class="anchor" id="autotoc_md27"></a>
+<h2><a class="anchor" id="autotoc_md31"></a>
 📁 helpers/</h2>
 <p>Contient les utilitaires et fonctions partagées :</p>
 <ul>
 <li>**<code><a class="el" href="test-helpers_8js.html" title="Fonctions utilitaires pour les tests E2E.">test-helpers.js</a></code>** : Fonctions utilitaires pour les tests (loadTestRace, navigation, etc.)</li>
 <li>**<code><a class="el" href="mock-setup_8js.html">mock-setup.js</a></code>** : Configuration centralisée des mocks réseau</li>
 </ul>
-<h2><a class="anchor" id="autotoc_md28"></a>
+<h2><a class="anchor" id="autotoc_md32"></a>
 📁 tests/</h2>
 <p>Contient les fichiers de tests spécialisés :</p>
 <ul>
@@ -122,18 +122,18 @@ Structure des fichiers</h1>
 <li>**<code><a class="el" href="annotations_8spec_8js.html">annotations.spec.js</a></code>** : Tests du système d'annotations</li>
 <li>**<code><a class="el" href="synchronization_8spec_8js.html" title="Tests E2E pour la synchronisation vidéo et annotations.">synchronization.spec.js</a></code>** : Tests de synchronisation entre les vues</li>
 </ul>
-<h2><a class="anchor" id="autotoc_md29"></a>
+<h2><a class="anchor" id="autotoc_md33"></a>
 📄 Fichiers principaux</h2>
 <ul>
 <li>**<code>annotation-suite.spec.js</code>** : Point d'entrée qui importe tous les tests</li>
 <li>**<code>annotation.spec.js</code>** : ⚠️ Fichier original (peut être supprimé après validation)</li>
 </ul>
-<h1><a class="anchor" id="autotoc_md30"></a>
+<h1><a class="anchor" id="autotoc_md34"></a>
 Utilisation</h1>
-<h2><a class="anchor" id="autotoc_md31"></a>
+<h2><a class="anchor" id="autotoc_md35"></a>
 Exécuter tous les tests</h2>
 <div class="fragment"><div class="line">npx playwright test annotation-suite.spec.js</div>
-</div><!-- fragment --><h2><a class="anchor" id="autotoc_md32"></a>
+</div><!-- fragment --><h2><a class="anchor" id="autotoc_md36"></a>
 Exécuter des tests spécifiques</h2>
 <div class="fragment"><div class="line"># Tests de base uniquement</div>
 <div class="line">npx playwright test tests/basic-interface.spec.js</div>
@@ -149,7 +149,7 @@ Exécuter des tests spécifiques</h2>
 <div class="line"> </div>
 <div class="line"># Tests de synchronisation uniquement</div>
 <div class="line">npx playwright test tests/synchronization.spec.js</div>
-</div><!-- fragment --><h2><a class="anchor" id="autotoc_md33"></a>
+</div><!-- fragment --><h2><a class="anchor" id="autotoc_md37"></a>
 Exécuter par catégorie avec des tags</h2>
 <div class="fragment"><div class="line"># Tous les tests dans le dossier tests/</div>
 <div class="line">npx playwright test tests/</div>
@@ -157,7 +157,7 @@ Exécuter par catégorie avec des tags</h2>
 <div class="line"># Tests spécifiques avec grep</div>
 <div class="line">npx playwright test --grep &quot;graphiques&quot;</div>
 <div class="line">npx playwright test --grep &quot;annotations&quot;</div>
-</div><!-- fragment --><h1><a class="anchor" id="autotoc_md34"></a>
+</div><!-- fragment --><h1><a class="anchor" id="autotoc_md38"></a>
 Avantages de cette structure</h1>
 <ol type="1">
 <li><b>Maintenabilité</b> : Chaque fichier a une responsabilité claire</li>
@@ -166,9 +166,9 @@ Avantages de cette structure</h1>
 <li><b>Réutilisabilité</b> : Les helpers peuvent être réutilisés facilement</li>
 <li><b>Lisibilité</b> : Code plus organisé et plus facile à comprendre</li>
 </ol>
-<h1><a class="anchor" id="autotoc_md35"></a>
+<h1><a class="anchor" id="autotoc_md39"></a>
 Fonctions utilitaires principales</h1>
-<h2><a class="anchor" id="autotoc_md36"></a>
+<h2><a class="anchor" id="autotoc_md40"></a>
 test-helpers.js</h2>
 <ul>
 <li><code>loadTestRace(page)</code> : Charge une course de test complète</li>
@@ -179,14 +179,14 @@ test-helpers.js</h2>
 <li><code>mode_color</code> : Couleurs pour les tests</li>
 <li><code>expectedCSSColors</code> : Couleurs CSS attendues</li>
 </ul>
-<h2><a class="anchor" id="autotoc_md37"></a>
+<h2><a class="anchor" id="autotoc_md41"></a>
 mock-setup.js</h2>
 <ul>
 <li><code>setupMocks(page, testData, testDataPath, testVideoPath)</code> : Configure tous les mocks</li>
 <li><code>setupDiagnosticListeners(page)</code> : Configure les écouteurs de diagnostic</li>
 <li><code>initializeApplication(page)</code> : Initialise l'application après navigation</li>
 </ul>
-<h1><a class="anchor" id="autotoc_md38"></a>
+<h1><a class="anchor" id="autotoc_md42"></a>
 Migration depuis l'ancien fichier</h1>
 <p>Si vous utilisez l'ancien <code>annotation.spec.js</code>, vous pouvez :</p>
 <ol type="1">
@@ -194,7 +194,7 @@ Migration depuis l'ancien fichier</h1>
 <li><b>Migration progressive</b> : Utiliser les nouveaux fichiers un par un</li>
 <li><b>Tests hybrides</b> : Garder les deux structures temporairement</li>
 </ol>
-<h1><a class="anchor" id="autotoc_md39"></a>
+<h1><a class="anchor" id="autotoc_md43"></a>
 Personnalisation</h1>
 <p>Vous pouvez facilement :</p><ul>
 <li>Ajouter de nouveaux fichiers de tests dans <code>tests/</code></li>
@@ -202,7 +202,7 @@ Personnalisation</h1>
 <li>Modifier la configuration des mocks selon vos besoins</li>
 <li>Créer des sous-catégories de tests plus spécifiques</li>
 </ul>
-<h1><a class="anchor" id="autotoc_md40"></a>
+<h1><a class="anchor" id="autotoc_md44"></a>
 Dépendances</h1>
 <p>Tous les fichiers utilisent :</p><ul>
 <li><code>../fixtures.js</code> : Configuration Playwright commune</li>

@@ -1,5 +1,9 @@
 var NAVTREEINDEX2 =
 {
+"namespacetest__annotation__video__generee.html#ae1d9fe013c5af3059f48453126ea10ea":[8,0,1,6],
+"namespacetest__annotation__video__generee.html#aef5b2a8fdfa7b677b324455d31ea106c":[8,0,1,16],
+"namespacetest__annotation__video__generee.html#af100d95c5db72c0a19b7076635ac9aed":[8,0,1,17],
+"namespacetest__annotation__video__generee.html#af273f265b81ab1cec0296a535b80ea2a":[8,0,1,30],
 "pages.html":[],
 "playwright_8config_8js.html":[9,0,3,2,5],
 "plot__handler_8js.html":[9,0,0,0,8],

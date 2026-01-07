@@ -63,7 +63,40 @@ To use the site locally, you need to pull the branch and go offline with competi
 
 ## Data structure and analysis
 
-Aquanote uses a specific data structure to store the annotations. It is based on a CSV file for each video, with samples provided in the [`course_demo`](courses_demo/2025_courses_demo/2025_courses_demo_translation_carre_100_demifinale) folder. Another repository is dedicated to the analysis of such data: [Aquanalysis](https://github.com/centralelyon/aquanalysis).
+### Structure of annotated data 
+
+Aquanote uses a specific data structure to store the annotations. It is based on a CSV file for each video, with samples provided in the [`course_demo`](courses_demo/2025_courses_demo/2025_courses_demo_translation_carre_100_demifinale) folder. Here is a sample of such a CSV file:
+
+```
+frameId,swimmerId,swimmerName,lane,cumul,eventId,eventX,eventY,event,TempsVideo (s),Temps (s),distance (m),tempo (s),frequence (cylce/min),amplitude (m),vitesse (m/s)
+63,4,ligne5,ligne5,3.90,0,46.1036,8,cycle,1.36,1.26,3.90,,,,
+113,4,ligne5,ligne5,6.87,1,43.1305,8,cycle,2.36,2.26,6.87,2.00,30.00,5.95,2.97
+```
+
+### Analysis of annotated data 
+
+To analyse the CSV file, a dedicated repository is available:
+
+**[aquanalysis](https://github.com/centralelyon/aquanalysis)** is a repository that contains scripts and notebooks to compute various performance metrics from the annotated data, such as speed, stroke rate, and stroke length.
+
+### Adding new videos
+
+The videos provided is in the `courses_demo` folder are samples. To add your own videos, you need to follow the same structure as in the demo folder. 
+
+Each competition should have its own subfolder, and then videos to used should be specified in a `metadata JSON` file located at the root of each competition folder. For example, for the demo competition the metadata file is `2025_courses_demo_translation_carre_50_finale`, 
+
+**[flatdir](https://github.com/centralelyon/flatdir)** is a tool to flatten a directory structure and automatically generate the required JSON files at the root of each competition folder (like the [`courses_demo/flat.json`](courses_demo/flat.json) JSON).
+
+### Pre-processing videos
+
+A `metadata JSON` contains information about pre-processing steps for each race to analyzed and should be created before the annotation phase. This includes temporal calibration (start and end times), spatial calibration (real-world dimensions) and athletes information (names, lanes). An example of such a JSON file is available in the demo folder: [`courses_demo/2025_courses_demo_translation_carre_50_finale/metadata.json`.](courses_demo/2025_courses_demo_translation_carre_50_finale/metadata.json).
+
+While some pre-processingt steps can be done directly in Aquanote, some require external video and image processing tools. We suggest two tools to achieve this: 
+
+[**ntt**](https://github.com/centralelyon/ntt/) for image and video processing using warppers around **OpenCV** and **FFmpeg** libraries (for instance).
+
+[**pipeoptz**](https://github.com/centralelyon/pipeoptz/) to orchestrate such processing as pipelines and eventually optimize their parameters automatically.
+
 
 ## Documentation  
 

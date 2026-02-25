@@ -155,7 +155,10 @@ Analysis of annotated data</h2>
 Adding new videos</h2>
 <p>The videos provided is in the <code>courses_demo</code> folder are samples. To add your own videos, you need to follow the same structure as in the demo folder.</p>
 <p>Each competition should have its own subfolder, and then videos to used should be specified in a <code>metadata JSON</code> file located at the root of each competition folder. For example, for the demo competition the metadata file is <code>2025_courses_demo_translation_carre_50_finale</code>,</p>
-<p><b><a href="https://github.com/centralelyon/flatdir">flatdir</a></b> is a tool to flatten a directory structure and automatically generate the required JSON files at the root of each competition folder (like the <a href="courses_demo/flat.json"><code>courses_demo/flat.json</code></a> JSON).</p>
+<p><b><a href="https://github.com/centralelyon/flatdir">flatdir</a></b> is a Python module to flatten a directory structure and automatically generate the required JSON files at the root of each competition folder (like the <a href="courses_demo/flat.json"><code>courses_demo/flat.json</code></a> JSON, add <code>&gt; flat.json</code> to save the output in such a file):</p>
+<blockquote class="doxtable">
+<p>&zwj;python -m flatdir courses_demo &ndash;limit 10 &ndash;nested &ndash;only type=directory &ndash;add espadon=false &ndash;add espadonModifie=false &ndash;add data_checked=false &ndash;no-defaults &ndash;min-depth 1 &ndash;add-depth 2 &ndash;ignore-typical </p>
+</blockquote>
 <h2><a class="anchor" id="autotoc_md25"></a>
 Pre-processing videos</h2>
 <p>A <code>metadata JSON</code> contains information about pre-processing steps for each race to analyzed and should be created before the annotation phase. This includes temporal calibration (start and end times), spatial calibration (real-world dimensions) and athletes information (names, lanes). An example of such a JSON file is available in the demo folder: <a href="courses_demo/2025_courses_demo_translation_carre_50_finale/metadata.json"><code>courses_demo/2025_courses_demo_translation_carre_50_finale/metadata.json</code>.</a>.</p>

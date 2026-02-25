@@ -85,7 +85,9 @@ The videos provided is in the `courses_demo` folder are samples. To add your own
 
 Each competition should have its own subfolder, and then videos to used should be specified in a `metadata JSON` file located at the root of each competition folder. For example, for the demo competition the metadata file is `2025_courses_demo_translation_carre_50_finale`, 
 
-**[flatdir](https://github.com/centralelyon/flatdir)** is a tool to flatten a directory structure and automatically generate the required JSON files at the root of each competition folder (like the [`courses_demo/flat.json`](courses_demo/flat.json) JSON).
+**[flatdir](https://github.com/centralelyon/flatdir)** is a Python module to flatten a directory structure and automatically generate the required JSON files at the root of each competition folder (like the [`courses_demo/flat.json`](courses_demo/flat.json) JSON, add `> flat.json` to save the output in such a file):
+
+> python -m flatdir courses_demo --limit 10 --nested --only type=directory --add espadon=false --add espadonModifie=false --add data_checked=false --no-defaults --min-depth 1 --add-depth 2 --ignore-typical
 
 ### Pre-processing videos
 

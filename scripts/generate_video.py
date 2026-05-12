@@ -63,10 +63,15 @@ def parse_args() -> argparse.Namespace:
         default=0,
         help="Index of the video entry to use from the metadata file.",
     )
+    parser.add_argument(
+        "--render-lanes",
+        action="store_true",
+        help="Render swimming lane separators and lane labels on each generated frame.",
+    )
     return parser.parse_args()
 
 
-def load_video_metadata(metadata_path: Path, video_index: int) -> dict:
+def load_video_metadata(metadata_path: Path, video_index: int) -> tuple[dict, dict]:
     metadata_path = metadata_path.resolve()
     if not metadata_path.is_file():
         raise FileNotFoundError(f"Metadata file not found: {metadata_path}")
@@ -91,7 +96,7 @@ def load_video_metadata(metadata_path: Path, video_index: int) -> dict:
             f"Metadata is missing required keys {missing_keys} for video index {video_index}"
         )
 
-    return video
+    return data, video
 
 
 def build_square_positions(
@@ -138,6 +143,60 @@ def create_video_writer(
     )
 
 
+def transform_points(points: np.ndarray, homography: np.ndarray) -> np.ndarray:
+    return cv2.perspectiveTransform(points[None, :, :], homography)[0]
+
+
+def draw_lane_overlay(
+    frame: np.ndarray,
+    metadata: dict,
+    destination_points: np.ndarray,
+    homography: np.ndarray,
+) -> None:
+    lane_names = metadata.get("lignes") or {}
+    lane_keys = sorted(lane_names.keys())
+    lane_count = len(lane_keys)
+    if lane_count == 0:
+        return
+
+    x_min, y_min = np.min(destination_points, axis=0)
+    x_max, y_max = np.max(destination_points, axis=0)
+    lane_height = (y_max - y_min) / lane_count
+    line_color = (255, 170, 0)
+    text_color = (40, 40, 40)
+
+    for lane_index in range(lane_count + 1):
+        y = y_min + lane_index * lane_height
+        lane_line = np.array([[x_min, y], [x_max, y]], dtype=np.float32)
+        lane_line_src = transform_points(lane_line, homography).astype(np.int32)
+        cv2.line(
+            frame,
+            tuple(lane_line_src[0]),
+            tuple(lane_line_src[1]),
+            line_color,
+            2,
+            lineType=cv2.LINE_AA,
+        )
+
+    for lane_index, lane_key in enumerate(lane_keys):
+        lane_name = str(lane_names[lane_key])
+        label_point = np.array(
+            [[x_min + 15, y_min + (lane_index + 0.5) * lane_height]],
+            dtype=np.float32,
+        )
+        label_point_src = transform_points(label_point, homography)[0].astype(np.int32)
+        cv2.putText(
+            frame,
+            lane_name,
+            tuple(label_point_src),
+            cv2.FONT_HERSHEY_SIMPLEX,
+            0.8,
+            text_color,
+            2,
+            lineType=cv2.LINE_AA,
+        )
+
+
 def generate_video(
     metadata_path: Path,
     output_path: Path,
@@ -145,8 +204,9 @@ def generate_video(
     frame_count: int,
     fps: int,
     video_index: int,
+    render_lanes: bool,
 ) -> Path:
-    video = load_video_metadata(metadata_path, video_index)
+    metadata, video = load_video_metadata(metadata_path, video_index)
     source_points = np.array(video["srcPts"], dtype=np.float32)
     destination_points = np.array(video["destPts"], dtype=np.float32)
 
@@ -166,6 +226,8 @@ def generate_video(
 
     for x, y, progress in positions:
         frame = np.full((frame_height, frame_width, 3), 255, dtype=np.uint8)
+        if render_lanes:
+            draw_lane_overlay(frame, metadata, destination_points, homography)
 
         square_points = np.array(
             [
@@ -200,6 +262,7 @@ def main() -> int:
         frame_count=args.frame_count,
         fps=args.fps,
         video_index=args.video_index,
+        render_lanes=args.render_lanes,
     )
     print(f"Video generated: {output_path}")
     return 0

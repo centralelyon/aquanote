@@ -93,6 +93,31 @@ While some pre-processingt steps can be done directly in Aquanote, some require 
 
 [**pipeoptz**](https://github.com/centralelyon/pipeoptz/) to orchestrate such processing as pipelines and eventually optimize their parameters automatically.
 
+### Synthetic video generation
+
+The repository includes a helper script to generate a synthetic video from a race metadata JSON using the stored homography:
+
+```sh
+pip install -r scripts/requirements.txt
+python scripts/generate_video.py
+```
+
+This uses the demo `50_finale` metadata by default and writes `output_video.mp4` when MP4 encoding is available, otherwise it falls back to `output_video.avi`.
+
+To use another metadata file or output path:
+
+```sh
+python scripts/generate_video.py \
+  --metadata courses_demo/2025_courses_demo/2025_courses_demo_translation_carre_100_demifinale/2025_courses_demo_translation_carre_100_demifinale.json \
+  --output demo_homography.mp4
+```
+
+To render the swimming lanes and lane labels on top of the generated frames:
+
+```sh
+python scripts/generate_video.py --render-lanes
+```
+
 
 ## Documentation  
 

@@ -6,10 +6,13 @@
  */
 
 // @ts-check
+import { fileURLToPath } from 'node:url'
 import { defineConfig, devices } from '@playwright/test'
 
+const testDir = fileURLToPath(new URL('./e2e', import.meta.url))
+
 export default defineConfig({
-  testDir: './test/e2e',
+  testDir,
   
   // Timeout par test
   timeout: 30 * 1000,

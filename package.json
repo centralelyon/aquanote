@@ -27,7 +27,7 @@
     "test:unit": "node node_modules/vitest/vitest.mjs --config workflow/test/vitest.config.js workflow/test/unit",
     "test:integration": "node node_modules/vitest/vitest.mjs --config workflow/test/vitest.config.js workflow/test/integration",
     "test:watch": "node node_modules/vitest/vitest.mjs --config workflow/test/vitest.config.js --watch",
-    "test:e2e": "playwright test",
+    "test:e2e": "node node_modules/playwright/cli.js test --config workflow/test/playwright.config.js",
     "test:all": "npm run test && npm run test:e2e",
     "dev": "http-server . -a 127.0.0.1 -p 8000 -c-1 --cors",
     "serve": "http-server . -a 127.0.0.1 -p 8000 -c-1 --cors",

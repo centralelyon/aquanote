@@ -4,7 +4,7 @@
  */
 
 import { choose_tab,construct_modify_selected_annotation_table, add_element_to_data,vide_last_added_data, last_added_data, currate_events, construct_last_added_data_table } from './data_handler.js';
-import { meters_checkpoints,megaData,curr_swims, frame_rate, compets, getDatas, selected_comp, load_run, turn_distances, selected_run, edit_vidName, vidName, getRuns, get_quality, get_temp_start, pool_size, n_camera, getLaneYPosition, isOneIsUp } from './loader.js';
+import { meters_checkpoints,megaData,curr_swims, frame_rate, compets, getDatas, selected_comp, load_run, turn_distances, selected_run, edit_vidName, vidName, getRuns, get_quality, get_temp_start, pool_size, n_camera, getLaneYPosition, isOneIsUp, resolveRunName } from './loader.js';
 import { draw_stats, set_placeholder_of_time_entry, update_swimmer } from './side_views.js';
 import { updateTable, setGrad,frameId_to_RunTime, base, metrics_calculation } from './main.js';
 import { activate_shortcut,deactivate_shortcut, nageurs } from './jquery-custom.js';
@@ -1141,7 +1141,7 @@ let pt=[0,0];
         const urlParams = new URLSearchParams(window.location.search);
         const courseParam = urlParams.get('course');
         if (courseParam && courseParam.trim() !== "" && $("#run_part3").val()=='') {
-            return courseParam;
+            return resolveRunName(courseParam);
         }
         // Sinon, comportement habituel
         const part1 = $("#run_part1").val();
@@ -1149,7 +1149,7 @@ let pt=[0,0];
         const part3 = $("#run_part3").val();
         const part4 = $("#run_part4").val();
         const selected_comp1 = $("#competition").val();
-        return (`${selected_comp1}_${part1}_${part2}_${part3}_${part4}`);
+        return resolveRunName(`${selected_comp1}_${part1}_${part2}_${part3}_${part4}`);
     }
     window.get_run_selected = get_run_selected;
     export function edit_temp_start(x){

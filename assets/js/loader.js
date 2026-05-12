@@ -11,6 +11,8 @@
 
 import {base,displaySwimmers, local_bool, setGrad} from "./main.js"
 let flat;
+let flatManifest = null;
+let staticData = createEmptyStaticData();
 
 /**
  * @brief contient le nom de la compétition sélectionnée.
@@ -119,6 +121,131 @@ export function getDisplayLaneIndex(swimmerIndex, metaLike = megaData[0]?.videos
     return isOneIsUp(metaLike) ? laneCount - clampedIndex - 1 : clampedIndex;
 }
 
+function createEmptyStaticData() {
+    return {
+        competitions: [],
+        runs: {},
+        csvFiles: {},
+        videos: {},
+        aliases: {},
+    };
+}
+
+function normalizeDirectoryEntry(entry) {
+    if (typeof entry === "string") {
+        return { name: entry, type: "directory" };
+    }
+    return {
+        ...entry,
+        type: entry?.type ?? "directory",
+    };
+}
+
+function normalizeFileEntry(entry) {
+    if (typeof entry === "string") {
+        return { name: entry, type: "file" };
+    }
+    return {
+        ...entry,
+        type: entry?.type ?? "file",
+    };
+}
+
+function normalizeFlatManifest(rawFlat) {
+    if (Array.isArray(rawFlat)) {
+        return {
+            competitions: [],
+            runs: {},
+            entries: make_flat_usable(rawFlat),
+        };
+    }
+
+    if (!rawFlat || typeof rawFlat !== "object") {
+        return {
+            competitions: [],
+            runs: {},
+            entries: {},
+        };
+    }
+
+    if ("entries" in rawFlat || "competitions" in rawFlat || "runs" in rawFlat) {
+        return {
+            competitions: Array.isArray(rawFlat.competitions) ? rawFlat.competitions : [],
+            runs: rawFlat.runs && typeof rawFlat.runs === "object" ? rawFlat.runs : {},
+            entries: rawFlat.entries && typeof rawFlat.entries === "object" ? rawFlat.entries : {},
+        };
+    }
+
+    return {
+        competitions: [],
+        runs: {},
+        entries: rawFlat,
+    };
+}
+
+export function resolveRunName(runName) {
+    if (!runName) {
+        return runName;
+    }
+    return staticData.aliases[runName] || runName;
+}
+
+async function populateStaticDataFromManifest(loadVideos = false) {
+    const dynamicData = createEmptyStaticData();
+    dynamicData.competitions = flatManifest.competitions.map((competition) => ({
+        ...competition,
+        type: competition.type ?? "directory",
+    }));
+
+    const runsByCompetition = flatManifest.runs || {};
+    for (const [competitionName, runEntries] of Object.entries(runsByCompetition)) {
+        dynamicData.runs[competitionName] = (runEntries || []).map(normalizeDirectoryEntry);
+
+        for (const rawRunEntry of runEntries || []) {
+            const runEntry = normalizeDirectoryEntry(rawRunEntry);
+            const runName = runEntry.name;
+            const manifestEntry = flat[runName] || {};
+            const aliases = [
+                ...(Array.isArray(runEntry.aliases) ? runEntry.aliases : []),
+                ...(Array.isArray(manifestEntry.aliases) ? manifestEntry.aliases : []),
+            ];
+
+            dynamicData.aliases[runName] = runName;
+            aliases.forEach((alias) => {
+                if (alias) {
+                    dynamicData.aliases[alias] = runName;
+                }
+            });
+
+            const csvEntries = runEntry.csvFiles ?? manifestEntry.csvFiles ?? [];
+            dynamicData.csvFiles[runName] = csvEntries.map(normalizeFileEntry);
+
+            if (loadVideos) {
+                try {
+                    const metadataPath = `courses_demo/${competitionName}/${runName}/${runName}.json`;
+                    const metadata = await d3.json(metadataPath);
+                    dynamicData.videos[runName] = (metadata?.videos || []).map((video) =>
+                        normalizeFileEntry(video.name)
+                    );
+                } catch (error) {
+                    console.error(`Could not load metadata for ${runName}:`, error);
+                    dynamicData.videos[runName] = [];
+                }
+            } else {
+                dynamicData.videos[runName] = [];
+            }
+        }
+    }
+
+    staticData = dynamicData;
+}
+
+async function loadStaticDataFromFlat() {
+    flatManifest = normalizeFlatManifest(await d3.json("courses_demo/flat.json"));
+    flat = flatManifest.entries;
+    await populateStaticDataFromManifest(true);
+}
+
 
 
 
@@ -133,12 +260,11 @@ export async function init() {
   try {
     // Gérer différemment selon l'environnement
     if (isGitHubMode()) {
-      // En mode GitHub, utiliser directement le fichier flat.json comme objet
-      flat = await d3.json("courses_demo/flat.json");
+      await loadStaticDataFromFlat();
     } else {
-      // En mode local/serveur, utiliser le fichier flat.json comme tableau
-      let temp = await d3.json("courses_demo/flat.json");
-      flat = make_flat_usable(temp);
+      flatManifest = normalizeFlatManifest(await d3.json("courses_demo/flat.json"));
+      flat = flatManifest.entries;
+      await populateStaticDataFromManifest(false);
     }
       
       await getCompets();
@@ -150,7 +276,7 @@ export async function init() {
         console.error("compets[selected_comp] n'existe pas! selected_comp =", selected_comp);
       }
       
-      let selected_run1 = queryString["course"];
+      let selected_run1 = resolveRunName(queryString["course"]);
       
       // Only proceed with loading run if we have a valid run selected
       if (selected_run1) {
@@ -206,11 +332,11 @@ function processRunData(runs) {
  * @returns 
  */
 export async function getDatas(comp, run) {
+    run = resolveRunName(run);
     datas = [];
     let c = [];
 
     if (isGitHubMode()) {
-        // Mode GitHub - utiliser les données statiques
         c = staticData.csvFiles[run] || [];
     } else {
         const url = getApiUrl("/getDatas/" + comp + "/" + run);
@@ -270,7 +396,6 @@ export async function getCompets() {
     $("#competition").empty();
     
     if (isGitHubMode()) {
-        // Mode GitHub - utiliser les données statiques
         let select = $("#competition");
         let c = staticData.competitions.filter(d => d.type == "directory" && d.name[0] == "2");
 
@@ -428,6 +553,7 @@ export async function get_quality(comp, run, actual_side) {
  */
 export async function getRuns(comp) {
   const queryString = getUrlVars();
+  const requestedRun = resolveRunName(queryString["course"]);
   
   // Initialiser compets[comp] s'il n'existe pas
   if (!compets[comp]) {
@@ -436,7 +562,6 @@ export async function getRuns(comp) {
   
   if (!compets[comp] || compets[comp].length === 0) {
       if (isGitHubMode()) {
-    // Mode GitHub - utiliser les données statiques
     let select = $("#run");
     let runs = staticData.runs[comp] || [];
     compets[comp] = runs;
@@ -448,7 +573,7 @@ export async function getRuns(comp) {
     const distance = new Set();
     const étape_compétition = new Set();
     for (let i = 0; i < runs.length; i++) {
-        if (runs[i].name === queryString["course"]) {
+        if (runs[i].name === requestedRun) {
             selected_run = runs[i].name;
         }
         if (runs[i].name[0] !== "2") {
@@ -508,7 +633,7 @@ export async function getRuns(comp) {
             const distance = new Set();
             const étape_compétition = new Set();
             for (let i = 0; i < runs.length; i++) {
-                if (runs[i].name === queryString["course"]) {
+                if (runs[i].name === requestedRun) {
                     selected_run = runs[i].name;
                 }
                 if (runs[i].name[0] !== "2") {
@@ -555,7 +680,7 @@ export async function getRuns(comp) {
       let select = $("#run");
       select.empty();
       for (let i = 0; i < compets[comp].length; i++) {
-          if (compets[comp][i].name === queryString["course"]) {
+          if (compets[comp][i].name === requestedRun) {
               selected_run = compets[comp][i].name;
           }
           select.append("<option value='" + compets[comp][i].name + "'>" + compets[comp][i].name + "</option>");
@@ -630,6 +755,7 @@ export function get_temp_start(meta) {
  * @param {*} starTime 
  */
 export async function load_run(run, data, starTime = null) {
+  run = resolveRunName(run);
   edit_vue_du_dessus(false); // Réinitialise la vue du dessus
   const errors = []; // Liste des erreurs rencontrées
 
@@ -905,40 +1031,6 @@ function isGitHubMode() {
         window.location.pathname.includes('/annotation/')
     );
 }
-
-/**
- * @brief Données statiques pour le mode GitHub
- * Remplace les appels AJAX quand on ne peut pas lister les dossiers
- */
-/**
- * Liste statique des fichiers CSV présents pour chaque course.
- * Cette liste est utilisée en mode GitHub Pages car il n'est pas possible de lister dynamiquement le contenu d'un dossier.
- * À mettre à jour à chaque ajout/suppression de fichier CSV dans le dépôt.
- */
-const staticData = {
-    competitions: [
-        { name: "2025_courses_demo", type: "directory" }
-    ],
-    runs: {
-        "2025_courses_demo": [
-            { name: "2025_courses_demo_translation_carre_100_demifinale", type: "directory" },
-            { name: "2025_courses_demo_translation_carre_100_finale_10_lanes", type: "directory" },
-            { name: "2025_courses_demo_translation_carre_50_finale", type: "directory" },
-            { name: "2025_courses_demo_translation_carre_50_serie", type: "directory" }
-        ]
-    },
-    // À mettre à jour manuellement si des fichiers CSV sont ajoutés ou supprimés dans le dépôt
-    csvFiles: {
-        "2025_courses_demo_translation_carre_100_demifinale": [
-            { name: "exemple_annotation_cycle.csv", type: "file" }
-        ],
-        "2025_courses_demo_translation_carre_100_finale_10_lanes": [],
-        "2025_courses_demo_translation_carre_50_finale": [
-            { name: "exemple_annotation_ligne_5_cycles.csv", type: "file" }
-        ],
-        "2025_courses_demo_translation_carre_50_serie": []
-    }
-};
 
 // Fonction utilitaire pour parser un CSV en JS (compatible CSP stricte)
 async function fetchAndParseCsv(url) {

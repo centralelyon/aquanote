@@ -44,6 +44,9 @@
         50,
         20
     ],
+    "csvFiles": [
+        "exemple_annotation_ligne_5_cycles.csv"
+    ],
     "videos": [
         {
             "destPts": [

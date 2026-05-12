@@ -23,12 +23,13 @@ jobs:
         uses: actions/setup-node@v6
         with:
           node-version: '20'
+          cache: 'npm'
 
       - name: Install dependencies
-        run: npm install
+        run: npm ci
 
-      - name: Install Playwright browsers
-        run: npx playwright install --with-deps
+      - name: Install Playwright Chromium
+        run: npx playwright install --with-deps chromium
 
       - name: Fix ESLint permissions
         run: chmod +x ./node_modules/.bin/eslint
@@ -37,12 +38,12 @@ jobs:
         run: npx eslint --config workflow/linter/eslint.config.mjs .
 
       - name: Run Vitest unit tests
-        run: npx vitest --config workflow/test/vitest.config.js
+        run: npm test -- --run
 
       - name: Run Vitest with coverage
-        run: npx vitest --config workflow/test/vitest.config.js --coverage
+        run: npm run test:coverage
 
       - name: Run Playwright E2E tests
-        run: npx playwright test --config workflow/test/playwright.config.js
+        run: npm run test:e2e
 
       

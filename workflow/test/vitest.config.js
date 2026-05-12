@@ -5,7 +5,10 @@
  * et exclut les tests E2E qui sont gérés par Playwright
  */
 
+import { fileURLToPath } from 'node:url'
 import { defineConfig } from 'vitest/config'
+
+const setupFile = fileURLToPath(new URL('./setup.js', import.meta.url))
 
 export default defineConfig({
   test: {
@@ -16,7 +19,7 @@ export default defineConfig({
     globals: true,
     
     // Setup files
-    setupFiles: ['./workflow/tests/setup.js'],
+    setupFiles: [setupFile],
     
     // Coverage configuration
     coverage: {
@@ -24,7 +27,7 @@ export default defineConfig({
       reporter: ['text', 'json', 'html'],
       exclude: [
         'node_modules/',
-        'workflow/tests/',
+        'workflow/test/',
         'html/',
         'latex/',
         'build/'

@@ -7,7 +7,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 
 // Mock de toutes les dépendances avant les imports
-vi.mock('../../assets/js/refactor-script.js', () => ({
+vi.mock('../../../assets/js/refactor-script.js', () => ({
   displayMode: "0",
   selected_swim: 0,
   temp_start: 0,
@@ -15,7 +15,7 @@ vi.mock('../../assets/js/refactor-script.js', () => ({
   last_checkpoint: 0
 }))
 
-vi.mock('../../assets/js/loader.js', () => ({
+vi.mock('../../../assets/js/loader.js', () => ({
   curr_swims: {},
   frame_rate: 50,
   pool_size: 25,
@@ -25,23 +25,23 @@ vi.mock('../../assets/js/loader.js', () => ({
   megaData: null
 }))
 
-vi.mock('../../assets/js/side_views.js', () => ({
+vi.mock('../../../assets/js/side_views.js', () => ({
   draw_stats: vi.fn()
 }))
 
-vi.mock('../../assets/js/main.js', () => ({
+vi.mock('../../../assets/js/main.js', () => ({
   updateTable: vi.fn()
 }))
 
-vi.mock('../../assets/js/data_handler.js', () => ({
+vi.mock('../../../assets/js/data_handler.js', () => ({
   construct_modify_selected_annotation_table: vi.fn()
 }))
 
-vi.mock('../../assets/js/utils.js', () => ({
+vi.mock('../../../assets/js/utils.js', () => ({
   getSize: vi.fn().mockReturnValue([640, 480])
 }))
 
-vi.mock('../../assets/js/homography_handler.js', () => ({
+vi.mock('../../../assets/js/homography_handler.js', () => ({
   getBar: vi.fn().mockReturnValue([[25, 12], [26, 13]]),
   get_orr: vi.fn().mockReturnValue(0),
   eucDistance: vi.fn().mockReturnValue(1)
@@ -80,7 +80,7 @@ import {
   makeBar,
   highlightCycle,
   resetHigh
-} from '../../assets/js/cycles_handler.js'
+} from '../../../assets/js/cycles_handler.js'
 
 beforeEach(() => {
   // Mock des variables globales nécessaires

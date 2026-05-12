@@ -75,6 +75,29 @@ test.describe('Interface principale - Tests de base', () => {
     await expect(page.locator('#cyclebar')).toBeVisible()
   })
 
+  test('devrait afficher la checkbox des limites de piscine et basculer les contours', async ({ page }) => {
+    await expect(page.locator('#show_pool_boundaries')).toBeVisible()
+    await expect(page.locator('label[for="show_pool_boundaries"]')).toHaveText('piscine')
+
+    await loadTestRace(page)
+
+    await page.waitForFunction(() => {
+      return Boolean(window.megaData && window.megaData.length > 0 && window.megaData[0]?.videos?.length)
+    }, { timeout: 20000 })
+
+    await expect(page.locator('.pool_boundary_line')).toHaveCount(0)
+
+    await page.locator('#show_pool_boundaries').check()
+    await expect(page.locator('#show_pool_boundaries')).toBeChecked()
+    await page.waitForFunction(() => {
+      return document.querySelectorAll('.pool_boundary_line').length >= 4
+    }, { timeout: 10000 })
+
+    await page.locator('#show_pool_boundaries').uncheck()
+    await expect(page.locator('#show_pool_boundaries')).not.toBeChecked()
+    await expect(page.locator('.pool_boundary_line')).toHaveCount(0)
+  })
+
   test('devrait permettre de sélectionner une compétition, une course, la charger puis changer les paramètres', async ({ page }) => {
     // 1. Charger la première configuration
     await loadTestRace(page)

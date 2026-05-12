@@ -26,8 +26,7 @@ import "./ml-cycle-predictor-js/js/predictor.js";
 // Backend link
 // Détection automatique de l'environnement
 function isGitHubMode() {
-    const isElectron = window.myAPI !== undefined;
-    return !isElectron && (
+    return (
         window.location.hostname.includes('github.io') ||
         window.location.hostname.includes('githubusercontent.com') ||
         window.location.pathname.includes('/annotation/')
@@ -35,41 +34,7 @@ function isGitHubMode() {
 }
 
 export let local_bool = !isGitHubMode();
-export let base = "./";
-
-
-
-
-
-/**
- * @brief Configure l'URL de base selon l'environnement (local ou distant)
- * Définit l'URL du serveur backend selon le mode local/distant sélectionné
- */
-export function set_base() {
-    if (local_bool) {
-        base = "http://localhost:8000/";
-
-    } else {
-        // Mode distant - URL configurée via code externe
-        base = "";
-    }
-}
-
-/**
- * @brief Setter pour modifier la variable local_bool
- * @param {boolean} value Nouvelle valeur pour local_bool
- */
-export function set_local_bool(value) {
-    local_bool = value;
-}
-
-/**
- * @brief Setter pour modifier la variable base
- * @param {string} value Nouvelle valeur pour base
- */
-export function set_base_url(value) {
-    base = value;
-}
+export let base = local_bool ? "http://127.0.0.1:8001/files/" : "courses_demo/";
 
 if (typeof window !== "undefined" && !window.__TEST__) {
     fetch('./package.json')
@@ -408,4 +373,3 @@ function downloadRaccourcis() {
     document.body.removeChild(link);
 
 }
-

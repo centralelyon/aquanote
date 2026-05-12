@@ -158,21 +158,11 @@ export async function getDatas(comp, run) {
     datas = [];
     let c = [];
 
-    if (window.myAPI && window.myAPI.getLocalFiles) {
-        try {
-            c = await window.myAPI.getLocalFiles("courses_demo", comp, run);
-        } catch (e) {
-            console.error("Erreur lors de la lecture locale :", e);
-            c = [];
-        }
-    } else if (isGitHubMode()) {
+    if (isGitHubMode()) {
         // Mode GitHub - utiliser les données statiques
         c = staticData.csvFiles[run] || [];
     } else {
-        // Mode local - utilisation serveur distant 
-        const url = (local_bool && !isGitHubMode()) 
-            ? "http://localhost:8001/getDatas/" + comp + "/" + run
-            : getDataPath() + comp + "/" + run;
+        const url = getApiUrl("/getDatas/" + comp + "/" + run);
         
         await $.ajax({
             type: "GET",
@@ -228,40 +218,7 @@ export async function getCompets() {
     
     $("#competition").empty();
     
-    if (window.myAPI && window.myAPI.getLocalCompetitions) {
-        // Mode Electron - utiliser les APIs locales
-        try {
-            // En mode Electron, on veut utiliser courses_demo comme base
-            const electronBase = "courses_demo";
-            let c = await window.myAPI.getLocalCompetitions(electronBase);
-            
-            let select = $("#competition");
-            // Filtrer les compétitions qui commencent par "2"
-            c = c.filter(d => d.name[0] == "2");
-
-            for (let i = 0; i < c.length; i++) {
-                if (c[i].name === competitionParam) {
-                    selected_comp = c[i].name;
-                }
-                select.append("<option value='" + c[i].name + "'>" + c[i].name + "</option>");
-            }
-
-            if (selected_comp === "" && c.length > 0) {
-                selected_comp = c[0].name;
-            }
-            $("#competition").val(selected_comp);
-
-            c.map(d => compets[d.name] = []);
-            return Promise.resolve();
-        } catch (e) {
-            console.error("Erreur lors de la lecture des compétitions locales :", e);
-            // Initialiser compets même en cas d'erreur pour éviter des erreurs undefined
-            if (selected_comp) {
-                compets[selected_comp] = [];
-            }
-            return Promise.reject(e);
-        }
-    } else if (isGitHubMode()) {
+    if (isGitHubMode()) {
         // Mode GitHub - utiliser les données statiques
         let select = $("#competition");
         let c = staticData.competitions.filter(d => d.type == "directory" && d.name[0] == "2");
@@ -281,10 +238,7 @@ export async function getCompets() {
         c.map(d => compets[d.name] = []);
         return Promise.resolve();
     } else {
-        // Mode local avec serveur Python - utiliser AJAX
-        const url = (local_bool && !isGitHubMode())
-            ? "http://localhost:8001/getCompets"
-            : getDataPath();
+        const url = getApiUrl("/getCompets");
         
         return await $.ajax({
             type: 'GET',
@@ -351,21 +305,11 @@ export function setcompets(c){
 export async function get_quality(comp, run, actual_side) {
     let c = [];
 
-    if (window.myAPI && window.myAPI.getLocalFiles) {
-        try {
-            c = await window.myAPI.getLocalFiles("courses_demo", comp, run);
-        } catch (e) {
-            console.error("Erreur lors de la lecture locale :", e);
-            c = [];
-        }
-    } else if (isGitHubMode()) {
+    if (isGitHubMode()) {
         // Mode GitHub - pas de fichiers de qualité dans la démo
         c = [];
     } else {
-        // Mode local - utilisation serveur distant
-        const url = (local_bool && !isGitHubMode())
-            ? "http://localhost:8001/getQuality/" + comp + "/" + run
-            : getDataPath() + comp + "/" + run;
+        const url = getApiUrl("/getQuality/" + comp + "/" + run);
         
         await $.ajax({
             type: 'GET',
@@ -440,48 +384,7 @@ export async function getRuns(comp) {
   }
   
   if (!compets[comp] || compets[comp].length === 0) {
-      if (window.myAPI && window.myAPI.getLocalRuns) {
-    // Utilisation locale via preload (mode Electron)
-    let runs = [];
-    try {
-        runs = await window.myAPI.getLocalRuns("courses_demo", comp);
-    } catch (e) {
-        console.error("Erreur lors de la lecture locale des runs :", e);
-        runs = [];
-    }
-    let select = $("#run");
-    compets[comp] = runs;
-    selected_run = runs[0]?.name || "";
-    select.empty();
-
-    const type_nage = new Set();
-    const sexe_nageurs = new Set();
-    const distance = new Set();
-    const étape_compétition = new Set();
-    for (let i = 0; i < runs.length; i++) {
-        if (runs[i].name === queryString["course"]) {
-            selected_run = runs[i].name;
-        }
-        if (runs[i].name[0] !== "2") {
-            continue;
-        }
-        let tclass = "data_missing";
-        let nomAffiche = runs[i].name.replace(comp + "_", '');
-        select.append("<option value='" + runs[i].name + "' class='" + tclass + "'>" + nomAffiche + "</option>");
-        const parts = runs[i].name.split("_");
-        if (parts[3]) type_nage.add(parts[3]);
-        if (parts[4]) sexe_nageurs.add(parts[4]);
-        if (parts[5]) distance.add(parts[5]);
-        if (parts[6]) étape_compétition.add(parts[6]);
-    }
-    const sortedDistance = Array.from(distance).sort((a, b) => parseInt(a) - parseInt(b));
-    fillDropdown("run_part1", Array.from(type_nage));
-    fillDropdown("run_part2", Array.from(sexe_nageurs));
-    fillDropdown("run_part3", Array.from(sortedDistance));
-    fillDropdown("run_part4", Array.from(étape_compétition));
-    getDatas(comp, selected_run);
-    return runs;
-} else if (isGitHubMode()) {
+      if (isGitHubMode()) {
     // Mode GitHub - utiliser les données statiques
     let select = $("#run");
     let runs = staticData.runs[comp] || [];
@@ -517,10 +420,7 @@ export async function getRuns(comp) {
     getDatas(comp, selected_run);
     return runs;
 } else {
-    // Mode local - utilisation serveur distant
-    const url = (local_bool && !isGitHubMode())
-        ? "http://localhost:8001/getRuns/" + comp
-        : getDataPath() + comp;
+    const url = getApiUrl("/getRuns/" + comp);
     
     await $.ajax({
         type: "GET",
@@ -685,30 +585,16 @@ export async function load_run(run, data, starTime = null) {
   try {
     selected_comp = $("#competition").val();
 
+    const jsonUrl = getDataPath() + selected_comp + "/" + run + "/" + run + '.json';
     let t;
-    if (window.myAPI && window.myAPI.readJsonFile) {
-      // Lecture locale du JSON
-      try {
-        t = await window.myAPI.readJsonFile("courses_demo", selected_comp, run, run + '.json');
-      } catch (e) {
-        console.error("Erreur lecture Electron:", e);
-        errors.push("Fichier JSON non trouvé ou invalide : " + run + '.json');
-        throw e;
-      }
-    } else {
-      // Lecture distante du JSON
-      const jsonUrl = (local_bool && !isGitHubMode()) 
-        ? "http://localhost:8001/files/" + selected_comp + "/" + run + "/" + run + '.json'
-        : getDataPath() + selected_comp + "/" + run + "/" + run + '.json';
-      
-      try {
-        t = await d3.json(jsonUrl, d3.autoType);
-      } catch (e) {
-        console.error("Erreur lors du chargement du fichier JSON:", e);
-        console.error("URL tentée:", jsonUrl);
-        errors.push("Fichier JSON non trouvé ou invalide : " + run + '.json');
-        throw e;
-      }
+
+    try {
+      t = await d3.json(jsonUrl, d3.autoType);
+    } catch (e) {
+      console.error("Erreur lors du chargement du fichier JSON:", e);
+      console.error("URL tentée:", jsonUrl);
+      errors.push("Fichier JSON non trouvé ou invalide : " + run + '.json');
+      throw e;
     }
     let meta = null;
     vidName = "";
@@ -754,40 +640,23 @@ export async function load_run(run, data, starTime = null) {
     
     if (data !== "new_data" && data && data.trim() !== "") {
       let r = [];
-      if (window.myAPI && window.myAPI.readCsvFile) {
-        try {
-          r = await window.myAPI.readCsvFile("courses_demo", selected_comp, run, data);
-          if (!Array.isArray(r)) r = [];
-          if (r.length > 0 && r[0]['startTimeEdit'] != null && starTime == null) {
-            edit_temp_start(r[0]['startTimeEdit']);
-          } else {
-            edit_temp_start(starTime == null ? get_temp_start(meta) : parseFloat((starTime.toString()).split(':')[1]));
-          }
-        } catch (e) {
-          errors.push("Fichier CSV '" + data + "' introuvable ou invalide."+e);
-          edit_temp_start(get_temp_start(meta));
+      try {
+        const csvUrl = getDataPath() + selected_comp + "/" + run + "/" + data;
+        // Utilise d3.csv si disponible, sinon fallback fetchAndParseCsv
+        if (typeof d3 !== "undefined" && d3.csv) {
+          r = await d3.csv(csvUrl, d3.autoType);
+        } else {
+          r = await fetchAndParseCsv(csvUrl);
         }
-      } else {
-        try {
-          const csvUrl = (local_bool && !isGitHubMode())
-            ? "http://localhost:8001/files/" + selected_comp + "/" + run + "/" + data
-            : getDataPath() + selected_comp + "/" + run + "/" + data;
-          // Utilise d3.csv si disponible, sinon fallback fetchAndParseCsv
-          if (typeof d3 !== "undefined" && d3.csv) {
-            r = await d3.csv(csvUrl, d3.autoType);
-          } else {
-            r = await fetchAndParseCsv(csvUrl);
-          }
-          if (!Array.isArray(r)) r = [];
-          if (r.length > 0 && r[0]['startTimeEdit'] != null && starTime == null) {
-            edit_temp_start(r[0]['startTimeEdit']);
-          } else {
-            edit_temp_start(starTime == null ? get_temp_start(meta) : parseFloat((starTime.toString()).split(':')[1]));
-          }
-        } catch (e) {
-          errors.push("Fichier CSV '" + data + "' introuvable ou invalide."+e);
-          edit_temp_start(get_temp_start(meta));
+        if (!Array.isArray(r)) r = [];
+        if (r.length > 0 && r[0]['startTimeEdit'] != null && starTime == null) {
+          edit_temp_start(r[0]['startTimeEdit']);
+        } else {
+          edit_temp_start(starTime == null ? get_temp_start(meta) : parseFloat((starTime.toString()).split(':')[1]));
         }
+      } catch (e) {
+        errors.push("Fichier CSV '" + data + "' introuvable ou invalide."+e);
+        edit_temp_start(get_temp_start(meta));
       }
     } else {
       edit_temp_start(get_temp_start(meta));
@@ -809,9 +678,7 @@ export async function load_run(run, data, starTime = null) {
         temp_end = tmax;
       }
       if (data && data.includes("automatique")) {
-        const csvUrl = (local_bool && !isGitHubMode())
-          ? "http://localhost:8001/files/" + selected_comp + "/" + run + "/" + data
-          : getDataPath() + selected_comp + "/" + run + "/" + data;
+        const csvUrl = getDataPath() + selected_comp + "/" + run + "/" + data;
         let r = await d3.csv(csvUrl, d3.autoType);
         megaData = [t, r];
         let maxFrame = Math.max(...megaData[1].map(d => d.frame_number));
@@ -837,9 +704,7 @@ export async function load_run(run, data, starTime = null) {
       } else {
         megaData = [t, []];
         let time_dif;
-        const csvUrl = (local_bool && !isGitHubMode())
-          ? "http://localhost:8001/files/" + selected_comp + "/" + run + "/" + data
-          : getDataPath() + selected_comp + "/" + run + "/" + data;
+        const csvUrl = getDataPath() + selected_comp + "/" + run + "/" + data;
         let r = await fetchAndParseCsv(csvUrl);
         if (r[0]['startTimeEdit'] != null) {
           time_dif = temp_start - r[0]['startTimeEdit'];
@@ -906,30 +771,12 @@ export async function load_run(run, data, starTime = null) {
       
       if (n_camera > 1) {
       if (meta && meta["start_side"] === "right") {
-        if (window.myAPI) {
-          $("#vid").attr("src", "courses_demo/" + selected_comp + "/" + run + "/" + run + '_fixeDroite.mp4');
-        } else if (local_bool) {
-          $("#vid").attr("src", "http://localhost:8001/files/" + selected_comp + "/" + run + "/" + run + '_fixeDroite.mp4');
-        } else {
-          $("#vid").attr("src", getDataPath() + selected_comp + "/" + run + "/" + run + '_fixeDroite.mp4');
-        }
+        $("#vid").attr("src", getDataPath() + selected_comp + "/" + run + "/" + run + '_fixeDroite.mp4');
       } else {
-        if (window.myAPI) {
-          $("#vid").attr("src", "courses_demo/" + selected_comp + "/" + run + "/" + run + '_fixeGauche.mp4');
-        } else if (local_bool) {
-          $("#vid").attr("src", "http://localhost:8001/files/" + selected_comp + "/" + run + "/" + run + '_fixeGauche.mp4');
-        } else {
-          $("#vid").attr("src", getDataPath() + selected_comp + "/" + run + "/" + run + '_fixeGauche.mp4');
-        }
+        $("#vid").attr("src", getDataPath() + selected_comp + "/" + run + "/" + run + '_fixeGauche.mp4');
       }}
       else{
-        if (window.myAPI) {
-          $("#vid").attr("src", "courses_demo/" + selected_comp + "/" + run + "/" + meta.name);
-        } else if (local_bool) {
-          $("#vid").attr("src", "http://localhost:8001/files/" + selected_comp + "/" + run + "/" + meta.name);
-        } else {
-          $("#vid").attr("src", getDataPath() + selected_comp + "/" + run + "/" + meta.name);
-        }
+        $("#vid").attr("src", getDataPath() + selected_comp + "/" + run + "/" + meta.name);
       }
       vide_last_added_data();
       update_cycle_rapide();
@@ -978,34 +825,28 @@ export function edit_vidName(x) {
 }
 
 /**
- * @brief Retourne le chemin vers les données selon l'environnement (local, GitHub ou Electron)
- * @returns {string} Le chemin vers les données
+ * @brief Retourne le chemin racine des fichiers de données selon l'environnement.
+ * @returns {string} Le chemin racine des fichiers
  */
 function getDataPath() {
-    // Détection de l'environnement
-    const isElectron = window.myAPI !== undefined;
-    const isGitHub = !isElectron && (
-        window.location.hostname.includes('github.io') || 
-        window.location.hostname.includes('githubusercontent.com') ||
-        window.location.pathname.includes('/annotation/')
-    );
-    
-    if (isGitHub) {
-        // En production sur GitHub, utiliser courses_demo
-        return "courses_demo/";
-    } else {
-        // En développement local ou Electron, utiliser base
-        return base;
-    }
+    return base;
 }
 
 /**
- * @brief Vérifie si on est en mode GitHub (sans serveur backend)
+ * @brief Retourne l'URL de l'API locale.
+ * @param {string} path Chemin d'endpoint commençant par /
+ * @returns {string} URL complète de l'API
+ */
+function getApiUrl(path) {
+    return "http://127.0.0.1:8001" + path;
+}
+
+/**
+ * @brief Vérifie si on est en mode GitHub Pages (sans API locale).
  * @returns {boolean} true si on est sur GitHub, false sinon
  */
 function isGitHubMode() {
-    const isElectron = window.myAPI !== undefined;
-    return !isElectron && (
+    return (
         window.location.hostname.includes('github.io') || 
         window.location.hostname.includes('githubusercontent.com') ||
         window.location.pathname.includes('/annotation/')
@@ -1071,5 +912,3 @@ async function fetchAndParseCsv(url) {
         return row;
     });
 }
-
-

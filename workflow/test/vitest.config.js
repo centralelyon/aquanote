@@ -38,12 +38,5 @@ export default defineConfig({
       'workflow/test/**/*.{test,spec}.{js,ts}'
     ],
     exclude: ['workflow/test/e2e/**/*'],
-    
-    // Mock les modules externes si nécessaire
-    server: {
-      deps: {
-        external: ['electron']
-      }
-    }
   }
 })

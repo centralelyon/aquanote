@@ -48,16 +48,10 @@ python local.py
 2/ Another server that hosts the web application:
 
 ```sh
-python -m http.server
+npm start
 ```
 
-Then you can open your browser at http://localhost:8000
-
-It is also possible to generate the site as an application with a simple command like this:
-
-`npm run build:<your_operating_system>`   
-
-which allows you to use the site without a network connection.  
+Then you can open your browser at http://127.0.0.1:8000
 
 To use the site locally, you need to pull the branch and go offline with competitions present in the `courses_natation_local` folder. (Start the folders with a **2** so they are detected, and keep the correct number of underscores `_` to avoid display issues in the dropdown menus.)  
 

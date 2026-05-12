@@ -1120,22 +1120,6 @@ let pt=[0,0];
                 }
     
     
-        // Fetch version from package.json
-        if (typeof window !== "undefined" && !window.__TEST__) {
-        fetch('./package.json')
-        .then(response => response.json())
-        .then(data => {
-            const version = data.version;
-            const versionElement = document.getElementById('app-version');
-            if (versionElement) {
-                versionElement.textContent = version;
-            }
-        })
-        .catch(error => console.error('Error fetching package.json:', error));
-    }
-    
-    
-
     export function get_run_selected(){
         // Vérifie d'abord si un paramètre 'course' est présent dans l'URL
         const urlParams = new URLSearchParams(window.location.search);

@@ -81,7 +81,7 @@ Each competition should have its own subfolder, and then videos to used should b
 
 **[flatdir](https://github.com/centralelyon/flatdir)** is a Python module to flatten a directory structure and automatically generate the required JSON files at the root of each competition folder (like the [`courses_demo/flat.json`](courses_demo/flat.json) JSON, add `> flat.json` to save the output in such a file):
 
-> python -m flatdir courses_demo --limit 10 --nested --only type=directory --add espadon=false --add espadonModifie=false --add data_checked=false --no-defaults --min-depth 1 --add-depth 2 --ignore-typical
+> python -m flatdir courses_demo --limit 10 --nested --only type=directory --add espadon=false --add espadonModifie=false --add data_checked=false --no-defaults --min-depth 1 --add-depth 2 --ignore-typical > courses_demo/flat.json
 
 ### Pre-processing videos
 

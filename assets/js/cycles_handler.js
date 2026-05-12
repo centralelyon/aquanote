@@ -4,7 +4,7 @@
  */
 
 import { displayMode, selected_swim, temp_start, selected_cycle, last_checkpoint, vue_du_dessus } from './refactor-script.js';
-import { megaData, curr_swims, frame_rate, pool_size, n_camera, turn_distances, turn_times } from './loader.js';
+import { megaData, curr_swims, frame_rate, pool_size, n_camera, turn_distances, turn_times, getDisplayLaneIndex } from './loader.js';
 import { draw_stats } from './side_views.js';
 import { updateTable } from './main.js';
 import { construct_modify_selected_annotation_table } from './data_handler.js';
@@ -58,7 +58,7 @@ export function makeBar(data, idx, idswim, scale, elemSize, vidSize, meta) {
     can.setAttribute("class", "crop_can")
     can.setAttribute("swim", idswim)
     can.setAttribute("num", idx)
-    let pts = getBar([data.x, (meta.one_is_up == false ? pool_size[1] - data.y : data.y)], meta, (meta.one_is_up == false ? idswim + 1 : 8 - idswim))
+    let pts = getBar([data.x, data.y], meta, getDisplayLaneIndex(idswim, meta))
 
 
     can.height = Math.round((eucDistance(pts[0], pts[1])) * (elemSize[0] / vidSize[0])) * 1.2

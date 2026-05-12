@@ -19,7 +19,7 @@ import {  load_run} from './loader.js';
 
 let  dialogStartTime, dialogReport, form
 let allFields = $("#prefixName, #finalName, #prefixNameEdition, #finalNameEdition");
-export let nageurs=["ligne1","ligne2","ligne3","ligne4","ligne5","ligne6","ligne 7","ligne8"]
+export let nageurs = []
 export let shortcut_enabled = true;// Les raccourcis sont-ils activés ? (les raccourcis doivent être désactivé pour par exemple, l'entrée de données au clavier)
 
 $("#fiches").selectmenu();

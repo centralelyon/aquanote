@@ -32,8 +32,12 @@ let prochain_cycle_predit;
 export function find_end(data, distance) {
 
     let maxs = []
-    for (let i = 0; i < 8; i++) {
-        let sw = data.filter((d) => d.swimmer == i);
+    const swimmerIds = [...new Set(data.map((d) => d.swimmer).filter((swimmer) => swimmer !== undefined))];
+    for (let i = 0; i < swimmerIds.length; i++) {
+        let sw = data.filter((d) => d.swimmer == swimmerIds[i]);
+        if (sw.length === 0) {
+            continue;
+        }
         let t
         if (distance > pool_size[0]) {
             t = sw.find((d) => d.xd > 2);

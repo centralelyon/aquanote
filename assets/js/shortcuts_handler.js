@@ -4,7 +4,7 @@
  */
 
 import { selected_swim,temp_start, selected_cycle, edit_selected_cycle, clic_souris_video, zoom, zoom_step, plot_cursor, annotate } from "./refactor-script.js";
-import { curr_swims, frame_rate } from './loader.js';
+import { curr_swims, frame_rate, getLaneYPosition } from './loader.js';
 import { updateTable } from './main.js';
 import { shortcut_enabled } from "./jquery-custom.js";
 import { indicator_correction,show_indicator_lines, action_indicator_lines } from './plot_handler.js';
@@ -229,10 +229,7 @@ if (keymap[88]&&keymap[16]) { // x --> intermed
             e.preventDefault()
             let vid = document.getElementById("vid");
             let meta = getMeta();
-            let yPosition = selected_swim*2
-            if (meta.one_is_up == false) {
-                yPosition = (7 - selected_swim)*2
-            }
+            let yPosition = getLaneYPosition(selected_swim, meta);
             annotate(show_indicator_lines ? indicator_correction(positionCurseur): positionCurseur,yPosition,selected_swim)
 
             let tid = curr_swims[selected_swim].findIndex(d => d.frame_number == parseInt(vid.currentTime * frame_rate) - parseInt(temp_start * frame_rate),) // = currate_events(curr_swims[selected_swim])

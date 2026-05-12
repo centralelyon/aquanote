@@ -4,7 +4,7 @@
  */
 
 
-import { init, megaData, curr_swims, frame_rate, temp_end, n_camera } from "./loader.js"
+import { init, megaData, curr_swims, frame_rate, temp_end, n_camera, getLaneKeysFromRaceMetadata, isOneIsUp } from "./loader.js"
 import { construct_data_row, data_onclick } from "./data_handler.js"
 import { selected_swim, temp_start, updateSwimSwitch, vue_du_dessus } from "./refactor-script.js"
 import "./plot_handler.js"
@@ -15,7 +15,7 @@ import "./shortcuts_handler.js"
 import { getMeta } from './utils.js'
 import { findCycleIndexAtFrame } from "./cycles_handler.js";
 import "./plot_handler.js";
-import "./jquery-custom.js";
+import { nageurs } from "./jquery-custom.js";
 import "./ml-cycle-predictor-js/js/predictor.js";
 
 
@@ -81,14 +81,16 @@ export function displaySwimmers(data) {
         meta = megaData[0].videos.filter(d => d.name.includes("dessus"))[0];
     }
 
-    let keys = Object.keys(data)
-    if (meta["one_is_up"] === false) {
+    let keys = getLaneKeysFromRaceMetadata({ lignes: data });
+    if (!isOneIsUp(meta)) {
         keys = keys.reverse()
     }
 
     for (let i = 0; i < keys.length; i++) {
+        const swimmerName = data[keys[i]].replace("�", "é");
+        nageurs[i] = swimmerName;
         let optionClass = "swimmer-option" + (i === selected_swim ? " selected" : "");
-        container.insertAdjacentHTML("beforeend", `<option class='${optionClass}' value='${i}'>${i + 1}- ${data[keys[i]].replace("�", "é")}</option>`);
+        container.insertAdjacentHTML("beforeend", `<option class='${optionClass}' value='${i}'>${i + 1}- ${swimmerName}</option>`);
     }
 
     // Synchroniser la valeur du select avec selected_swim

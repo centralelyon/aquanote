@@ -4,7 +4,7 @@
  */
 
 import { choose_tab,construct_modify_selected_annotation_table, add_element_to_data,vide_last_added_data, last_added_data, currate_events, construct_last_added_data_table } from './data_handler.js';
-import { meters_checkpoints,megaData,curr_swims, frame_rate, compets, getDatas, selected_comp, load_run, turn_distances, selected_run, edit_vidName, vidName, getRuns, get_quality, get_temp_start, pool_size, n_camera } from './loader.js';
+import { meters_checkpoints,megaData,curr_swims, frame_rate, compets, getDatas, selected_comp, load_run, turn_distances, selected_run, edit_vidName, vidName, getRuns, get_quality, get_temp_start, pool_size, n_camera, getLaneYPosition, isOneIsUp } from './loader.js';
 import { draw_stats, set_placeholder_of_time_entry, update_swimmer } from './side_views.js';
 import { updateTable, setGrad,frameId_to_RunTime, base, metrics_calculation } from './main.js';
 import { activate_shortcut,deactivate_shortcut, nageurs } from './jquery-custom.js';
@@ -41,6 +41,14 @@ const codeNaNforDownload = "";// Lors du téléchargement des données, si une d
 //choose_right_plot({"checked":false});
 choose_tab(null,"data_entry",'side_tab_content','sideTabLinks')
 construct_modify_selected_annotation_table(true)
+
+export function clampSelectedSwim(laneCount) {
+    if (laneCount <= 0) {
+        selected_swim = 0;
+        return;
+    }
+    selected_swim = Math.max(0, Math.min(selected_swim, laneCount - 1));
+}
 
     document.querySelectorAll(".__range-step").forEach(function (ctrl) {
         let el = ctrl.querySelector('input');
@@ -568,10 +576,7 @@ export function clic_souris_video(e) {
             if (meters_plot_label < 0 || meters_plot_label > pool_size[0] || isNaN(meters_plot_label) || isNaN(pt[1])) {
                 return;
             }
-            let yPosition = selected_swim*2
-            if (meta.one_is_up == false) {
-                yPosition = (7 - selected_swim)*2
-            }
+            let yPosition = getLaneYPosition(selected_swim, meta);
             annotate(meters_plot_label,yPosition,selected_swim);
         }
         let tid = curr_swims[selected_swim].findIndex(d => d.frame_number == parseInt(vid.currentTime * frame_rate) - parseInt(temp_start * frame_rate),) // = currate_events(curr_swims[selected_swim])
@@ -1213,4 +1218,3 @@ let pt=[0,0];
             });
         }
     }
-

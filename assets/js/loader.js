@@ -57,7 +57,7 @@ export let n_camera = 2;
 
 import { make_flat_usable,vide_last_added_data, find_end, curate_data } from "./data_handler.js";
 import { getUrlVars} from "./utils.js";
-import { sec_to_timestr, edit_temp_start, video_volume, temp_start, edit_vue_du_dessus } from "./refactor-script.js";
+import { sec_to_timestr, edit_temp_start, video_volume, temp_start, edit_vue_du_dessus, clampSelectedSwim } from "./refactor-script.js";
 import { curate_annotate_data, getAvg } from "./data_handler.js";
 import { update_cycle_rapide } from "./cycles_handler.js";
 import { construct_time_entry, set_placeholder_of_time_entry } from "./side_views.js";
@@ -67,6 +67,57 @@ import { vidStart,vidDrag } from "./videoHandler.js";
 
 window.curr_swims = curr_swims; // Pour que curr_swims soit accessible au html
 window.selected_comp = selected_comp; // Pour que selected_comp soit accessible au html
+
+function extractLaneNumber(laneKey) {
+    const match = String(laneKey).match(/\d+/);
+    return match ? parseInt(match[0], 10) : Number.MAX_SAFE_INTEGER;
+}
+
+export function getLaneKeysFromRaceMetadata(metadata = megaData[0]) {
+    const laneMap = metadata?.lignes || {};
+    return Object.keys(laneMap).sort((left, right) => {
+        const leftNumber = extractLaneNumber(left);
+        const rightNumber = extractLaneNumber(right);
+        if (leftNumber !== rightNumber) {
+            return leftNumber - rightNumber;
+        }
+        return left.localeCompare(right);
+    });
+}
+
+export function getLaneCount(metadata = megaData[0]) {
+    const laneKeys = getLaneKeysFromRaceMetadata(metadata);
+    if (laneKeys.length > 0) {
+        return laneKeys.length;
+    }
+    return Math.max(1, Math.round(pool_size[1] / 2));
+}
+
+export function getLaneSpan(metadata = megaData[0]) {
+    return pool_size[1] / getLaneCount(metadata);
+}
+
+export function isOneIsUp(metaLike = megaData[0]?.videos?.[0] ?? megaData[0]) {
+    const value = metaLike?.one_is_up ?? metaLike;
+    if (typeof value === "string") {
+        return value.toLowerCase() === "true";
+    }
+    return value === true;
+}
+
+export function getLaneYPosition(swimmerIndex, metaLike = megaData[0]?.videos?.[0] ?? megaData[0]) {
+    const laneCount = getLaneCount(megaData[0] ?? metaLike);
+    const laneSpan = getLaneSpan(megaData[0] ?? metaLike);
+    const clampedIndex = Math.max(0, Math.min(swimmerIndex, laneCount - 1));
+    const displayIndex = isOneIsUp(metaLike) ? clampedIndex : laneCount - 1 - clampedIndex;
+    return displayIndex * laneSpan;
+}
+
+export function getDisplayLaneIndex(swimmerIndex, metaLike = megaData[0]?.videos?.[0] ?? megaData[0]) {
+    const laneCount = getLaneCount(megaData[0] ?? metaLike);
+    const clampedIndex = Math.max(0, Math.min(swimmerIndex, laneCount - 1));
+    return isOneIsUp(metaLike) ? laneCount - clampedIndex - 1 : clampedIndex;
+}
 
 
 
@@ -636,6 +687,7 @@ export async function load_run(run, data, starTime = null) {
     else{
       pool_size=[50,20];// utile pour la rétrocompatibilité vis a vis des courses déjà annotées qui n'ont pas de taile_piscine dans le json
     }
+    const laneCount = getLaneCount(t);
     frame_rate = (meta && !isNaN(parseInt(meta.fps))) ? parseInt(meta.fps) : 50;
     
     if (data !== "new_data" && data && data.trim() !== "") {
@@ -693,12 +745,12 @@ export async function load_run(run, data, starTime = null) {
         
         inter = parseInt(maxFrame / ncycle);
   
-        for (let i = 0; i < 8; i++) {
-          curr_swims[i] = curate_data(megaData[1].filter(d => d.swimmer == i) + 1, t);
+        for (let i = 0; i < laneCount; i++) {
+          curr_swims[i] = curate_data(megaData[1].filter(d => d.swimmer == i), t);
         }
       } else if (data === "new_data" || !data || !datas.includes(data)) {
         megaData = [t, []];
-        for (let i = 0; i < 8; i++) {
+        for (let i = 0; i < laneCount; i++) {
           curr_swims[i] = [];
         }
       } else {
@@ -719,7 +771,7 @@ export async function load_run(run, data, starTime = null) {
   
         r = curate_annotate_data(r);
   
-        for (let i = 0; i < 8; i++) {
+        for (let i = 0; i < laneCount; i++) {
           curr_swims[i] = r.filter(d => d.swimmerId == i);
         }
       }
@@ -754,7 +806,7 @@ export async function load_run(run, data, starTime = null) {
           }
         }
       }
-      for (let i = 0; i < 8; i++) {
+      for (let i = 0; i < laneCount; i++) {
         turn_times[i] = {};
         let all_turn_data = curr_swims[i].filter(annotation => (annotation.mode == "turn" || annotation.mode == "finish" || annotation.mode == "reaction"));
         for (let turn_data of all_turn_data) {
@@ -767,6 +819,7 @@ export async function load_run(run, data, starTime = null) {
         }
       }
       $("#swim_switch").html("");
+      clampSelectedSwim(laneCount);
       displaySwimmers(t["lignes"]);
       
       if (n_camera > 1) {
@@ -869,6 +922,7 @@ const staticData = {
     runs: {
         "2025_courses_demo": [
             { name: "2025_courses_demo_translation_carre_100_demifinale", type: "directory" },
+            { name: "2025_courses_demo_translation_carre_100_finale_10_lanes", type: "directory" },
             { name: "2025_courses_demo_translation_carre_50_finale", type: "directory" },
             { name: "2025_courses_demo_translation_carre_50_serie", type: "directory" }
         ]
@@ -878,6 +932,7 @@ const staticData = {
         "2025_courses_demo_translation_carre_100_demifinale": [
             { name: "exemple_annotation_cycle.csv", type: "file" }
         ],
+        "2025_courses_demo_translation_carre_100_finale_10_lanes": [],
         "2025_courses_demo_translation_carre_50_finale": [
             { name: "exemple_annotation_ligne_5_cycles.csv", type: "file" }
         ],

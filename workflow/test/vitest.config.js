@@ -16,7 +16,7 @@ export default defineConfig({
     globals: true,
     
     // Setup files
-    setupFiles: ['./workflow/tests/setup.js'],
+    setupFiles: ['./workflow/test/setup.js'],
     
     // Coverage configuration
     coverage: {
@@ -24,7 +24,7 @@ export default defineConfig({
       reporter: ['text', 'json', 'html'],
       exclude: [
         'node_modules/',
-        'workflow/tests/',
+        'workflow/test/',
         'html/',
         'latex/',
         'build/'

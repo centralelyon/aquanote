@@ -9,7 +9,21 @@
 //It loads the selected run with the selected data.
 //It sets up event listeners and initializes some elements.
 
+import { make_flat_usable,vide_last_added_data, find_end, curate_data } from "./data_handler.js";
+import { getUrlVars} from "./utils.js";
+import { sec_to_timestr, edit_temp_start, video_volume, temp_start, edit_vue_du_dessus, clampSelectedSwim } from "./refactor-script.js";
+import { curate_annotate_data, getAvg } from "./data_handler.js";
+import { update_cycle_rapide } from "./cycles_handler.js";
+import { construct_time_entry, set_placeholder_of_time_entry } from "./side_views.js";
+import { vidStart,vidDrag } from "./videoHandler.js";
+import {
+    buildStaticDataFromManifest,
+    createEmptyStaticData,
+    normalizeFlatManifest,
+    resolveRunAlias,
+} from "./demo_manifest.js";
 import {base,displaySwimmers, local_bool, setGrad} from "./main.js"
+
 let flat;
 let flatManifest = null;
 let staticData = createEmptyStaticData();
@@ -56,14 +70,6 @@ export let inter = 100;
  * @brief nombre de caméra disponible pour la course.
  */
 export let n_camera = 2;
-
-import { make_flat_usable,vide_last_added_data, find_end, curate_data } from "./data_handler.js";
-import { getUrlVars} from "./utils.js";
-import { sec_to_timestr, edit_temp_start, video_volume, temp_start, edit_vue_du_dessus, clampSelectedSwim } from "./refactor-script.js";
-import { curate_annotate_data, getAvg } from "./data_handler.js";
-import { update_cycle_rapide } from "./cycles_handler.js";
-import { construct_time_entry, set_placeholder_of_time_entry } from "./side_views.js";
-import { vidStart,vidDrag } from "./videoHandler.js";
 
 
 
@@ -121,127 +127,30 @@ export function getDisplayLaneIndex(swimmerIndex, metaLike = megaData[0]?.videos
     return isOneIsUp(metaLike) ? laneCount - clampedIndex - 1 : clampedIndex;
 }
 
-function createEmptyStaticData() {
-    return {
-        competitions: [],
-        runs: {},
-        csvFiles: {},
-        videos: {},
-        aliases: {},
-    };
-}
-
-function normalizeDirectoryEntry(entry) {
-    if (typeof entry === "string") {
-        return { name: entry, type: "directory" };
-    }
-    return {
-        ...entry,
-        type: entry?.type ?? "directory",
-    };
-}
-
-function normalizeFileEntry(entry) {
-    if (typeof entry === "string") {
-        return { name: entry, type: "file" };
-    }
-    return {
-        ...entry,
-        type: entry?.type ?? "file",
-    };
-}
-
-function normalizeFlatManifest(rawFlat) {
-    if (Array.isArray(rawFlat)) {
-        return {
-            competitions: [],
-            runs: {},
-            entries: make_flat_usable(rawFlat),
-        };
-    }
-
-    if (!rawFlat || typeof rawFlat !== "object") {
-        return {
-            competitions: [],
-            runs: {},
-            entries: {},
-        };
-    }
-
-    if ("entries" in rawFlat || "competitions" in rawFlat || "runs" in rawFlat) {
-        return {
-            competitions: Array.isArray(rawFlat.competitions) ? rawFlat.competitions : [],
-            runs: rawFlat.runs && typeof rawFlat.runs === "object" ? rawFlat.runs : {},
-            entries: rawFlat.entries && typeof rawFlat.entries === "object" ? rawFlat.entries : {},
-        };
-    }
-
-    return {
-        competitions: [],
-        runs: {},
-        entries: rawFlat,
-    };
-}
-
 export function resolveRunName(runName) {
-    if (!runName) {
-        return runName;
-    }
-    return staticData.aliases[runName] || runName;
+    return resolveRunAlias(runName, staticData.aliases);
 }
 
 async function populateStaticDataFromManifest(loadVideos = false) {
-    const dynamicData = createEmptyStaticData();
-    dynamicData.competitions = flatManifest.competitions.map((competition) => ({
-        ...competition,
-        type: competition.type ?? "directory",
-    }));
-
-    const runsByCompetition = flatManifest.runs || {};
-    for (const [competitionName, runEntries] of Object.entries(runsByCompetition)) {
-        dynamicData.runs[competitionName] = (runEntries || []).map(normalizeDirectoryEntry);
-
-        for (const rawRunEntry of runEntries || []) {
-            const runEntry = normalizeDirectoryEntry(rawRunEntry);
-            const runName = runEntry.name;
-            const manifestEntry = flat[runName] || {};
-            const aliases = [
-                ...(Array.isArray(runEntry.aliases) ? runEntry.aliases : []),
-                ...(Array.isArray(manifestEntry.aliases) ? manifestEntry.aliases : []),
-            ];
-
-            dynamicData.aliases[runName] = runName;
-            aliases.forEach((alias) => {
-                if (alias) {
-                    dynamicData.aliases[alias] = runName;
-                }
-            });
-
-            const csvEntries = runEntry.csvFiles ?? manifestEntry.csvFiles ?? [];
-            dynamicData.csvFiles[runName] = csvEntries.map(normalizeFileEntry);
-
-            if (loadVideos) {
-                try {
-                    const metadataPath = `courses_demo/${competitionName}/${runName}/${runName}.json`;
-                    const metadata = await d3.json(metadataPath);
-                    dynamicData.videos[runName] = (metadata?.videos || []).map((video) =>
-                        normalizeFileEntry(video.name)
-                    );
-                } catch (error) {
-                    console.error(`Could not load metadata for ${runName}:`, error);
-                    dynamicData.videos[runName] = [];
-                }
-            } else {
-                dynamicData.videos[runName] = [];
-            }
-        }
-    }
-
-    staticData = dynamicData;
+    staticData = await buildStaticDataFromManifest(
+        flatManifest,
+        loadVideos
+            ? async (competitionName, runName) => {
+                  try {
+                      const metadataPath = `courses_demo/${competitionName}/${runName}/${runName}.json`;
+                      return await d3.json(metadataPath);
+                  } catch (error) {
+                      console.error(`Could not load metadata for ${runName}:`, error);
+                      return { videos: [] };
+                  }
+              }
+            : null
+    );
 }
 
 async function loadStaticDataFromFlat() {
-    flatManifest = normalizeFlatManifest(await d3.json("courses_demo/flat.json"));
+    const rawFlat = await d3.json("courses_demo/flat.json");
+    flatManifest = normalizeFlatManifest(rawFlat, make_flat_usable(rawFlat));
     flat = flatManifest.entries;
     await populateStaticDataFromManifest(true);
 }
@@ -262,7 +171,8 @@ export async function init() {
     if (isGitHubMode()) {
       await loadStaticDataFromFlat();
     } else {
-      flatManifest = normalizeFlatManifest(await d3.json("courses_demo/flat.json"));
+      const rawFlat = await d3.json("courses_demo/flat.json");
+      flatManifest = normalizeFlatManifest(rawFlat, make_flat_usable(rawFlat));
       flat = flatManifest.entries;
       await populateStaticDataFromManifest(false);
     }

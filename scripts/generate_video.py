@@ -3,8 +3,8 @@ import numpy as np
 import json
 
 # === Paramètres ===
-json_path = r"./data/competition/course_exemple/course_exemple.json"
-output_video = "carre_homographie.mp4"
+json_path = r"./courses_demo/2025_courses_demo/2025_courses_demo_translation_carre_50_finale/2025_courses_demo_translation_carre_50_finale.json"
+output_video = "output_video.mp4"
 carre_size = 10  # Taille du carré en pixels
 nb_frames = 400  # Nombre de frames pour un aller-retour complet
 fps = 50

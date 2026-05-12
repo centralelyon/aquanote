@@ -440,17 +440,60 @@ table {
     background-color: #232157;
   }
 
+  .radio-option input[type="checkbox"] {
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    border: 2px solid #232157;
+    border-radius: 4px;
+    outline: none;
+    margin-right: 8px;
+    cursor: pointer;
+    transition: background 0.2s ease-in-out;
+    position: relative;
+  }
+
+  .radio-option input[type="checkbox"]:checked {
+    background-color: #232157;
+  }
+
+  .radio-option input[type="checkbox"]:checked::after {
+    content: "";
+    position: absolute;
+    left: 5px;
+    top: 1px;
+    width: 5px;
+    height: 10px;
+    border: solid #ffffff;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+  }
+
   .radio-option label {
     cursor: pointer;
     color: #000000;
     font-weight: bold;
     margin-right: 12px;
   }
+
+  .checkbox-option label {
+    margin-right: 0;
+  }
 #bottom_data .radio-group {
     display: inline-flex; /* inline pour centrer avec text-align */
     justify-content: center;
     gap: 1rem; /* espace entre les boutons */
     margin-top: 10px; /* si tu veux un peu d'air */
+}
+
+.pool_boundary_line {
+    position: absolute;
+    height: 0;
+    border-top: 3px solid rgba(46, 163, 221, 0.95);
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.35);
+    transform-origin: left top;
+    z-index: 998;
+    pointer-events: none;
 }
 
 
@@ -1076,4 +1119,3 @@ padding: 20px;
     max-width: 140px;
     box-sizing: border-box;
 }
-

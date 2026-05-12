@@ -34,7 +34,9 @@ function isGitHubMode() {
 }
 
 export let local_bool = !isGitHubMode();
-export let base = local_bool ? "http://127.0.0.1:8001/files/" : "courses_demo/";
+export const demoDataRoot = new URL("../../courses_demo/", import.meta.url).href;
+export const packageJsonUrl = new URL("../../package.json", import.meta.url).href;
+export let base = local_bool ? "http://127.0.0.1:8001/files/" : demoDataRoot;
 
 function updateVersionDisplay(version) {
     const versionElement = document.getElementById('app-version');
@@ -50,7 +52,7 @@ function updateVersionDisplay(version) {
 }
 
 if (typeof window !== "undefined" && !window.__TEST__) {
-    fetch('./package.json')
+    fetch(packageJsonUrl)
         .then(response => response.json())
         .then(data => {
             if (data.version) {

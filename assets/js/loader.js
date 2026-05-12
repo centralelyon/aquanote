@@ -22,7 +22,7 @@ import {
     normalizeFlatManifest,
     resolveRunAlias,
 } from "./demo_manifest.js";
-import {base,displaySwimmers, local_bool, setGrad} from "./main.js"
+import {base, demoDataRoot, displaySwimmers, local_bool, setGrad} from "./main.js"
 
 let flat;
 let flatManifest = null;
@@ -131,13 +131,17 @@ export function resolveRunName(runName) {
     return resolveRunAlias(runName, staticData.aliases);
 }
 
+function getDemoAssetUrl(relativePath) {
+    return new URL(relativePath, demoDataRoot).href;
+}
+
 async function populateStaticDataFromManifest(loadVideos = false) {
     staticData = await buildStaticDataFromManifest(
         flatManifest,
         loadVideos
             ? async (competitionName, runName) => {
                   try {
-                      const metadataPath = `courses_demo/${competitionName}/${runName}/${runName}.json`;
+                      const metadataPath = getDemoAssetUrl(`${competitionName}/${runName}/${runName}.json`);
                       return await d3.json(metadataPath);
                   } catch (error) {
                       console.error(`Could not load metadata for ${runName}:`, error);
@@ -149,7 +153,7 @@ async function populateStaticDataFromManifest(loadVideos = false) {
 }
 
 async function loadStaticDataFromFlat() {
-    const rawFlat = await d3.json("courses_demo/flat.json");
+    const rawFlat = await d3.json(getDemoAssetUrl("flat.json"));
     flatManifest = normalizeFlatManifest(rawFlat, make_flat_usable(rawFlat));
     flat = flatManifest.entries;
     await populateStaticDataFromManifest(true);
@@ -171,10 +175,10 @@ export async function init() {
     if (isGitHubMode()) {
       await loadStaticDataFromFlat();
     } else {
-      const rawFlat = await d3.json("courses_demo/flat.json");
+      const rawFlat = await d3.json(getDemoAssetUrl("flat.json"));
       flatManifest = normalizeFlatManifest(rawFlat, make_flat_usable(rawFlat));
       flat = flatManifest.entries;
-      await populateStaticDataFromManifest(false);
+      await populateStaticDataFromManifest(true);
     }
       
       await getCompets();

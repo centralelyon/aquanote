@@ -12,6 +12,33 @@ import {
 } from '../../../assets/js/demo_manifest.js';
 
 describe('demo_manifest helpers', () => {
+  it('normalizes the legacy nested flat.json shape', () => {
+    const manifest = normalizeFlatManifest({
+      '2025_courses_demo': {
+        race_a: {
+          data_checked: false,
+          espadon: false,
+          espadonModifie: false,
+        },
+      },
+    });
+
+    expect(manifest.competitions).toEqual([
+      { name: '2025_courses_demo', type: 'directory' },
+    ]);
+    expect(manifest.runs['2025_courses_demo']).toEqual([
+      {
+        name: 'race_a',
+        type: 'directory',
+      },
+    ]);
+    expect(manifest.entries.race_a).toEqual({
+      data_checked: false,
+      espadon: false,
+      espadonModifie: false,
+    });
+  });
+
   it('normalizes the structured flat.json shape', () => {
     const manifest = normalizeFlatManifest({
       competitions: [{ name: '2025_courses_demo', type: 'directory' }],
@@ -33,8 +60,10 @@ describe('demo_manifest helpers', () => {
     expect(manifest.entries.race_a).toEqual({ data_checked: false });
   });
 
-  it('builds static data with aliases, csv files, and metadata-driven videos', async () => {
+  it('builds static data from a flatdir-style manifest plus metadata JSON', async () => {
     const loadMetadata = vi.fn(async (_competitionName, runName) => ({
+      aliases: ['2025_courses_demo_translation_carre_100_finale_10_lanes'],
+      csvFiles: ['example.csv'],
       videos: [
         { name: `${runName}_camera_left.mp4` },
         { name: `${runName}_camera_right.mp4` },
@@ -48,8 +77,7 @@ describe('demo_manifest helpers', () => {
           '2025_courses_demo': [
             {
               name: '2025_courses_demo_translation_carre_100_finale',
-              aliases: ['2025_courses_demo_translation_carre_100_finale_10_lanes'],
-              csvFiles: ['example.csv'],
+              type: 'directory',
             },
           ],
         },
@@ -68,8 +96,6 @@ describe('demo_manifest helpers', () => {
     expect(staticData.runs['2025_courses_demo']).toEqual([
       {
         name: '2025_courses_demo_translation_carre_100_finale',
-        aliases: ['2025_courses_demo_translation_carre_100_finale_10_lanes'],
-        csvFiles: ['example.csv'],
         type: 'directory',
       },
     ]);

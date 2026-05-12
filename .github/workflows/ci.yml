@@ -38,10 +38,10 @@ jobs:
         run: npx eslint --config workflow/linter/eslint.config.mjs .
 
       - name: Run Vitest unit tests
-        run: npx vitest --config workflow/test/vitest.config.js
+        run: npm test -- --run
 
       - name: Run Vitest with coverage
-        run: npx vitest --config workflow/test/vitest.config.js --coverage
+        run: npm run test:coverage
 
       - name: Run Playwright E2E tests
         run: npx playwright test --config workflow/test/playwright.config.js

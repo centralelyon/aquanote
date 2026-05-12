@@ -33,6 +33,45 @@ export function normalizeFileEntry(entry) {
     };
 }
 
+function isPlainObject(value) {
+    return Boolean(value) && typeof value === "object" && !Array.isArray(value);
+}
+
+function normalizeLegacyFlatManifest(rawFlat) {
+    const competitions = [];
+    const runs = {};
+    const entries = {};
+
+    for (const [competitionName, competitionRuns] of Object.entries(rawFlat)) {
+        if (!isPlainObject(competitionRuns)) {
+            continue;
+        }
+
+        competitions.push({ name: competitionName, type: "directory" });
+        runs[competitionName] = [];
+
+        for (const [runName, runEntry] of Object.entries(competitionRuns)) {
+            const normalizedEntry = isPlainObject(runEntry) ? { ...runEntry } : {};
+            const aliases = Array.isArray(normalizedEntry.aliases) ? normalizedEntry.aliases : [];
+            const csvFiles = Array.isArray(normalizedEntry.csvFiles) ? normalizedEntry.csvFiles : [];
+
+            runs[competitionName].push({
+                name: runName,
+                type: "directory",
+                ...(aliases.length > 0 ? { aliases } : {}),
+                ...(csvFiles.length > 0 ? { csvFiles } : {}),
+            });
+            entries[runName] = normalizedEntry;
+        }
+    }
+
+    return {
+        competitions,
+        runs,
+        entries,
+    };
+}
+
 export function normalizeFlatManifest(rawFlat, arrayEntries = {}) {
     if (Array.isArray(rawFlat)) {
         return {
@@ -58,11 +97,7 @@ export function normalizeFlatManifest(rawFlat, arrayEntries = {}) {
         };
     }
 
-    return {
-        competitions: [],
-        runs: {},
-        entries: rawFlat,
-    };
+    return normalizeLegacyFlatManifest(rawFlat);
 }
 
 export function resolveRunAlias(runName, aliases = {}) {
@@ -87,9 +122,11 @@ export async function buildStaticDataFromManifest(flatManifest, loadMetadata = n
             const runEntry = normalizeDirectoryEntry(rawRunEntry);
             const runName = runEntry.name;
             const manifestEntry = flatManifest.entries[runName] || {};
+            const metadata = loadMetadata ? await loadMetadata(competitionName, runName) : null;
             const aliases = [
                 ...(Array.isArray(runEntry.aliases) ? runEntry.aliases : []),
                 ...(Array.isArray(manifestEntry.aliases) ? manifestEntry.aliases : []),
+                ...(Array.isArray(metadata?.aliases) ? metadata.aliases : []),
             ];
 
             dynamicData.aliases[runName] = runName;
@@ -99,17 +136,17 @@ export async function buildStaticDataFromManifest(flatManifest, loadMetadata = n
                 }
             });
 
-            const csvEntries = runEntry.csvFiles ?? manifestEntry.csvFiles ?? [];
+            const csvEntries =
+                runEntry.csvFiles ??
+                manifestEntry.csvFiles ??
+                metadata?.csvFiles ??
+                metadata?.annotations ??
+                [];
             dynamicData.csvFiles[runName] = csvEntries.map(normalizeFileEntry);
 
-            if (loadMetadata) {
-                const metadata = await loadMetadata(competitionName, runName);
-                dynamicData.videos[runName] = (metadata?.videos || []).map((video) =>
-                    normalizeFileEntry(video.name)
-                );
-            } else {
-                dynamicData.videos[runName] = [];
-            }
+            dynamicData.videos[runName] = (metadata?.videos || []).map((video) =>
+                normalizeFileEntry(video?.name ?? video)
+            );
         }
     }
 

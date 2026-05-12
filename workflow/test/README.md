@@ -376,7 +376,6 @@ Le workflow `.github/workflows/ci.yml` exécute automatiquement :
 3. **Tests Vitest** : Tests unitaires et d'intégration
 4. **Coverage** : Génération du rapport de couverture
 5. **Tests E2E** : Tests Playwright
-6. **Documentation** : Génération de la documentation Doxygen
 
 ## Bonnes Pratiques
 

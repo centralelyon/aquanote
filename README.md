@@ -98,9 +98,7 @@ While some pre-processingt steps can be done directly in Aquanote, some require 
 
 All documentation can be viewed by launching the **index** file in the `html` folder, in particular the documentation for the main code located in `/assets/js`. This opens a page in your browser with sorted information about the code.  
 
-This documentation was automatically generated via **Doxygen** (the `doxyfile` contains its settings). It is not as effective for JavaScript as it is for other languages, so it relies heavily on comments (and their spelling mistakes).  
-
-This file is updated with every push, provided your branch is listed in the `ci.yml` file (`./.github/workflows/ci.yml`). After that, you just need to pull the branch.  
+This documentation was generated via **Doxygen** (the `doxyfile` contains its settings). It is not as effective for JavaScript as it is for other languages, so it relies heavily on comments (and their spelling mistakes).  
 
 Some folders are not visible in VS Code because they are hidden in `.vscode/settings.json`. This is meant to declutter the visible files, but feel free to modify this file.  
 

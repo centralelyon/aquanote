@@ -42,12 +42,25 @@ const codeNaNforDownload = "";// Lors du téléchargement des données, si une d
 choose_tab(null,"data_entry",'side_tab_content','sideTabLinks')
 construct_modify_selected_annotation_table(true)
 
+function syncRefactorGlobals() {
+    if (typeof window === "undefined") {
+        return;
+    }
+    window.temp_start = temp_start;
+    window.displayMode = displayMode;
+    window.selected_swim = selected_swim;
+}
+
+syncRefactorGlobals();
+
 export function clampSelectedSwim(laneCount) {
     if (laneCount <= 0) {
         selected_swim = 0;
+        syncRefactorGlobals();
         return;
     }
     selected_swim = Math.max(0, Math.min(selected_swim, laneCount - 1));
+    syncRefactorGlobals();
 }
 
     document.querySelectorAll(".__range-step").forEach(function (ctrl) {
@@ -99,6 +112,7 @@ export function clampSelectedSwim(laneCount) {
 
     $("#kmod").on("input", function () {
         displayMode = $(this).val();
+        syncRefactorGlobals();
         updateBarsFromEvent(selected_swim, true);
     })
 
@@ -1138,6 +1152,7 @@ let pt=[0,0];
     window.get_run_selected = get_run_selected;
     export function edit_temp_start(x){
         temp_start =x;
+        syncRefactorGlobals();
     }
     export function edit_selected_cycle(x){
         selected_cycle=x;

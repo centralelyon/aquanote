@@ -76,9 +76,17 @@ export async function setupMocks(page, testData, testDataPath, testVideoPath, op
   await page.route('**/flat.json', route => {
     const flatData = {};
     flatData[competition] = {};
-    flatData[competition][course] = ["test_data.csv", "new_data"];
+    flatData[competition][course] = {
+      espadon: false,
+      espadonModifie: false,
+      data_checked: false
+    };
     flatData[competition2] = {};
-    flatData[competition2][course2] = ["test_data.csv", "new_data"];
+    flatData[competition2][course2] = {
+      espadon: false,
+      espadonModifie: false,
+      data_checked: false
+    };
     
     route.fulfill({
       status: 200,
@@ -221,6 +229,26 @@ export async function setupMocks(page, testData, testDataPath, testVideoPath, op
   });
 
   // 8. Mock des courses pour la compétition
+  await page.route(`**/getRuns/${competition}`, route => {
+    route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify([
+        { type: "directory", name: course }
+      ])
+    })
+  })
+
+  await page.route(`**/getRuns/${competition2}`, route => {
+    route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify([
+        { type: "directory", name: course2 }
+      ])
+    })
+  })
+
   await page.route(`**/${competition}`, route => {
     route.fulfill({
       status: 200,
@@ -232,13 +260,42 @@ export async function setupMocks(page, testData, testDataPath, testVideoPath, op
   })
 
   // 9. Mock des données d'annotations pour la course
+  await page.route(`**/getDatas/${competition}/${course}`, route => {
+    route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify([
+        { type: "file", name: "test_data.csv" }
+      ])
+    })
+  })
+
+  await page.route(`**/getDatas/${competition2}/${course2}`, route => {
+    route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify([
+        { type: "file", name: "test_data.csv" }
+      ])
+    })
+  })
+
+  await page.route(`**/getQuality/${competition}/${course}`, route => {
+    route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify([
+        { type: "file", name: `${course}.mp4` }
+      ])
+    })
+  })
+
   await page.route(`**/${course}`, route => {
     route.fulfill({
       status: 200,
       contentType: 'application/json',
       body: JSON.stringify([
-        { type: "file", name: "test_data.csv" },
-        { type: "file", name: "new_data" }
+        { type: "file", name: "test_data.csv" }
       ])
     })
   })
@@ -263,9 +320,17 @@ export async function setupMocks(page, testData, testDataPath, testVideoPath, op
     if (url.includes('flat.json')) {
       const flatData = {};
       flatData[competition] = {};
-      flatData[competition][course] = ["test_data.csv", "new_data"];
+      flatData[competition][course] = {
+        espadon: false,
+        espadonModifie: false,
+        data_checked: false
+      };
       flatData[competition2] = {};
-      flatData[competition2][course2] = ["test_data.csv", "new_data"];
+      flatData[competition2][course2] = {
+        espadon: false,
+        espadonModifie: false,
+        data_checked: false
+      };
       
       route.fulfill({
         status: 200,
@@ -353,8 +418,7 @@ export async function setupMocks(page, testData, testDataPath, testVideoPath, op
         status: 200,
         contentType: 'application/json',
         body: JSON.stringify([
-          { type: "file", name: "test_data.csv" },
-          { type: "file", name: "new_data" }
+          { type: "file", name: "test_data.csv" }
         ])
       });
       return;

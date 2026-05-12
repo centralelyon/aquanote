@@ -25,7 +25,7 @@ function generateTestIndexFile() {
     // Remplacer la CSP stricte par une CSP détendue pour les tests
     const testContent = originalContent.replace(
       /<meta http-equiv="Content-Security-Policy" content="[^"]*">/,
-      `<meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-eval'; connect-src 'self' ; media-src 'self' ; img-src 'self' data:; script-src 'self' 'unsafe-eval';">`
+      `<meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-eval'; connect-src 'self' http://127.0.0.1:8001; media-src 'self' http://127.0.0.1:8001; img-src 'self' data:; script-src 'self' 'unsafe-eval';">`
     ).replace(
       /<title>[^<]*<\/title>/,
       '<title>Annotation Natation - Test Environment</title>'

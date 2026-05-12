@@ -113,36 +113,34 @@ function getPoolBoundaryDisplayPoints(meta, container) {
         return [];
     }
 
-    const [videoWidth, videoHeight] = getSize(meta);
-    const containerWidth = container?.clientWidth || videoWidth;
-    const containerHeight = container?.clientHeight || videoHeight;
-
-    if (containerWidth <= 0 || containerHeight <= 0 || videoWidth <= 0 || videoHeight <= 0) {
+    const videoElement = document.getElementById("vid");
+    if (!container || !videoElement) {
         return [];
     }
 
-    const containerRatio = containerWidth / containerHeight;
-    const videoRatio = videoWidth / videoHeight;
-    let visibleWidth = videoWidth;
-    let visibleHeight = videoHeight;
-    let cropLeft = 0;
-    let cropTop = 0;
+    const [fallbackWidth, fallbackHeight] = getSize(meta);
+    const sourceWidth = videoElement.videoWidth || meta.width || fallbackWidth;
+    const sourceHeight = videoElement.videoHeight || meta.height || fallbackHeight;
 
-    if (videoRatio > containerRatio) {
-        visibleWidth = videoHeight * containerRatio;
-        cropLeft = (videoWidth - visibleWidth) / 2;
-    } else if (videoRatio < containerRatio) {
-        visibleHeight = videoWidth / containerRatio;
-        cropTop = (videoHeight - visibleHeight) / 2;
-    }
-
-    if (visibleWidth <= 0 || visibleHeight <= 0) {
+    if (sourceWidth <= 0 || sourceHeight <= 0) {
         return [];
     }
+
+    const containerRect = container.getBoundingClientRect();
+    const videoRect = videoElement.getBoundingClientRect();
+    const displayWidth = videoRect.width;
+    const displayHeight = videoRect.height;
+
+    if (displayWidth <= 0 || displayHeight <= 0) {
+        return [];
+    }
+
+    const offsetLeft = videoRect.left - containerRect.left;
+    const offsetTop = videoRect.top - containerRect.top;
 
     return meta.srcPts.map(([x, y]) => [
-        ((x - cropLeft) / visibleWidth) * containerWidth,
-        ((y - cropTop) / visibleHeight) * containerHeight,
+        offsetLeft + (x / sourceWidth) * displayWidth,
+        offsetTop + (y / sourceHeight) * displayHeight,
     ]);
 }
 

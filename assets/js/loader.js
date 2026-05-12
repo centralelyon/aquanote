@@ -207,6 +207,7 @@ export async function init() {
       
       // Only proceed with loading run if we have a valid run selected
       if (selected_run1) {
+        syncRunSelectorsFromRunName(selected_run1, selected_comp);
         await getDatas(selected_comp, selected_run1);
         if (queryString["data"] && datas.includes(queryString["data"])) {
             $("#temp").val(queryString["data"]);
@@ -249,6 +250,32 @@ function processRunData(runs) {
   fillDropdown("run_part2", Array.from(sexe_nageurs));
   fillDropdown("run_part3", Array.from(sortedDistance));
   fillDropdown("run_part4", Array.from(étape_compétition));
+}
+
+function syncRunSelectorsFromRunName(runName, competitionName = selected_comp) {
+    if (!runName || !competitionName) {
+        return;
+    }
+
+    const normalizedRunName = resolveRunName(runName);
+    const prefix = `${competitionName}_`;
+    const runWithoutCompetition = normalizedRunName.startsWith(prefix)
+        ? normalizedRunName.slice(prefix.length)
+        : normalizedRunName;
+    const [part1, part2, part3, part4] = runWithoutCompetition.split("_");
+
+    if (part1) {
+        $("#run_part1").val(part1);
+    }
+    if (part2) {
+        $("#run_part2").val(part2);
+    }
+    if (part3) {
+        $("#run_part3").val(part3);
+    }
+    if (part4) {
+        $("#run_part4").val(part4);
+    }
 }
 
 

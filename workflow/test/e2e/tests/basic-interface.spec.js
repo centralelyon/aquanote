@@ -75,6 +75,22 @@ test.describe('Interface principale - Tests de base', () => {
     await expect(page.locator('#cyclebar')).toBeVisible()
   })
 
+  test('devrait synchroniser les sélecteurs avec les paramètres URL', async ({ page, server }) => {
+    await page.goto(`${server}?competition=2025_CF_Montpellier&course=2025_CF_Montpellier_4nages_hommes_400_serie2&data=test_data.csv`)
+    await initializeBasicApplication(page)
+
+    await page.waitForFunction(() => {
+      return document.querySelector('#temp')?.value === 'test_data.csv'
+    }, { timeout: 20000 })
+
+    await expect(page.locator('#competition')).toHaveValue('2025_CF_Montpellier')
+    await expect(page.locator('#run_part1')).toHaveValue('4nages')
+    await expect(page.locator('#run_part2')).toHaveValue('hommes')
+    await expect(page.locator('#run_part3')).toHaveValue('400')
+    await expect(page.locator('#run_part4')).toHaveValue('serie2')
+    await expect(page.locator('#temp')).toHaveValue('test_data.csv')
+  })
+
   test('devrait afficher la checkbox des limites de piscine et basculer les contours', async ({ page }) => {
     await expect(page.locator('#show_pool_boundaries')).toBeVisible()
     await expect(page.locator('label[for="show_pool_boundaries"]')).toHaveText('piscine')

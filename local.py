@@ -1,120 +1,81 @@
 """
 @file local.py
-@brief Serveur Flask API pour servir les données de courses de natation en mode local
-Fournit les endpoints REST pour récupérer les compétitions, courses, données et fichiers
-Configure CORS, compression et cache pour optimiser les performances
+@brief Serveur Flask API pour servir les données de courses de natation en mode local.
 """
 
-import ujson
-from flask import Flask, Response
-import os
+from pathlib import Path
+
+from flask import Flask, jsonify
 from flask_caching import Cache
 from flask_compress import Compress
-from flask_cors import CORS
 
 
-base = './courses_demo'
+ROOT_DIR = Path(__file__).resolve().parent
+DATA_DIR = ROOT_DIR / "courses_demo"
 
-app = Flask(__name__, static_folder=base, static_url_path='/files')
+app = Flask(__name__, static_folder=str(DATA_DIR), static_url_path="/files")
 
-COMPRESS_MIMETYPES = ['text/html', 'text/css', 'text/plain', 'text/csv', 'text/xml', 'application/json',
-                      'application/javascript', 'image/jpeg', 'image/png', 'video/mp4']
+COMPRESS_MIMETYPES = [
+    "text/html",
+    "text/css",
+    "text/plain",
+    "text/csv",
+    "text/xml",
+    "application/json",
+    "application/javascript",
+    "image/jpeg",
+    "image/png",
+    "video/mp4",
+]
 COMPRESS_LEVEL = 6
 COMPRESS_MIN_SIZE = 500
 
-cache = Cache(config={'CACHE_TYPE': 'simple'})
+cache = Cache(config={"CACHE_TYPE": "simple"})
 cache.init_app(app)
 Compress(app)
-CORS(app)
 
 
-# TODO:Get runs in DIR
+@app.after_request
+def add_cors_headers(response):
+    response.headers["Access-Control-Allow-Origin"] = "*"
+    response.headers["Access-Control-Allow-Methods"] = "GET, OPTIONS"
+    response.headers["Access-Control-Allow-Headers"] = "Content-Type"
+    return response
 
 
-@app.route('/getCompets')
-def getCompets():
-    print("getCompets")
-    res = []
-    for dir in os.listdir(base):
-        if os.path.isdir(os.path.join(base, dir)):
-            res.append(
-                {
-                    "name": dir,
-                    "type": "directory"
-                }
-            )
+def directory_payload(directory: Path, entry_type: str):
+    if not directory.exists() or not directory.is_dir():
+        return jsonify({"error": f"Directory not found: {directory.name}"}), 404
 
-    resp = Response(response=ujson.dumps(
-        res
-    ),
-        status=200,
-        mimetype="application/json")
-    print(resp)
-    return resp
+    entries = []
+    for entry in sorted(directory.iterdir()):
+        if entry_type == "directory" and entry.is_dir():
+            entries.append({"name": entry.name, "type": "directory"})
+        if entry_type == "file" and entry.is_file():
+            entries.append({"name": entry.name, "type": "file"})
+
+    return jsonify(entries)
 
 
-@app.route('/getRuns/<compet>')
-def getruns(compet):
-    res = []
-    based = os.path.join(base, compet)
-    for dir in os.listdir(based):
-        if os.path.isdir(os.path.join(based, dir)):
-            res.append(
-                {
-                    "name": dir,
-                    "type": "directory"
-                }
-            )
-
-    resp = Response(response=ujson.dumps(
-        res
-    ),
-        status=200,
-        mimetype="application/json")
-    print(resp)
-    return resp
+@app.route("/getCompets")
+def get_compets():
+    return directory_payload(DATA_DIR, "directory")
 
 
-@app.route('/getDatas/<compet>/<run>')
-def getDatas(compet, run):
-    res = []
-    based = os.path.join(os.path.join(base, compet), run)
-    for file in os.listdir(based):
-        if os.path.isfile(os.path.join(based, file)):
-            res.append(
-                {
-                    "name": file,
-                    "type": "file"
-                }
-            )
-    resp = Response(response=ujson.dumps(
-        res
-    ),
-        status=200,
-        mimetype="application/json")
-    # print(resp)
-    return resp
+@app.route("/getRuns/<compet>")
+def get_runs(compet):
+    return directory_payload(DATA_DIR / compet, "directory")
 
 
-@app.route('/getQuality/<compet>/<run>')
-def getQuality(compet, run):
-    res = []
-    based = os.path.join(os.path.join(base, compet), run)
-    for file in os.listdir(based):
-        if os.path.isfile(os.path.join(based, file)):
-            res.append(
-                {
-                    "name": file,
-                    "type": "file"
-                }
-            )
-    resp = Response(response=ujson.dumps(
-        res
-    ),
-        status=200,
-        mimetype="application/json")
-    return resp
+@app.route("/getDatas/<compet>/<run>")
+def get_datas(compet, run):
+    return directory_payload(DATA_DIR / compet / run, "file")
 
 
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=8001, debug=True)
+@app.route("/getQuality/<compet>/<run>")
+def get_quality(compet, run):
+    return directory_payload(DATA_DIR / compet / run, "file")
+
+
+if __name__ == "__main__":
+    app.run(host="127.0.0.1", port=8001, debug=False)

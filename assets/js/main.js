@@ -4,7 +4,7 @@
  */
 
 
-import { init, megaData, curr_swims, frame_rate, temp_end, n_camera } from "./loader.js"
+import { init, megaData, curr_swims, frame_rate, temp_end, n_camera, getLaneKeysFromRaceMetadata, isOneIsUp } from "./loader.js"
 import { construct_data_row, data_onclick } from "./data_handler.js"
 import { selected_swim, temp_start, updateSwimSwitch, vue_du_dessus } from "./refactor-script.js"
 import "./plot_handler.js"
@@ -15,7 +15,7 @@ import "./shortcuts_handler.js"
 import { getMeta } from './utils.js'
 import { findCycleIndexAtFrame } from "./cycles_handler.js";
 import "./plot_handler.js";
-import "./jquery-custom.js";
+import { nageurs } from "./jquery-custom.js";
 import "./ml-cycle-predictor-js/js/predictor.js";
 
 
@@ -26,8 +26,7 @@ import "./ml-cycle-predictor-js/js/predictor.js";
 // Backend link
 // Détection automatique de l'environnement
 function isGitHubMode() {
-    const isElectron = window.myAPI !== undefined;
-    return !isElectron && (
+    return (
         window.location.hostname.includes('github.io') ||
         window.location.hostname.includes('githubusercontent.com') ||
         window.location.pathname.includes('/annotation/')
@@ -35,41 +34,7 @@ function isGitHubMode() {
 }
 
 export let local_bool = !isGitHubMode();
-export let base = "./";
-
-
-
-
-
-/**
- * @brief Configure l'URL de base selon l'environnement (local ou distant)
- * Définit l'URL du serveur backend selon le mode local/distant sélectionné
- */
-export function set_base() {
-    if (local_bool) {
-        base = "http://localhost:8000/";
-
-    } else {
-        // Mode distant - URL configurée via code externe
-        base = "";
-    }
-}
-
-/**
- * @brief Setter pour modifier la variable local_bool
- * @param {boolean} value Nouvelle valeur pour local_bool
- */
-export function set_local_bool(value) {
-    local_bool = value;
-}
-
-/**
- * @brief Setter pour modifier la variable base
- * @param {string} value Nouvelle valeur pour base
- */
-export function set_base_url(value) {
-    base = value;
-}
+export let base = local_bool ? "http://127.0.0.1:8001/files/" : "courses_demo/";
 
 if (typeof window !== "undefined" && !window.__TEST__) {
     fetch('./package.json')
@@ -116,14 +81,16 @@ export function displaySwimmers(data) {
         meta = megaData[0].videos.filter(d => d.name.includes("dessus"))[0];
     }
 
-    let keys = Object.keys(data)
-    if (meta["one_is_up"] === false) {
+    let keys = getLaneKeysFromRaceMetadata({ lignes: data });
+    if (!isOneIsUp(meta)) {
         keys = keys.reverse()
     }
 
     for (let i = 0; i < keys.length; i++) {
+        const swimmerName = data[keys[i]].replace("�", "é");
+        nageurs[i] = swimmerName;
         let optionClass = "swimmer-option" + (i === selected_swim ? " selected" : "");
-        container.insertAdjacentHTML("beforeend", `<option class='${optionClass}' value='${i}'>${i + 1}- ${data[keys[i]].replace("�", "é")}</option>`);
+        container.insertAdjacentHTML("beforeend", `<option class='${optionClass}' value='${i}'>${i + 1}- ${swimmerName}</option>`);
     }
 
     // Synchroniser la valeur du select avec selected_swim
@@ -408,4 +375,3 @@ function downloadRaccourcis() {
     document.body.removeChild(link);
 
 }
-

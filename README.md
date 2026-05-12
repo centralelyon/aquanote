@@ -48,16 +48,10 @@ python local.py
 2/ Another server that hosts the web application:
 
 ```sh
-python -m http.server
+npm start
 ```
 
-Then you can open your browser at http://localhost:8000
-
-It is also possible to generate the site as an application with a simple command like this:
-
-`npm run build:<your_operating_system>`   
-
-which allows you to use the site without a network connection.  
+Then you can open your browser at http://127.0.0.1:8000
 
 To use the site locally, you need to pull the branch and go offline with competitions present in the `courses_natation_local` folder. (Start the folders with a **2** so they are detected, and keep the correct number of underscores `_` to avoid display issues in the dropdown menus.)  
 
@@ -87,7 +81,7 @@ Each competition should have its own subfolder, and then videos to used should b
 
 **[flatdir](https://github.com/centralelyon/flatdir)** is a Python module to flatten a directory structure and automatically generate the required JSON files at the root of each competition folder (like the [`courses_demo/flat.json`](courses_demo/flat.json) JSON, add `> flat.json` to save the output in such a file):
 
-> python -m flatdir courses_demo --limit 10 --nested --only type=directory --add espadon=false --add espadonModifie=false --add data_checked=false --no-defaults --min-depth 1 --add-depth 2 --ignore-typical
+> python -m flatdir courses_demo --limit 10 --nested --only type=directory --add espadon=false --add espadonModifie=false --add data_checked=false --no-defaults --min-depth 1 --add-depth 2 --ignore-typical > courses_demo/flat.json
 
 ### Pre-processing videos
 
@@ -99,14 +93,37 @@ While some pre-processingt steps can be done directly in Aquanote, some require 
 
 [**pipeoptz**](https://github.com/centralelyon/pipeoptz/) to orchestrate such processing as pipelines and eventually optimize their parameters automatically.
 
+### Synthetic video generation
+
+The repository includes a helper script to generate a synthetic video from a race metadata JSON using the stored homography:
+
+```sh
+pip install -r scripts/requirements.txt
+python scripts/generate_video.py
+```
+
+This uses the demo `50_finale` metadata by default and writes `output_video.mp4` when MP4 encoding is available, otherwise it falls back to `output_video.avi`.
+
+To use another metadata file or output path:
+
+```sh
+python scripts/generate_video.py \
+  --metadata courses_demo/2025_courses_demo/2025_courses_demo_translation_carre_100_demifinale/2025_courses_demo_translation_carre_100_demifinale.json \
+  --output demo_homography.mp4
+```
+
+To render the swimming lanes and lane labels on top of the generated frames:
+
+```sh
+python scripts/generate_video.py --render-lanes
+```
+
 
 ## Documentation  
 
 All documentation can be viewed by launching the **index** file in the `html` folder, in particular the documentation for the main code located in `/assets/js`. This opens a page in your browser with sorted information about the code.  
 
-This documentation was automatically generated via **Doxygen** (the `doxyfile` contains its settings). It is not as effective for JavaScript as it is for other languages, so it relies heavily on comments (and their spelling mistakes).  
-
-This file is updated with every push, provided your branch is listed in the `ci.yml` file (`./.github/workflows/ci.yml`). After that, you just need to pull the branch.  
+This documentation was generated via **Doxygen** (the `doxyfile` contains its settings). It is not as effective for JavaScript as it is for other languages, so it relies heavily on comments (and their spelling mistakes).  
 
 Some folders are not visible in VS Code because they are hidden in `.vscode/settings.json`. This is meant to declutter the visible files, but feel free to modify this file.  
 

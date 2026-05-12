@@ -3,7 +3,7 @@
  * @brief gère les calculs d'homographie afin de passer d'un rectangle représantant une piscine vue du dessus à la vue de la caméra.
  */
 import { getSize } from './utils.js';
-import { pool_size} from './loader.js';
+import { pool_size, getLaneCount } from './loader.js';
 
 const PerspT= window.PerspT;
 let pool_vid_xscale ;
@@ -97,8 +97,13 @@ export function getBar(pt, meta, swimmer) { // Here we take the assumption that 
 
     let perspT = new PerspT(dstCorners, srcCorners);
     //console.log(swimmer,pt[0], "le nageur puis les pt[0]")
-    let srcPt1 = [pool_vid_xscale(pt[0]) / 2, pool_vid_yscale(swimmer * (pool_size[1] / 8))]; // In from_above space -1 meter vertically (i.e. the start of the lane)
-    let srcPt2 = [pool_vid_xscale(pt[0]) / 2, pool_vid_yscale((swimmer * (pool_size[1] / 8) + 2))]; // In from_above space +1 meter vertically (i.e. the end of the lane)
+    const laneCount = Math.max(1, getLaneCount());
+    const laneHeight = pool_size[1] / laneCount;
+    const lanePadding = laneHeight * 0.1;
+    const laneTop = swimmer * laneHeight + lanePadding;
+    const laneBottom = (swimmer + 1) * laneHeight - lanePadding;
+    let srcPt1 = [pool_vid_xscale(pt[0]) / 2, pool_vid_yscale(laneTop)];
+    let srcPt2 = [pool_vid_xscale(pt[0]) / 2, pool_vid_yscale(laneBottom)];
     //console.log(srcPt1, srcPt2, "amuvais sources points")
     let dstPt1 = perspT.transform(srcPt1[0], srcPt1[1]);
     let dstPt2 = perspT.transform(srcPt2[0], srcPt2[1]);

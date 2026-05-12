@@ -36,14 +36,25 @@ function isGitHubMode() {
 export let local_bool = !isGitHubMode();
 export let base = local_bool ? "http://127.0.0.1:8001/files/" : "courses_demo/";
 
+function updateVersionDisplay(version) {
+    const versionElement = document.getElementById('app-version');
+    if (versionElement) {
+        versionElement.textContent = version;
+        return;
+    }
+
+    const versionLink = document.getElementById('version-link');
+    if (versionLink) {
+        versionLink.textContent = `Version: ${version}`;
+    }
+}
+
 if (typeof window !== "undefined" && !window.__TEST__) {
     fetch('./package.json')
         .then(response => response.json())
         .then(data => {
-            const version = data.version;
-            const versionElement = document.getElementById('app-version');
-            if (versionElement) {
-                versionElement.textContent = version;
+            if (data.version) {
+                updateVersionDisplay(data.version);
             }
         })
         .catch(error => console.error('Error fetching package.json:', error));

@@ -28,8 +28,8 @@ export default defineConfig({
   retries: 0,
   workers: 8, // 8 workers pour accélérer les tests E2E
   
-  // Reporter
-  reporter: 'html',
+  // Reporter console-only to avoid writing playwright-report/
+  reporter: 'list',
   
   use: {
     // Screenshots et vidéos en cas d'échec

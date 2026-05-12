@@ -76,6 +76,19 @@ export let n_camera = 2;
 window.curr_swims = curr_swims; // Pour que curr_swims soit accessible au html
 window.selected_comp = selected_comp; // Pour que selected_comp soit accessible au html
 
+function syncLoaderGlobals() {
+    if (typeof window === "undefined") {
+        return;
+    }
+    window.curr_swims = curr_swims;
+    window.selected_comp = selected_comp;
+    window.megaData = megaData;
+    window.frame_rate = frame_rate;
+    window.temp_end = temp_end;
+}
+
+syncLoaderGlobals();
+
 function extractLaneNumber(laneKey) {
     const match = String(laneKey).match(/\d+/);
     return match ? parseInt(match[0], 10) : Number.MAX_SAFE_INTEGER;
@@ -326,6 +339,7 @@ export async function getCompets() {
         $("#competition").val(selected_comp);
 
         c.map(d => compets[d.name] = []);
+        syncLoaderGlobals();
         return Promise.resolve();
     } else {
         const url = getApiUrl("/getCompets");
@@ -368,6 +382,7 @@ export async function getCompets() {
                 $("#competition").val(selected_comp);
 
                 c.map(d => compets[d.name] = []);
+                syncLoaderGlobals();
             },
             error: function(xhr, status, error) {
                 console.error("getCompets: Error callback:", status, error, xhr);
@@ -858,6 +873,7 @@ export async function load_run(run, data, starTime = null) {
           
         }
       }
+      syncLoaderGlobals();
       $("#swim_switch").html("");
       clampSelectedSwim(laneCount);
       displaySwimmers(t["lignes"]);

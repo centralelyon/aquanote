@@ -1,6 +1,6 @@
 import { test, expect } from '../fixtures.js'
 import { getTestData, loadTestRace } from '../helpers/test-helpers.js'
-import { setupMocks, setupBasicMocks, setupDiagnosticListeners, initializeBasicApplication, mockConfigurations } from '../helpers/mock-setup.js'
+import { setupMocks, setupDiagnosticListeners, initializeBasicApplication, mockConfigurations } from '../helpers/mock-setup.js'
 
 /**
  * @file basic-interface.spec.js
@@ -10,8 +10,8 @@ import { setupMocks, setupBasicMocks, setupDiagnosticListeners, initializeBasicA
  */
 test.describe('Interface principale - Tests de base', () => {
   test.beforeEach(async ({ page, server }) => {
-    // Configuration des mocks simplifiés pour éviter les problèmes de timeout
-    await setupBasicMocks(page);
+    const { testData, testDataPath, testVideoPath } = getTestData();
+    await setupMocks(page, testData, testDataPath, testVideoPath, mockConfigurations.fullData);
     setupDiagnosticListeners(page);
 
     // Navigation vers l'application via le serveur de développement
@@ -62,10 +62,6 @@ test.describe('Interface principale - Tests de base', () => {
   })
 
   test('devrait gérer le chargement de données JSON', async ({ page }) => {
-    // Pour ce test, nous avons besoin de mocks plus complets
-    const { testData, testDataPath, testVideoPath } = getTestData();
-    await setupMocks(page, testData, testDataPath, testVideoPath, mockConfigurations.fullData);
-    
     // Utiliser la fonction helper pour charger la course de test
     await loadTestRace(page)
     
@@ -80,10 +76,6 @@ test.describe('Interface principale - Tests de base', () => {
   })
 
   test('devrait permettre de sélectionner une compétition, une course, la charger puis changer les paramètres', async ({ page }) => {
-    // Pour ce test complexe, nous avons besoin de mocks complets
-    const { testData, testDataPath, testVideoPath } = getTestData();
-    await setupMocks(page, testData, testDataPath, testVideoPath, mockConfigurations.fullData);
-    
     // 1. Charger la première configuration
     await loadTestRace(page)
     

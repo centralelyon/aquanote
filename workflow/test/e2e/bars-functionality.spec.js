@@ -1,5 +1,5 @@
 import { test, expect } from './fixtures.js'
-import { createMinimalMP4 } from '../utils/video-generator.js'
+import { setupMocks } from './helpers/mock-setup.js'
 
 /**
  * @file bars-functionality.spec.js
@@ -52,45 +52,12 @@ test.describe('Fonctionnalités des barres d\'annotation', () => {
   }
 
   test.beforeEach(async ({ page, server }) => {
-    // Créer des vidéos MP4 minimales pour les tests
-    const fakeVideoBuffer = createMinimalMP4(2, 640, 480); // 2 secondes, 640x480
-
-    // Mock des requêtes nécessaires
-    await page.route('**/package.json', route => {
-      route.fulfill({
-        status: 200,
-        contentType: 'application/json',
-        body: JSON.stringify({
-          name: "Neptune",
-          version: "1.0.0",
-          server: {
-            url: "http://localhost:8080"
-          }
-        })
-      })
-    })
-
-    await page.route('**/*.mp4', route => {
-      route.fulfill({
-        status: 200,
-        contentType: 'video/mp4',
-        body: fakeVideoBuffer
-      })
-    })
-
-    await page.route('**/assets/nageurs_formatted.json', route => {
-      route.fulfill({
-        status: 200,
-        contentType: 'application/json',
-        body: JSON.stringify([{
-          "nom": "TestSwimmer",
-          "prenom": "Test",
-          "club": "TestClub",
-          "licence": "123456",
-          "naissance": 2000
-        }])
-      })
-    })
+    await setupMocks(page, null, null, null, {
+      competition: "2022_CM_Budapest",
+      course: "2022_CM_Budapest_brasse_hommes_100_finaleA",
+      useRealVideo: false,
+      mockVideoData: { duration: 2, width: 640, height: 480 }
+    });
 
     // Aller sur la page
     await page.goto(server)

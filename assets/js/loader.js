@@ -735,6 +735,7 @@ export async function load_run(run, data, starTime = null) {
       errors.push("Fichier JSON non trouvé ou invalide : " + run + '.json');
       throw e;
     }
+
     let meta = null;
     vidName = "";
     $("#vidsw").show();
@@ -782,7 +783,9 @@ export async function load_run(run, data, starTime = null) {
     if (data !== "new_data" && data && data.trim() !== "") {
       let r = [];
       try {
+        
         const csvUrl = getDataPath() + selected_comp + "/" + run + "/" + data;
+
         if (shouldValidateSwimmingTrackingCsv(data)) {
           validatedAnnotationRows = await validateAndParseSwimmingTrackingCsv(csvUrl, data);
           r = validatedAnnotationRows;
@@ -791,6 +794,7 @@ export async function load_run(run, data, starTime = null) {
         } else {
           r = await fetchAndParseCsv(csvUrl);
         }
+
         if (!Array.isArray(r)) r = [];
         if (r.length > 0 && r[0]['startTimeEdit'] != null && starTime == null) {
           edit_temp_start(r[0]['startTimeEdit']);
@@ -825,7 +829,9 @@ export async function load_run(run, data, starTime = null) {
         temp_end = tmax;
       }
       if (data && data.includes("automatique")) {
+
         const csvUrl = getDataPath() + selected_comp + "/" + run + "/" + data;
+
         let r = await d3.csv(csvUrl, d3.autoType);
         megaData = [t, r];
         let maxFrame = Math.max(...megaData[1].map(d => d.frame_number));
@@ -851,8 +857,10 @@ export async function load_run(run, data, starTime = null) {
       } else {
         megaData = [t, []];
         let time_dif;
+
         const csvUrl = getDataPath() + selected_comp + "/" + run + "/" + data;
         let r = validatedAnnotationRows ?? await validateAndParseSwimmingTrackingCsv(csvUrl, data);
+
         if (r[0]['startTimeEdit'] != null) {
           time_dif = temp_start - r[0]['startTimeEdit'];
         } else {

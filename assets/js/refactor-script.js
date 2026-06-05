@@ -347,6 +347,7 @@ export function clampSelectedSwim(laneCount) {
             .filter((value, index, self) => value && self.indexOf(value) === index); // Supprimer les doublons
         
         fillDropdown("run_part4", filteredEtapes);
+        refreshDatasForCurrentRun();
     });
     
     $("#run_part2").on("change", function () {
@@ -374,6 +375,7 @@ export function clampSelectedSwim(laneCount) {
             .filter((value, index, self) => value && self.indexOf(value) === index); // Supprimer les doublons
     
         fillDropdown("run_part4", filteredEtapes);
+        refreshDatasForCurrentRun();
     });
     
     $("#run_part3").on("change", function () {
@@ -394,6 +396,7 @@ export function clampSelectedSwim(laneCount) {
             .filter((value, index, self) => value && self.indexOf(value) === index); // Supprimer les doublons
     
         fillDropdown("run_part4", filteredEtapes);
+        refreshDatasForCurrentRun();
     });
     $("#run_part4").on("change", function () {
         const part1 = $("#run_part1").val();
@@ -405,6 +408,16 @@ export function clampSelectedSwim(laneCount) {
             getDatas($("#competition").val(), get_run_selected());
         }
     });
+
+    function refreshDatasForCurrentRun() {
+        const part1 = $("#run_part1").val();
+        const part2 = $("#run_part2").val();
+        const part3 = $("#run_part3").val();
+        const part4 = $("#run_part4").val();
+        if (part1 && part2 && part3 && part4) {
+            getDatas($("#competition").val(), get_run_selected());
+        }
+    }
     
     function fillDropdown(dropdownId, options) {
         const dropdown = $(`#${dropdownId}`);
@@ -417,8 +430,8 @@ export function clampSelectedSwim(laneCount) {
         options.forEach(option => {
             dropdown.append(`<option value="${option}">${option}</option>`);
         });
-        if (options.length === 1) {
-            dropdown.val(options[0]).trigger('change');
+        if (options.length > 0) {
+            dropdown.val(options[0]);
         }
     }
 

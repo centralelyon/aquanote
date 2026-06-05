@@ -205,6 +205,9 @@ export async function init() {
       }
       
       let selected_run1 = resolveRunName(queryString["course"]);
+      if (!selected_run1) {
+        selected_run1 = selected_run || compets[selected_comp]?.[0]?.name || "";
+      }
       
       // Only proceed with loading run if we have a valid run selected
       if (selected_run1) {
@@ -546,10 +549,11 @@ export async function getRuns(comp) {
         if (parts[6]) étape_compétition.add(parts[6]);
     }
     const sortedDistance = Array.from(distance).sort((a, b) => parseInt(a) - parseInt(b));
-    fillDropdown("run_part1", Array.from(type_nage));
-    fillDropdown("run_part2", Array.from(sexe_nageurs));
-    fillDropdown("run_part3", Array.from(sortedDistance));
-    fillDropdown("run_part4", Array.from(étape_compétition));
+  fillDropdown("run_part1", Array.from(type_nage));
+  fillDropdown("run_part2", Array.from(sexe_nageurs));
+  fillDropdown("run_part3", Array.from(sortedDistance));
+  fillDropdown("run_part4", Array.from(étape_compétition));
+  syncRunSelectorsFromRunName(selected_run, comp);
     getDatas(comp, selected_run);
     return runs;
 } else {
@@ -620,6 +624,7 @@ export async function getRuns(comp) {
             fillDropdown("run_part2", Array.from(sexe_nageurs));
             fillDropdown("run_part3", Array.from(sortedDistance));
             fillDropdown("run_part4", Array.from(étape_compétition));
+            syncRunSelectorsFromRunName(selected_run, comp);
             getDatas(comp, selected_run);
             return runs;
         },
@@ -636,6 +641,9 @@ export async function getRuns(comp) {
       const étape_compétition = new Set();
       let select = $("#run");
       select.empty();
+      if (!selected_run || !compets[comp].some(run => run.name === selected_run)) {
+          selected_run = compets[comp][0]?.name || "";
+      }
       for (let i = 0; i < compets[comp].length; i++) {
           if (compets[comp][i].name === requestedRun) {
               selected_run = compets[comp][i].name;
@@ -652,6 +660,7 @@ export async function getRuns(comp) {
         fillDropdown("run_part2", Array.from(sexe_nageurs));
         fillDropdown("run_part3", Array.from(sortedDistance));
         fillDropdown("run_part4", Array.from(étape_compétition));
+        syncRunSelectorsFromRunName(selected_run || compets[comp][0]?.name, comp);
   }
   return compets[comp];
 }
@@ -679,6 +688,9 @@ function fillDropdown(dropdownId, options) {
       dropdown.appendChild(option);
   });
 
+  if (options.length > 0) {
+      dropdown.value = options[0];
+  }
 
 }
 /**
@@ -905,6 +917,7 @@ export async function load_run(run, data, starTime = null) {
       $("#swim_switch").html("");
       clampSelectedSwim(laneCount);
       displaySwimmers(t["lignes"]);
+      $("#vid").attr("crossorigin", "anonymous");
       
       if (n_camera > 1) {
       if (meta && meta["start_side"] === "right") {

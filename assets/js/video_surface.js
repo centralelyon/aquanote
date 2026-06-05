@@ -1,4 +1,4 @@
-import ImgCtrlPts from "./vendor/ImgCtrlPts.js";
+import ImgCtrlPts from "../../node_modules/imgctrlpts/packages/javascript/ImgCtrlPts.js";
 
 const SURFACE_ID = "imgctrlpts-video-surface";
 const MAX_ZOOM = 6.8;

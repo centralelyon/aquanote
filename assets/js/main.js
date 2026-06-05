@@ -17,6 +17,8 @@ import { findCycleIndexAtFrame } from "./cycles_handler.js";
 import "./plot_handler.js";
 import { nageurs } from "./jquery-custom.js";
 import "./ml-cycle-predictor-js/js/predictor.js";
+import "./video_configuration.js";
+import "./workspace_layout.js";
 
 
 
@@ -348,20 +350,13 @@ export function metrics_calculation(epreuveStyle, epreuveDistance, tempo, ampli,
 
 
 
-// Ajout des listeners pour les liens Version et Aide (CSP compatible)
+// Ajout du listener pour le lien Version (CSP compatible)
 document.addEventListener("DOMContentLoaded", function () {
     const versionLink = document.getElementById("version-link");
     if (versionLink) {
         versionLink.addEventListener("click", function (e) {
             e.preventDefault();
             if (typeof downloadVersion === 'function') downloadVersion();
-        });
-    }
-    const aideLink = document.getElementById("aide-link");
-    if (aideLink) {
-        aideLink.addEventListener("click", function (e) {
-            e.preventDefault();
-            if (typeof downloadRaccourcis === 'function') downloadRaccourcis();
         });
     }
 });

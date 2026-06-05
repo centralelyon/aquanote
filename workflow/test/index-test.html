@@ -75,8 +75,7 @@
                         <div>Neptune</div>
                         <div id="r_version">
                             <!-- <p onclick="downloadVersion(); return false;">Version: <span id="app-version"></span></p> -->
-                            <p id="version-link">Version: 1.0</p>
-                            <p id="aide-link">Aide - </p>
+                            <p id="version-link">Version: <span id="app-version"></span></p>
                            
                         </div>
                     </div>
@@ -122,6 +121,14 @@
                 </select>
 
             </div>
+            <div id="r_video-size-box">
+                <label for="video_size_select">Taille vidéo</label>
+                <select class="u-half-width" id="video_size_select">
+                    <option value="small" selected>Small</option>
+                    <option value="medium">Medium</option>
+                    <option value="large">Large</option>
+                </select>
+            </div>
             <div id="r_buttons-action">
                 <button id="loadbtn" class="gr"> Charger</button>
                 <!--Bouton de probleme -->
@@ -130,14 +137,15 @@
 
 
                
-                <button id="download">Téléchargement</button>
-
-        
             </div>
         </div>
-        </div>
+        <ul id="workspace-tabs" class="workspace-tabs" role="tablist">
+            <li><button id="workspace-tab-annotate" class="workspace-tab active" type="button" role="tab" aria-selected="true" aria-controls="annotate_view" data-workspace-target="annotate_view">Annotate</button></li>
+            <li><button id="workspace-tab-calibrate" class="workspace-tab" type="button" role="tab" aria-selected="false" aria-controls="calibrate_view" data-workspace-target="calibrate_view">Calibrate</button></li>
+        </ul>
+    </div>
 
-    <div class="container">
+    <div id="annotate_view" class="container workspace-view workspace-view-active video-size-small" role="tabpanel" aria-labelledby="workspace-tab-annotate">
 
         <div class="row">
             <div class="ten columns">
@@ -147,7 +155,7 @@
                         <div id="crops">
                         </div>
 
-                        <video id="vid" preload="auto" type="video/mp4">
+                        <video id="vid" preload="auto" type="video/mp4" crossorigin="anonymous">
                             <source id="vid_src" src="">
                         </video>
                     </div>
@@ -251,6 +259,7 @@
                                 <button id="vidsw">Changer côté</button>
                                 <button id="hidlab">Cacher texte</button>
                                 <button id="resetZoom" class="r_boutons">Reset Zoom</button>
+                                <button id="download">Téléchargement</button>
                                 <div class="vid_dessus">
                                     <button id="vid_dessus">vue de dessus</button>
                                 </div>
@@ -444,7 +453,6 @@
                     </div>
                 </div>
 
-
         </div>
 
         <div class="row">
@@ -468,6 +476,25 @@
         </div>
 
         
+    </div>
+
+    <div id="calibrate_view" class="container workspace-view" role="tabpanel" aria-labelledby="workspace-tab-calibrate" hidden>
+        <section id="video_configuration" class="calibration-panel">
+            <label>Configuration vidéo</label>
+            <div class="video-config-actions">
+                <select id="config_video_select"></select>
+                <button id="config_refresh" type="button">Actualiser</button>
+                <button id="config_save" type="button">Enregistrer JSON</button>
+            </div>
+            <p id="config_status" class="video-config-status"></p>
+            <div class="video-config-layout">
+                <div id="config_warp_workspace"></div>
+                <div class="video-config-preview">
+                    <canvas id="config_warp_result"></canvas>
+                    <pre id="config_json_preview"></pre>
+                </div>
+            </div>
+        </section>
     </div>
 
 

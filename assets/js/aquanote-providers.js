@@ -5,13 +5,13 @@
  * To switch data source, add ?source=api|static|auto to the URL.
  * Default (no param): auto — tries API first, falls back to static.
  *
- * To point to a different API (e.g. production), change VIZAPI_BASE.
+ * To point to a different API (e.g. production), change API_BASE.
  */
 
 import { makeFallbackProvider, parseCsvText } from "./data-provider.js";
 
 // ── Configuration ──────────────────────────────────────────────────────────────
-const VIZAPI_BASE = "http://localhost:8000/aquanote";
+const API_BASE = "http://localhost:8000/aquanote";
 const STATIC_BASE = "courses_demo/";
 
 // ── Static data ────────────────────────────────────────────────────────────────
@@ -131,11 +131,11 @@ export function buildProvider() {
     const source = new URLSearchParams(window.location.search).get("source");
 
     if (source === "static") return makeStaticProvider(staticData, STATIC_BASE);
-    if (source === "api")    return makeApiProvider(VIZAPI_BASE);
+    if (source === "api")    return makeApiProvider(API_BASE);
 
     // Default: try API first, fall back to static.
     return makeFallbackProvider(
-        makeApiProvider(VIZAPI_BASE),
+        makeApiProvider(API_BASE),
         makeStaticProvider(staticData, STATIC_BASE),
         { stickyFallback: true }
     );

@@ -3,7 +3,18 @@ import { megaData, selected_comp, selected_run } from "./loader.js";
 import { getMeta } from "./utils.js";
 import { refreshVideoSurface } from "./video_surface.js";
 
-const POOL_REFERENCE_IMAGE_URL = new URL("../../courses_demo/Swimming_pool_50m_above.png", import.meta.url).href;
+const APP_ROOT_URL = new URL("../../", import.meta.url);
+const DEFAULT_POOL_IMAGE = {
+    name: "Swimming pool 50m above",
+    path: "courses_demo/Swimming_pool_50m_above.png"
+};
+const FALLBACK_POOL_IMAGES = [
+    DEFAULT_POOL_IMAGE,
+    {
+        name: "swimmingpool",
+        path: "courses_demo/swimmingpool.jpg"
+    }
+];
 const JSON_POOL_SIZE = { width: 900, height: 361 };
 const CONTROL_WIDTH = 280;
 const scheduleFrame = typeof requestAnimationFrame === "function"
@@ -15,7 +26,9 @@ let activeMeta = null;
 let activeSourceImage = null;
 let activeReferenceImage = null;
 let activeReferenceSize = null;
-let referenceImagePromise = null;
+let activePoolImage = DEFAULT_POOL_IMAGE;
+let poolImages = FALLBACK_POOL_IMAGES;
+const referenceImagePromises = new Map();
 let updateFrame = null;
 
 function positiveNumber(...values) {
@@ -60,6 +73,89 @@ function getImageSize(image) {
         width: positiveNumber(image?.naturalWidth, image?.videoWidth, image?.width, JSON_POOL_SIZE.width),
         height: positiveNumber(image?.naturalHeight, image?.videoHeight, image?.height, JSON_POOL_SIZE.height)
     };
+}
+
+function poolImageUrl(poolImage = activePoolImage) {
+    return new URL(poolImage?.path || DEFAULT_POOL_IMAGE.path, APP_ROOT_URL).href;
+}
+
+function normalizePoolImage(entry) {
+    if (!entry || typeof entry !== "object") {
+        return null;
+    }
+    const path = String(entry.path || "").trim();
+    if (!path) {
+        return null;
+    }
+    return {
+        name: String(entry.name || path.split("/").pop() || path),
+        path
+    };
+}
+
+function uniquePoolImages(entries) {
+    const seen = new Set();
+    const result = [];
+
+    for (const item of entries) {
+        const normalized = normalizePoolImage(item);
+        if (!normalized || seen.has(normalized.path)) {
+            continue;
+        }
+        seen.add(normalized.path);
+        result.push(normalized);
+    }
+
+    return result.length > 0 ? result : FALLBACK_POOL_IMAGES;
+}
+
+async function loadPoolImages() {
+    try {
+        const response = await fetch("http://127.0.0.1:8001/getPoolImages");
+        if (response.ok) {
+            const payload = await response.json();
+            if (Array.isArray(payload)) {
+                poolImages = uniquePoolImages([...payload, ...FALLBACK_POOL_IMAGES]);
+                return poolImages;
+            }
+        }
+    } catch {
+        // Static mode falls back to the known bundled pool images.
+    }
+
+    poolImages = uniquePoolImages(FALLBACK_POOL_IMAGES);
+    return poolImages;
+}
+
+function syncPoolImageSelect(metadata = megaData?.[0]) {
+    const select = getElement("config_pool_select");
+    const configuredPath = select?.value || metadata?.poolImage || metadata?.piscineImage || activePoolImage?.path;
+    const selected = poolImages.find((image) => image.path === configuredPath)
+        || poolImages.find((image) => image.path === DEFAULT_POOL_IMAGE.path)
+        || poolImages[0]
+        || DEFAULT_POOL_IMAGE;
+
+    activePoolImage = selected;
+
+    if (!select) {
+        return selected;
+    }
+
+    select.replaceChildren(...poolImages.map((image) => {
+        const option = document.createElement("option");
+        option.value = image.path;
+        option.textContent = image.name;
+        return option;
+    }));
+    select.value = selected.path;
+    return selected;
+}
+
+function selectedPoolImage() {
+    const select = getElement("config_pool_select");
+    const selected = poolImages.find((image) => image.path === select?.value) || activePoolImage || DEFAULT_POOL_IMAGE;
+    activePoolImage = selected;
+    return selected;
 }
 
 function destinationPointToReferencePx(point, referenceSize = activeReferenceSize ?? JSON_POOL_SIZE) {
@@ -195,21 +291,24 @@ function createVideoSnapshot(meta) {
 }
 
 function getPoolReferenceImage() {
-    if (referenceImagePromise) {
-        return referenceImagePromise;
+    const poolImage = selectedPoolImage();
+    const key = poolImage.path;
+    if (referenceImagePromises.has(key)) {
+        return referenceImagePromises.get(key);
     }
 
-    referenceImagePromise = new Promise((resolve, reject) => {
+    const promise = new Promise((resolve, reject) => {
         const image = new Image();
         image.onload = () => resolve(image);
         image.onerror = () => {
-            referenceImagePromise = null;
-            reject(new Error("Impossible de charger Swimming_pool_50m_above.png."));
+            referenceImagePromises.delete(key);
+            reject(new Error(`Impossible de charger ${poolImage.path}.`));
         };
-        image.src = POOL_REFERENCE_IMAGE_URL;
+        image.src = poolImageUrl(poolImage);
     });
+    referenceImagePromises.set(key, promise);
 
-    return referenceImagePromise;
+    return promise;
 }
 
 function averagePoint(points) {
@@ -303,8 +402,26 @@ function extractCalibrationValue() {
         pointCount,
         srcPts: pointsToArrays(value.sourcePointsPx.slice(0, pointCount)),
         destPts: value.destinationPointsPx.slice(0, pointCount).map((point) => referencePointToJson(point, activeReferenceSize)),
+        poolImage: activePoolImage?.path || DEFAULT_POOL_IMAGE.path,
         homography: value.homography?.map((row) => row.map((number) => roundCoordinate(number))) ?? null
     };
+}
+
+function applyCalibrationToMetadata(calibration) {
+    if (!calibration || !activeMeta) {
+        return;
+    }
+
+    activeMeta.srcPts = calibration.srcPts;
+    activeMeta.destPts = calibration.destPts;
+    if (megaData?.[0]) {
+        megaData[0].poolImage = calibration.poolImage;
+    }
+
+    refreshVideoSurface(getActiveMetaFromPage());
+    window.dispatchEvent(new CustomEvent("pool-calibration-updated", {
+        detail: { meta: activeMeta, poolImage: calibration.poolImage }
+    }));
 }
 
 function renderWarpResult() {
@@ -351,11 +468,13 @@ function updatePreview() {
 
     preview.textContent = JSON.stringify({
         video: activeMeta.name,
+        poolImage: calibration.poolImage,
         srcPts: calibration.srcPts,
         destPts: calibration.destPts,
         homography: calibration.homography
     }, null, 2);
 
+    applyCalibrationToMetadata(calibration);
     applyPoolLabels();
     renderWarpResult();
 }
@@ -388,6 +507,9 @@ async function renderConfiguration() {
         return;
     }
 
+    await loadPoolImages();
+    syncPoolImageSelect(metadata);
+    selectedPoolImage();
     syncVideoSelect(videos);
     activeMeta = videos[selectedVideoIndex(videos)];
     if (!activeMeta?.srcPts || !activeMeta?.destPts) {
@@ -463,10 +585,8 @@ async function saveConfiguration() {
         return;
     }
 
-    activeMeta.srcPts = calibration.srcPts;
-    activeMeta.destPts = calibration.destPts;
+    applyCalibrationToMetadata(calibration);
     updatePreview();
-    refreshVideoSurface(getActiveMetaFromPage());
 
     try {
         const response = await fetch("http://127.0.0.1:8001/saveMetadata", {
@@ -495,6 +615,7 @@ function bindControls() {
     getElement("config_refresh")?.addEventListener("click", renderConfiguration);
     getElement("config_save")?.addEventListener("click", saveConfiguration);
     getElement("config_video_select")?.addEventListener("change", renderConfiguration);
+    getElement("config_pool_select")?.addEventListener("change", renderConfiguration);
     window.addEventListener("calibration-view-opened", renderConfiguration);
 }
 

@@ -117,6 +117,12 @@ export function plot_pool_boundaries(isPlot) {
         return;
     }
 
+    const annotateView = document.getElementById("annotate_view");
+    const videoContainer = document.getElementById("video");
+    if (annotateView?.hidden || !videoContainer || videoContainer.offsetWidth <= 0 || videoContainer.offsetHeight <= 0) {
+        return;
+    }
+
     let meta = null;
     try {
         meta = getMeta();
@@ -130,6 +136,17 @@ export function plot_pool_boundaries(isPlot) {
 function syncPoolBoundariesToggle(checked) {
     show_pool_boundaries = checked;
     plot_pool_boundaries(show_pool_boundaries);
+}
+
+function refreshVisiblePoolBoundaries() {
+    if (!show_pool_boundaries) {
+        return;
+    }
+    if (typeof requestAnimationFrame === "function") {
+        requestAnimationFrame(() => plot_pool_boundaries(true));
+    } else {
+        plot_pool_boundaries(true);
+    }
 }
 
 window.addEventListener('DOMContentLoaded', function() {
@@ -149,9 +166,17 @@ window.addEventListener('DOMContentLoaded', function() {
     });
 
     window.addEventListener('resize', function() {
-        if (show_pool_boundaries) {
-            plot_pool_boundaries(true);
+        refreshVisiblePoolBoundaries();
+    });
+
+    window.addEventListener('workspace-layout-changed', function(e) {
+        if (e.detail?.activeWorkspace === "annotate_view" || e.detail?.videoSize) {
+            refreshVisiblePoolBoundaries();
         }
+    });
+
+    window.addEventListener('pool-calibration-updated', function() {
+        refreshVisiblePoolBoundaries();
     });
 });
 

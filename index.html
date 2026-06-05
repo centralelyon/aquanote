@@ -462,11 +462,14 @@ graphiques D3.js et contrôles pour analyser les performances des nageurs
         
     </div>
 
+    </div>
+
     <div id="calibrate_view" class="container workspace-view" role="tabpanel" aria-labelledby="workspace-tab-calibrate" hidden>
         <section id="video_configuration" class="calibration-panel">
             <label>Configuration vidéo</label>
             <div class="video-config-actions">
-                <select id="config_video_select"></select>
+                <select id="config_video_select" aria-label="Video a calibrer" title="Video a calibrer"></select>
+                <select id="config_pool_select" aria-label="Image piscine de reference" title="Image piscine de reference"></select>
                 <button id="config_refresh" type="button">Actualiser</button>
                 <button id="config_save" type="button">Enregistrer JSON</button>
             </div>

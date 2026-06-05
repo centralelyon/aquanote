@@ -79,21 +79,32 @@ function getVideoDisplayTransform(meta = currentMeta) {
         return null;
     }
 
-    const displayWidth = positiveNumber(videoElement.offsetWidth, videoElement.clientWidth);
-    const displayHeight = positiveNumber(
-        videoElement.offsetHeight,
-        videoElement.clientHeight,
-        displayWidth * size.height / size.width
-    );
+    const displayWidth = positiveNumber(videoElement.clientWidth, videoElement.offsetWidth);
+    const displayHeight = positiveNumber(videoElement.clientHeight, videoElement.offsetHeight);
 
     if (displayWidth <= 0 || displayHeight <= 0) {
         return null;
     }
 
+    const sourceRatio = size.width / size.height;
+    const displayRatio = displayWidth / displayHeight;
+    let contentWidth = displayWidth;
+    let contentHeight = displayHeight;
+    let contentLeft = Number(videoElement.offsetLeft || 0);
+    let contentTop = Number(videoElement.offsetTop || 0);
+
+    if (displayRatio > sourceRatio) {
+        contentWidth = displayHeight * sourceRatio;
+        contentLeft += (displayWidth - contentWidth) / 2;
+    } else if (displayRatio < sourceRatio) {
+        contentHeight = displayWidth / sourceRatio;
+        contentTop += (displayHeight - contentHeight) / 2;
+    }
+
     return {
-        k: displayWidth / size.width,
-        x: Number(videoElement.offsetLeft || 0),
-        y: Number(videoElement.offsetTop || 0)
+        k: contentWidth / size.width,
+        x: contentLeft,
+        y: contentTop
     };
 }
 

@@ -19,6 +19,10 @@ function dispatchLayoutRefresh() {
     }
 }
 
+function dispatchWorkspaceLayoutChanged(detail) {
+    window.dispatchEvent(new CustomEvent("workspace-layout-changed", { detail }));
+}
+
 function showWorkspace(targetId) {
     const target = document.getElementById(targetId) || document.getElementById("annotate_view");
     if (!target) {
@@ -41,6 +45,7 @@ function showWorkspace(targetId) {
         window.dispatchEvent(new CustomEvent("calibration-view-opened"));
     }
 
+    dispatchWorkspaceLayoutChanged({ activeWorkspace: target.id });
     dispatchLayoutRefresh();
 }
 
@@ -58,6 +63,7 @@ function applyVideoSize(size = DEFAULT_VIDEO_SIZE) {
         annotateView.classList.add(`video-size-${normalized}`);
     }
 
+    dispatchWorkspaceLayoutChanged({ activeWorkspace: document.querySelector(".workspace-view-active")?.id, videoSize: normalized });
     dispatchLayoutRefresh();
 }
 

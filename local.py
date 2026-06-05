@@ -13,6 +13,8 @@ from flask_compress import Compress
 
 ROOT_DIR = Path(__file__).resolve().parent
 DATA_DIR = ROOT_DIR / "courses_demo"
+POOL_IMAGE_EXTENSIONS = {".png", ".jpg", ".jpeg", ".webp"}
+POOL_IMAGE_KEYWORDS = ("pool", "piscine", "swimming")
 
 app = Flask(__name__, static_folder=str(DATA_DIR), static_url_path="/files")
 
@@ -70,6 +72,33 @@ def safe_metadata_path(compet: str, run: str):
     return target
 
 
+def pool_image_payload():
+    entries = []
+    seen = set()
+    search_dirs = [ROOT_DIR, DATA_DIR]
+
+    for directory in search_dirs:
+        if not directory.exists():
+            continue
+        for entry in sorted(directory.iterdir()):
+            if not entry.is_file() or entry.suffix.lower() not in POOL_IMAGE_EXTENSIONS:
+                continue
+            relative = entry.relative_to(ROOT_DIR).as_posix()
+            searchable = relative.lower()
+            if not any(keyword in searchable for keyword in POOL_IMAGE_KEYWORDS):
+                continue
+            if relative in seen:
+                continue
+            seen.add(relative)
+            entries.append({
+                "name": entry.stem.replace("_", " "),
+                "path": relative,
+                "type": "file"
+            })
+
+    return jsonify(entries)
+
+
 @app.route("/getCompets")
 def get_compets():
     return directory_payload(DATA_DIR, "directory")
@@ -88,6 +117,11 @@ def get_datas(compet, run):
 @app.route("/getQuality/<compet>/<run>")
 def get_quality(compet, run):
     return directory_payload(DATA_DIR / compet / run, "file")
+
+
+@app.route("/getPoolImages")
+def get_pool_images():
+    return pool_image_payload()
 
 
 @app.route("/saveMetadata", methods=["POST", "OPTIONS"])

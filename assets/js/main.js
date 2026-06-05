@@ -4,7 +4,7 @@
  */
 
 
-import { init, megaData, curr_swims, frame_rate, temp_end, n_camera, getLaneKeysFromRaceMetadata, isOneIsUp } from "./loader.js"
+import { init, megaData, curr_swims, frame_rate, temp_end, n_camera } from "./loader.js"
 import { construct_data_row, data_onclick } from "./data_handler.js"
 import { selected_swim, temp_start, updateSwimSwitch, vue_du_dessus } from "./refactor-script.js"
 import "./plot_handler.js"
@@ -15,14 +15,8 @@ import "./shortcuts_handler.js"
 import { getMeta } from './utils.js'
 import { findCycleIndexAtFrame } from "./cycles_handler.js";
 import "./plot_handler.js";
-import { nageurs } from "./jquery-custom.js";
+import "./jquery-custom.js";
 import "./ml-cycle-predictor-js/js/predictor.js";
-import "./video_configuration.js";
-import "./workspace_layout.js";
-import "./metadata_editor.js";
-import "./flash_marker.js";
-import "./synchronization.js";
-import { getLocalFilesRoot } from "./local_api.js";
 
 
 
@@ -32,7 +26,8 @@ import { getLocalFilesRoot } from "./local_api.js";
 // Backend link
 // Détection automatique de l'environnement
 function isGitHubMode() {
-    return (
+    const isElectron = window.myAPI !== undefined;
+    return !isElectron && (
         window.location.hostname.includes('github.io') ||
         window.location.hostname.includes('githubusercontent.com') ||
         window.location.pathname.includes('/annotation/')
@@ -40,29 +35,50 @@ function isGitHubMode() {
 }
 
 export let local_bool = !isGitHubMode();
-export const demoDataRoot = new URL("../../videos/", import.meta.url).href;
-export const packageJsonUrl = new URL("../../package.json", import.meta.url).href;
-export let base = local_bool ? getLocalFilesRoot() : demoDataRoot;
+export let base = "./";
 
-function updateVersionDisplay(version) {
-    const versionElement = document.getElementById('app-version');
-    if (versionElement) {
-        versionElement.textContent = version;
-        return;
-    }
 
-    const versionLink = document.getElementById('version-link');
-    if (versionLink) {
-        versionLink.textContent = `Version: ${version}`;
+
+
+
+/**
+ * @brief Configure l'URL de base selon l'environnement (local ou distant)
+ * Définit l'URL du serveur backend selon le mode local/distant sélectionné
+ */
+export function set_base() {
+    if (local_bool) {
+        base = "http://localhost:8000/";
+
+    } else {
+        // Mode distant - URL configurée via code externe
+        base = "";
     }
 }
 
+/**
+ * @brief Setter pour modifier la variable local_bool
+ * @param {boolean} value Nouvelle valeur pour local_bool
+ */
+export function set_local_bool(value) {
+    local_bool = value;
+}
+
+/**
+ * @brief Setter pour modifier la variable base
+ * @param {string} value Nouvelle valeur pour base
+ */
+export function set_base_url(value) {
+    base = value;
+}
+
 if (typeof window !== "undefined" && !window.__TEST__) {
-    fetch(packageJsonUrl)
+    fetch('./package.json')
         .then(response => response.json())
         .then(data => {
-            if (data.version) {
-                updateVersionDisplay(data.version);
+            const version = data.version;
+            const versionElement = document.getElementById('app-version');
+            if (versionElement) {
+                versionElement.textContent = version;
             }
         })
         .catch(error => console.error('Error fetching package.json:', error));
@@ -94,24 +110,20 @@ export function displaySwimmers(data) {
         meta = megaData[0].videos.filter(d => (d.name.includes("fixeDroite")))[0] // done like this bcause we don't have the src yet
     }
     else {
-        meta = Array.isArray(megaData[0].videos) ? megaData[0].videos[0] : megaData[0].videos;
+        meta = megaData[0].videos;
     }
     if (vue_du_dessus) {
         meta = megaData[0].videos.filter(d => d.name.includes("dessus"))[0];
     }
 
-    const laneKeys = getLaneKeysFromRaceMetadata({ lignes: data });
-    let displayKeys = laneKeys.slice();
-    if (!isOneIsUp(meta)) {
-        displayKeys = displayKeys.reverse()
+    let keys = Object.keys(data)
+    if (meta["one_is_up"] === false) {
+        keys = keys.reverse()
     }
 
-    for (const laneKey of displayKeys) {
-        const laneIndex = laneKeys.indexOf(laneKey);
-        const swimmerName = data[laneKey].replace("�", "é");
-        nageurs[laneIndex] = swimmerName;
-        let optionClass = "swimmer-option" + (laneIndex === selected_swim ? " selected" : "");
-        container.insertAdjacentHTML("beforeend", `<option class='${optionClass}' value='${laneIndex}'>${laneIndex + 1}- ${swimmerName}</option>`);
+    for (let i = 0; i < keys.length; i++) {
+        let optionClass = "swimmer-option" + (i === selected_swim ? " selected" : "");
+        container.insertAdjacentHTML("beforeend", `<option class='${optionClass}' value='${i}'>${i + 1}- ${data[keys[i]].replace("�", "é")}</option>`);
     }
 
     // Synchroniser la valeur du select avec selected_swim
@@ -356,7 +368,7 @@ export function metrics_calculation(epreuveStyle, epreuveDistance, tempo, ampli,
 
 
 
-// Ajout du listener pour le lien Version (CSP compatible)
+// Ajout des listeners pour les liens Version et Aide (CSP compatible)
 document.addEventListener("DOMContentLoaded", function () {
     const versionLink = document.getElementById("version-link");
     if (versionLink) {
@@ -365,6 +377,42 @@ document.addEventListener("DOMContentLoaded", function () {
             if (typeof downloadVersion === 'function') downloadVersion();
         });
     }
+    const aideLink = document.getElementById("aide-link");
+    if (aideLink) {
+        aideLink.addEventListener("click", function (e) {
+            e.preventDefault();
+            if (typeof downloadRaccourcis === 'function') downloadRaccourcis();
+        });
+    }
+
+    // Source de données
+    const currentSource = new URLSearchParams(window.location.search).get("source") ?? "auto";
+    const sourceLabel = document.getElementById("source-label");
+    if (sourceLabel) sourceLabel.textContent = currentSource;
+
+    const sourceMenu = document.getElementById("source-menu");
+    // Override hover-based CSS — this dropdown is click-controlled only
+    if (sourceMenu) {
+        sourceMenu.style.display = "none";
+        sourceMenu.style.zIndex = "1000";
+    }
+    document.getElementById("data_source")?.addEventListener("click", function (e) {
+        e.stopPropagation();
+        sourceMenu.style.display = sourceMenu.style.display === "block" ? "none" : "block";
+    });
+
+    sourceMenu?.querySelectorAll("[data-source]").forEach(btn => {
+        if (btn.dataset.source === currentSource) btn.style.fontWeight = "bold";
+        btn.addEventListener("click", function () {
+            const params = new URLSearchParams(window.location.search);
+            params.set("source", this.dataset.source);
+            window.location.search = params.toString();
+        });
+    });
+
+    document.addEventListener("click", () => {
+        if (sourceMenu) sourceMenu.style.display = "none";
+    });
 });
 
 /**
@@ -389,3 +437,4 @@ function downloadRaccourcis() {
     document.body.removeChild(link);
 
 }
+

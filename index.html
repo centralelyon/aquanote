@@ -113,6 +113,18 @@ graphiques D3.js et contrôles pour analyser les performances des nageurs
 
 
                
+                <button id="download">Téléchargement</button>
+
+                <div class="dropdown" id="source-dropdown-wrapper">
+                    <button id="data_source">Source : <span id="source-label">auto</span></button>
+                    <div class="dropdown-content" id="source-menu">
+                        <button data-source="auto">auto (API → statique)</button>
+                        <button data-source="api">api uniquement</button>
+                        <button data-source="static">statique uniquement</button>
+                    </div>
+                </div>
+
+        
             </div>
         </div>
         <ul id="workspace-tabs" class="workspace-tabs" role="tablist">

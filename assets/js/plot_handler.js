@@ -7,6 +7,7 @@ import { scaleZoom,mode} from './refactor-script.js';
 import { getPoolBar, get_orr, eucDistance } from './homography_handler.js';
 import { get_meter_plot_label  } from './cycles_handler.js';
 import { getMeta } from './utils.js';
+import { setPoolControlsVisible } from './video_surface.js';
 
 export let show_indicator_lines = false;// Boolean correspondant au bouton Ligne Ref : true -> affichage et aide à la visée des lignes indicatrices, false -> pas d'affichage ni aide
 export let show_pool_boundaries = false;// Boolean correspondant à l'affichage des limites de la piscine calibrées dans le JSON
@@ -108,50 +109,14 @@ export function plot_indicator_lines(isPlot){
     }
 }
 
-function getPoolBoundaryDisplayPoints(meta, container) {
-    if (!meta?.srcPts || meta.srcPts.length < 2) {
-        return [];
-    }
-
-    const videoElement = document.getElementById("vid");
-    if (!container || !videoElement) {
-        return [];
-    }
-
-    const [fallbackWidth, fallbackHeight] = getSize(meta);
-    const sourceWidth = videoElement.videoWidth || meta.width || fallbackWidth;
-    const sourceHeight = videoElement.videoHeight || meta.height || fallbackHeight;
-
-    if (sourceWidth <= 0 || sourceHeight <= 0) {
-        return [];
-    }
-
-    const containerRect = container.getBoundingClientRect();
-    const videoRect = videoElement.getBoundingClientRect();
-    const displayWidth = videoRect.width;
-    const displayHeight = videoRect.height;
-
-    if (displayWidth <= 0 || displayHeight <= 0) {
-        return [];
-    }
-
-    const offsetLeft = videoRect.left - containerRect.left;
-    const offsetTop = videoRect.top - containerRect.top;
-
-    return meta.srcPts.map(([x, y]) => [
-        offsetLeft + (x / sourceWidth) * displayWidth,
-        offsetTop + (y / sourceHeight) * displayHeight,
-    ]);
-}
-
 export function plot_pool_boundaries(isPlot) {
     $(".pool_boundary_line").remove();
 
     if (!isPlot) {
+        setPoolControlsVisible(false);
         return;
     }
 
-    const container = document.getElementById("video");
     let meta = null;
     try {
         meta = getMeta();
@@ -159,32 +124,7 @@ export function plot_pool_boundaries(isPlot) {
         return;
     }
 
-    if (!container || !meta) {
-        return;
-    }
-
-    const points = getPoolBoundaryDisplayPoints(meta, container);
-    if (points.length < 2) {
-        return;
-    }
-
-    for (let i = 0; i < points.length; i++) {
-        const start = points[i];
-        const end = points[(i + 1) % points.length];
-        const dx = end[0] - start[0];
-        const dy = end[1] - start[1];
-        const distance = Math.sqrt((dx * dx) + (dy * dy));
-        const angle = Math.atan2(dy, dx) * (180 / Math.PI);
-
-        const line = document.createElement("div");
-        line.setAttribute("class", "pool_boundary_line");
-        line.style.left = `${start[0]}px`;
-        line.style.top = `${start[1]}px`;
-        line.style.width = `${distance}px`;
-        line.style.transform = `rotate(${angle}deg)`;
-
-        container.append(line);
-    }
+    setPoolControlsVisible(true, meta);
 }
 
 function syncPoolBoundariesToggle(checked) {

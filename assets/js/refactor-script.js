@@ -14,6 +14,7 @@ import { get_last_checkpoint, get_meter_plot_label,highlightCycle, mode_color, e
 import { indicator_correction, show_indicator_lines, plot_indicator_lines, hide_indicator_lines,action_indicator_lines } from './plot_handler.js';
 import { positionCurseur,edit_positionCurseur } from './shortcuts_handler.js'
 import { vidReset } from './videoHandler.js';
+import { redrawVideoSurface, refreshVideoSurface, zoomVideoSurface } from './video_surface.js';
 
 
 export let video_volume = 0;
@@ -177,6 +178,7 @@ export function clampSelectedSwim(laneCount) {
             vid.setAttribute("src", base+ selected_comp + "/" + selected_run + "/" + vidName+ '#t=' + t)
             setGrad(t)
         }
+        refreshVideoSurface(getMeta());
         updateBarsFromEvent(selected_swim, true);
         if (flipper)
             highlightCycle(selected_swim, selected_cycle)
@@ -210,6 +212,7 @@ export function clampSelectedSwim(laneCount) {
                 vid.setAttribute("src", base+ selected_comp + "/" + selected_run + "/" + vidName.replace("fixeGauche","fixeDroite")+ '#t=' + t)
                 setGrad(t)
             }
+            refreshVideoSurface(getMeta());
             updateBarsFromEvent(selected_swim, true); //
             if (flipper)
                 highlightCycle(selected_swim, selected_cycle)
@@ -238,6 +241,7 @@ export function clampSelectedSwim(laneCount) {
                 setGrad(t)
                 vue_du_dessus = true;
             }
+        refreshVideoSurface(getMeta());
         updateBarsFromEvent(selected_swim, true); //
             if (flipper)
                 highlightCycle(selected_swim, selected_cycle)
@@ -661,6 +665,7 @@ export function clic_souris_video(e) {
 
 
                 vid.setAttribute("src", base + "/" + selected_comp + "/" + selected_run + "/" + metaLeft.name)
+                refreshVideoSurface(metaLeft);
                 vid.currentTime = temp_start + tdat[0].frame_number / frame_rate;
                 selected_num = curr_swims[selected_swim].length - 1;
 
@@ -674,6 +679,7 @@ export function clic_souris_video(e) {
                 temp_start = get_temp_start(metaRight);
 
                 vid.setAttribute("src", base + "/" + selected_comp + "/" + selected_run + "/" + metaRight.name)
+                refreshVideoSurface(metaRight);
                 vid.currentTime = temp_start + tdat[0].frame_number / frame_rate;
                 selected_num = 0
                 updateBarsFromEvent(selected_swim, true);
@@ -980,18 +986,10 @@ export function focusout_time_input(e){
     });
 let pt=[0,0];
     export function zoom(delta_zoom,deltaX=undefined,deltaY=undefined){
-        const elem = $("#video")
-        let nextScaleZoom = Math.min(Math.max(1, scaleZoom + delta_zoom),6.8)
-        elem.css("transform", "scale(" + (nextScaleZoom) + ")")
-        
-        if(deltaX != undefined && deltaY != undefined){
-            let pleft = parseFloat(elem.css("left"))
-            let ptop = parseFloat(elem.css("top"))
-            
-            elem.css("left",pleft - deltaX*(1-scaleZoom/nextScaleZoom))
-            elem.css("top",ptop - deltaY*(1-scaleZoom/nextScaleZoom))
-        }
-        scaleZoom = nextScaleZoom
+        const center = (deltaX !== undefined && deltaY !== undefined)
+            ? { x: deltaX, y: deltaY }
+            : undefined;
+        scaleZoom = zoomVideoSurface(delta_zoom, center);
     }
 
     $("#video").on("mousemove", function (e) {
@@ -1086,6 +1084,7 @@ let pt=[0,0];
     $('#vid').on('canplay', () => {
         $("#vid-cont").attr("class", "")
         $("#vid").css("opacity", "1")
+        redrawVideoSurface();
     })
 
     $("svg").on("click", "rect, circle", function () {

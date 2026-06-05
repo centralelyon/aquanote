@@ -16,6 +16,7 @@ import { curate_annotate_data, getAvg } from "./data_handler.js";
 import { update_cycle_rapide } from "./cycles_handler.js";
 import { construct_time_entry, set_placeholder_of_time_entry } from "./side_views.js";
 import { vidStart,vidDrag } from "./videoHandler.js";
+import { refreshVideoSurface } from "./video_surface.js";
 import {
     buildStaticDataFromManifest,
     createEmptyStaticData,
@@ -919,6 +920,7 @@ export async function load_run(run, data, starTime = null) {
       construct_time_entry();
       set_placeholder_of_time_entry();
       d3.selectAll("#video").call(d3.drag().on("start", vidStart).on("drag", vidDrag));
+      refreshVideoSurface(meta);
       document.getElementById("vid").currentTime = temp_start;
       document.getElementById('vid').volume = video_volume;
       setGrad(temp_start);

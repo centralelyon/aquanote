@@ -342,6 +342,10 @@ input:checked + .slider:before {
     position: absolute;
 }
 
+.imgctrlpts-pool-surface {
+    pointer-events: none;
+}
+
 #r_btn-controls {
     width: 100%;
     display: flex;
@@ -711,5 +715,4 @@ input:checked + .slider:before {
 .swimmerName {
     cursor: pointer;
 }
-
 

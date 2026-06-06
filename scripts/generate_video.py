@@ -16,7 +16,7 @@ import numpy as np
 REPO_ROOT = Path(__file__).resolve().parent.parent
 DEFAULT_METADATA_PATH = (
     REPO_ROOT
-    / "courses_demo"
+    / "videos"
     / "2025_courses_demo"
     / "2025_courses_demo_translation_carre_50_finale"
     / "2025_courses_demo_translation_carre_50_finale.json"

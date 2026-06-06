@@ -44,6 +44,12 @@ function showWorkspace(targetId) {
     if (target.id === "calibrate_view") {
         window.dispatchEvent(new CustomEvent("calibration-view-opened"));
     }
+    if (target.id === "metadata_view") {
+        window.dispatchEvent(new CustomEvent("metadata-view-opened"));
+    }
+    if (target.id === "synchronize_view") {
+        window.dispatchEvent(new CustomEvent("synchronize-view-opened"));
+    }
 
     dispatchWorkspaceLayoutChanged({ activeWorkspace: target.id });
     dispatchLayoutRefresh();

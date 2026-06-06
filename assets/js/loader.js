@@ -24,6 +24,8 @@ import {
     resolveRunAlias,
 } from "./demo_manifest.js";
 import {base, demoDataRoot, displaySwimmers, local_bool, setGrad} from "./main.js"
+import { getLocalApiUrl } from "./local_api.js";
+import { formatValidationIssue, validateCsvUrlHeaders } from "./sportsdata.js";
 
 let flat;
 let flatManifest = null;
@@ -128,17 +130,14 @@ export function isOneIsUp(metaLike = megaData[0]?.videos?.[0] ?? megaData[0]) {
 }
 
 export function getLaneYPosition(swimmerIndex, metaLike = megaData[0]?.videos?.[0] ?? megaData[0]) {
-    const laneCount = getLaneCount(megaData[0] ?? metaLike);
     const laneSpan = getLaneSpan(megaData[0] ?? metaLike);
-    const clampedIndex = Math.max(0, Math.min(swimmerIndex, laneCount - 1));
-    const displayIndex = isOneIsUp(metaLike) ? clampedIndex : laneCount - 1 - clampedIndex;
-    return displayIndex * laneSpan;
+    return getDisplayLaneIndex(swimmerIndex, metaLike) * laneSpan;
 }
 
 export function getDisplayLaneIndex(swimmerIndex, metaLike = megaData[0]?.videos?.[0] ?? megaData[0]) {
     const laneCount = getLaneCount(megaData[0] ?? metaLike);
     const clampedIndex = Math.max(0, Math.min(swimmerIndex, laneCount - 1));
-    return isOneIsUp(metaLike) ? laneCount - clampedIndex - 1 : clampedIndex;
+    return isOneIsUp(metaLike) ? clampedIndex : laneCount - clampedIndex - 1;
 }
 
 export function resolveRunName(runName) {
@@ -674,12 +673,6 @@ function fillDropdown(dropdownId, options) {
   const dropdown = document.getElementById(dropdownId);
   dropdown.innerHTML = ""; // Vider les options existantes
 
-  // Ajouter une option par défaut
-  const defaultOption = document.createElement("option");
-  defaultOption.value = "";
-  defaultOption.textContent = "Sélectionnez une option";
-  dropdown.appendChild(defaultOption);
-
   // Ajouter les nouvelles options
   options.forEach(optionText => {
       const option = document.createElement("option");
@@ -784,13 +777,16 @@ export async function load_run(run, data, starTime = null) {
     }
     const laneCount = getLaneCount(t);
     frame_rate = (meta && !isNaN(parseInt(meta.fps))) ? parseInt(meta.fps) : 50;
+    let validatedAnnotationRows = null;
     
     if (data !== "new_data" && data && data.trim() !== "") {
       let r = [];
       try {
         const csvUrl = getDataPath() + selected_comp + "/" + run + "/" + data;
-        // Utilise d3.csv si disponible, sinon fallback fetchAndParseCsv
-        if (typeof d3 !== "undefined" && d3.csv) {
+        if (shouldValidateSwimmingTrackingCsv(data)) {
+          validatedAnnotationRows = await validateAndParseSwimmingTrackingCsv(csvUrl, data);
+          r = validatedAnnotationRows;
+        } else if (typeof d3 !== "undefined" && d3.csv) {
           r = await d3.csv(csvUrl, d3.autoType);
         } else {
           r = await fetchAndParseCsv(csvUrl);
@@ -802,6 +798,10 @@ export async function load_run(run, data, starTime = null) {
           edit_temp_start(starTime == null ? get_temp_start(meta) : parseFloat((starTime.toString()).split(':')[1]));
         }
       } catch (e) {
+        if (shouldValidateSwimmingTrackingCsv(data)) {
+          alert(e.message);
+          throw e;
+        }
         errors.push("Fichier CSV '" + data + "' introuvable ou invalide."+e);
         edit_temp_start(get_temp_start(meta));
       }
@@ -852,7 +852,7 @@ export async function load_run(run, data, starTime = null) {
         megaData = [t, []];
         let time_dif;
         const csvUrl = getDataPath() + selected_comp + "/" + run + "/" + data;
-        let r = await fetchAndParseCsv(csvUrl);
+        let r = validatedAnnotationRows ?? await validateAndParseSwimmingTrackingCsv(csvUrl, data);
         if (r[0]['startTimeEdit'] != null) {
           time_dif = temp_start - r[0]['startTimeEdit'];
         } else {
@@ -989,7 +989,7 @@ function getDataPath() {
  * @returns {string} URL complète de l'API
  */
 function getApiUrl(path) {
-    return "http://127.0.0.1:8001" + path;
+    return getLocalApiUrl(path);
 }
 
 /**
@@ -1008,6 +1008,10 @@ function isGitHubMode() {
 async function fetchAndParseCsv(url) {
     const response = await fetch(url);
     const text = await response.text();
+    return parseCsvText(text);
+}
+
+function parseCsvText(text) {
     const lines = text.split(/\r?\n/).filter(line => line.trim() !== "");
     if (lines.length === 0) return [];
     const headers = lines[0].split(',');
@@ -1030,4 +1034,26 @@ async function fetchAndParseCsv(url) {
         });
         return row;
     });
+}
+
+function shouldValidateSwimmingTrackingCsv(data) {
+    return Boolean(data && data !== "new_data" && !String(data).includes("automatique"));
+}
+
+async function validateAndParseSwimmingTrackingCsv(csvUrl, data) {
+    const result = await validateCsvUrlHeaders(csvUrl, {
+        formatId: "formats.csv.swimming-tracking"
+    });
+    const issueMessages = result.issues.map(formatValidationIssue);
+    if (issueMessages.length > 0) {
+        const message = `Sportsdata CSV header validation failed for ${data}:\n${issueMessages.join("\n")}`;
+        console.error(message);
+        throw new Error(message);
+    }
+
+    console.log(`Sportsdata CSV header validation ok for ${data}`, {
+        format: "formats.csv.swimming-tracking",
+        headers: result.headers
+    });
+    return parseCsvText(result.text);
 }

@@ -2,21 +2,23 @@ import ImgCtrlPts from "../../node_modules/imgctrlpts/packages/javascript/ImgCtr
 import { megaData, selected_comp, selected_run } from "./loader.js";
 import { getMeta } from "./utils.js";
 import { refreshVideoSurface } from "./video_surface.js";
+import { getLocalApiUrl, getLocalFilesRoot } from "./local_api.js";
 
 const APP_ROOT_URL = new URL("../../", import.meta.url);
+const DEMO_DATA_ROOT = new URL("../../videos/", import.meta.url).href;
 const DEFAULT_POOL_IMAGE = {
     name: "Swimming pool 50m above",
-    path: "courses_demo/Swimming_pool_50m_above.png"
+    path: "videos/Swimming_pool_50m_above.png"
 };
 const FALLBACK_POOL_IMAGES = [
     DEFAULT_POOL_IMAGE,
     {
         name: "swimmingpool",
-        path: "courses_demo/swimmingpool.jpg"
+        path: "videos/swimmingpool.jpg"
     }
 ];
 const JSON_POOL_SIZE = { width: 900, height: 361 };
-const CONTROL_WIDTH = 280;
+const CONTROL_WIDTH = 390;
 const scheduleFrame = typeof requestAnimationFrame === "function"
     ? requestAnimationFrame
     : (callback) => setTimeout(callback, 0);
@@ -30,6 +32,7 @@ let activePoolImage = DEFAULT_POOL_IMAGE;
 let poolImages = FALLBACK_POOL_IMAGES;
 const referenceImagePromises = new Map();
 let updateFrame = null;
+let flashControl = null;
 
 function positiveNumber(...values) {
     for (const value of values) {
@@ -111,7 +114,7 @@ function uniquePoolImages(entries) {
 
 async function loadPoolImages() {
     try {
-        const response = await fetch("http://127.0.0.1:8001/getPoolImages");
+        const response = await fetch(getLocalApiUrl("/getPoolImages"));
         if (response.ok) {
             const payload = await response.json();
             if (Array.isArray(payload)) {
@@ -194,34 +197,218 @@ function pointsToArrays(points) {
     ]);
 }
 
+function setFlashActionState(hasFlash, canAdd = Boolean(activeMeta && activeSourceImage)) {
+    const saveButton = getElement("config_flash_save");
+    if (saveButton) {
+        saveButton.disabled = !hasFlash;
+    }
+
+    const addButton = getElement("config_flash_add");
+    if (addButton) {
+        addButton.hidden = hasFlash;
+        addButton.disabled = hasFlash || !canAdd;
+    }
+}
+
+function clearFlashControl(canAdd = Boolean(activeMeta && activeSourceImage)) {
+    flashControl?.remove?.();
+    flashControl = null;
+    getElement("config_flash_workspace")?.replaceChildren();
+    setFlashActionState(false, canAdd);
+}
+
+function getFlashPoints(metadata = megaData?.[0]) {
+    const points = metadata?.flash?.pts ?? metadata?.flashPts ?? metadata?.flash_points;
+    if (!Array.isArray(points)) {
+        return [];
+    }
+    return points.filter((point) => {
+        const x = Number(point?.[0] ?? point?.x);
+        const y = Number(point?.[1] ?? point?.y);
+        return Number.isFinite(x) && Number.isFinite(y);
+    });
+}
+
+function createReferenceSourcePerspective(meta = activeMeta, fromReference = true) {
+    const transformer = window.PerspT;
+    const sourcePoints = Array.isArray(meta?.srcPts) ? meta.srcPts : [];
+    const destinationPoints = Array.isArray(meta?.destPts) ? meta.destPts : [];
+    const pointCount = Math.min(sourcePoints.length, destinationPoints.length);
+    if (!transformer || pointCount < 4) {
+        return null;
+    }
+
+    const referenceCorners = destinationPoints.slice(0, pointCount).flatMap((point) => [
+        Number(point?.[0]),
+        Number(point?.[1])
+    ]);
+    const sourceCorners = sourcePoints.slice(0, pointCount).flatMap((point) => [
+        Number(point?.[0]),
+        Number(point?.[1])
+    ]);
+
+    return fromReference
+        ? new transformer(referenceCorners, sourceCorners)
+        : new transformer(sourceCorners, referenceCorners);
+}
+
+function referencePointsToSourcePoints(points, meta = activeMeta) {
+    const perspective = createReferenceSourcePerspective(meta, true);
+    if (!perspective) {
+        return [];
+    }
+
+    try {
+        return points.map((point) => {
+            const [x, y] = perspective.transform(
+                Number(point?.[0] ?? point?.x),
+                Number(point?.[1] ?? point?.y)
+            );
+            return { x: Number(x), y: Number(y) };
+        }).filter((point) => Number.isFinite(point.x) && Number.isFinite(point.y));
+    } catch {
+        return [];
+    }
+}
+
+function sourcePointsToReferenceJson(points, meta = activeMeta) {
+    const perspective = createReferenceSourcePerspective(meta, false);
+    if (!perspective) {
+        return [];
+    }
+
+    try {
+        return points.map((point) => {
+            const [x, y] = perspective.transform(Number(point.x), Number(point.y));
+            return [roundCoordinate(Number(x)), roundCoordinate(Number(y))];
+        }).filter((point) => Number.isFinite(point[0]) && Number.isFinite(point[1]));
+    } catch {
+        return [];
+    }
+}
+
+function percentPointToSourcePx(point, sourceSize = getSourceSize(activeMeta)) {
+    return {
+        x: Number(point.x) * sourceSize.width / 100,
+        y: Number(point.y) * sourceSize.height / 100
+    };
+}
+
+function ensureFlashMetadata(metadata = megaData?.[0]) {
+    if (!metadata) {
+        return null;
+    }
+    if (!metadata.flash || typeof metadata.flash !== "object" || Array.isArray(metadata.flash)) {
+        metadata.flash = {};
+    }
+    return metadata.flash;
+}
+
+function extractFlashValue() {
+    if (!flashControl) {
+        return null;
+    }
+    const sourceSize = getSourceSize(activeMeta);
+    const sourcePoints = flashControl.value.map((point) => percentPointToSourcePx(point, sourceSize));
+    return sourcePointsToReferenceJson(sourcePoints, activeMeta);
+}
+
+function applyFlashToMetadata() {
+    const points = extractFlashValue();
+    const flash = ensureFlashMetadata();
+    if (!flash || !points) {
+        return;
+    }
+
+    flash.pts = points;
+    window.dispatchEvent(new CustomEvent("flash-calibration-updated", {
+        detail: { flash }
+    }));
+}
+
 function currentVideoMatches(meta) {
     const src = getElement("vid")?.currentSrc || getElement("vid")?.getAttribute("src") || "";
     return Boolean(meta?.name && src.includes(meta.name));
 }
 
-function drawPolygon(context, points, color = "rgba(46, 163, 221, 0.9)") {
-    if (!Array.isArray(points) || points.length < 2) {
-        return;
+function isStaticMode() {
+    return (
+        window.location.hostname.includes("github.io") ||
+        window.location.hostname.includes("githubusercontent.com") ||
+        window.location.pathname.includes("/annotation/")
+    );
+}
+
+function videoUrlForMeta(meta) {
+    const currentSource = getElement("vid")?.currentSrc || getElement("vid")?.getAttribute("src") || "";
+    if (currentVideoMatches(meta)) {
+        return currentSource;
     }
 
-    context.save();
-    context.strokeStyle = color;
-    context.fillStyle = "rgba(46, 163, 221, 0.14)";
-    context.lineWidth = 4;
-    context.beginPath();
-    points.forEach((point, index) => {
-        const x = Number(point?.[0] ?? point?.x ?? 0);
-        const y = Number(point?.[1] ?? point?.y ?? 0);
-        if (index === 0) {
-            context.moveTo(x, y);
-        } else {
-            context.lineTo(x, y);
+    if (selected_comp && selected_run && meta?.name) {
+        const root = isStaticMode() ? DEMO_DATA_ROOT : getLocalFilesRoot();
+        return new URL(`${selected_comp}/${selected_run}/${meta.name}`, root).href;
+    }
+
+    return currentSource;
+}
+
+function waitForVideoFrame(video, timeout = 5000) {
+    return new Promise((resolve, reject) => {
+        if (video.readyState >= 2) {
+            resolve();
+            return;
         }
+
+        const cleanup = () => {
+            video.removeEventListener("loadeddata", handleReady);
+            video.removeEventListener("canplay", handleReady);
+            video.removeEventListener("error", handleError);
+            clearTimeout(timer);
+        };
+        const handleReady = () => {
+            cleanup();
+            resolve();
+        };
+        const handleError = () => {
+            cleanup();
+            reject(new Error("La premiere frame video est indisponible."));
+        };
+        const timer = setTimeout(() => {
+            cleanup();
+            reject(new Error("Chargement de la premiere frame trop long."));
+        }, timeout);
+
+        video.addEventListener("loadeddata", handleReady, { once: true });
+        video.addEventListener("canplay", handleReady, { once: true });
+        video.addEventListener("error", handleError, { once: true });
     });
-    context.closePath();
-    context.fill();
-    context.stroke();
-    context.restore();
+}
+
+async function drawFirstVideoFrame(context, canvas, meta) {
+    const sourceUrl = videoUrlForMeta(meta);
+    if (!sourceUrl) {
+        return false;
+    }
+
+    const video = document.createElement("video");
+    video.crossOrigin = "anonymous";
+    video.preload = "auto";
+    video.muted = true;
+    video.playsInline = true;
+    video.src = sourceUrl;
+    video.load?.();
+
+    await waitForVideoFrame(video);
+    const width = positiveNumber(meta?.width, video.videoWidth, canvas.width);
+    const height = positiveNumber(meta?.height, video.videoHeight, canvas.height);
+    if (Math.round(width) !== canvas.width || Math.round(height) !== canvas.height) {
+        canvas.width = Math.max(1, Math.round(width));
+        canvas.height = Math.max(1, Math.round(height));
+    }
+
+    context.drawImage(video, 0, 0, canvas.width, canvas.height);
+    return isCanvasReadable(canvas);
 }
 
 function drawCenteredText(context, text, width, height) {
@@ -256,11 +443,10 @@ function createFallbackSnapshot(meta, size) {
     fallback.height = Math.max(1, Math.round(size.height));
     const context = fallback.getContext("2d", { willReadFrequently: true });
     drawSnapshotFallback(context, meta, fallback.width, fallback.height);
-    drawPolygon(context, meta?.srcPts ?? []);
     return fallback;
 }
 
-function createVideoSnapshot(meta) {
+async function createVideoSnapshot(meta) {
     const size = getSourceSize(meta);
     const canvas = document.createElement("canvas");
     canvas.width = Math.max(1, Math.round(size.width));
@@ -270,24 +456,59 @@ function createVideoSnapshot(meta) {
     context.fillStyle = "#111827";
     context.fillRect(0, 0, canvas.width, canvas.height);
 
-    const video = getElement("vid");
-    const canDrawVideo = video && video.readyState >= 2 && currentVideoMatches(meta);
-    if (canDrawVideo) {
-        try {
-            context.drawImage(video, 0, 0, canvas.width, canvas.height);
-            if (!isCanvasReadable(canvas)) {
-                setStatus("La frame video n'est pas lisible par le canvas; rechargez la course pour activer l'apercu video CORS.", "error");
-                return createFallbackSnapshot(meta, size);
-            }
-        } catch {
+    try {
+        const drewVideo = await drawFirstVideoFrame(context, canvas, meta);
+        if (!drewVideo) {
+            setStatus("La premiere frame video n'est pas lisible par le canvas; rechargez la course pour activer l'apercu video CORS.", "error");
             return createFallbackSnapshot(meta, size);
         }
-    } else {
+    } catch {
         drawSnapshotFallback(context, meta, canvas.width, canvas.height);
     }
 
-    drawPolygon(context, meta?.srcPts ?? []);
     return canvas;
+}
+
+function createDefaultFlashSourcePoints(meta = activeMeta) {
+    const sourceSize = getSourceSize(meta);
+    const sourcePoints = Array.isArray(meta?.srcPts) ? meta.srcPts : [];
+    const center = sourcePoints.length > 0
+        ? {
+            x: sourcePoints.reduce((sum, point) => sum + Number(point?.[0] ?? 0), 0) / sourcePoints.length,
+            y: sourcePoints.reduce((sum, point) => sum + Number(point?.[1] ?? 0), 0) / sourcePoints.length
+        }
+        : { x: sourceSize.width / 2, y: sourceSize.height / 2 };
+    const width = Math.max(24, sourceSize.width * 0.04);
+    const height = Math.max(24, sourceSize.height * 0.04);
+
+    return [
+        { x: center.x - width / 2, y: center.y - height / 2 },
+        { x: center.x + width / 2, y: center.y - height / 2 },
+        { x: center.x + width / 2, y: center.y + height / 2 },
+        { x: center.x - width / 2, y: center.y + height / 2 }
+    ];
+}
+
+function addFlashConfiguration() {
+    const flash = ensureFlashMetadata();
+    if (!flash || !activeMeta) {
+        setStatus("Chargez une course avant d'ajouter un flash.", "empty");
+        return;
+    }
+
+    const referencePoints = sourcePointsToReferenceJson(createDefaultFlashSourcePoints(activeMeta), activeMeta);
+    if (referencePoints.length < 2) {
+        setStatus("La calibration video est necessaire pour ajouter un flash.", "error");
+        return;
+    }
+
+    flash.pts = referencePoints;
+    window.dispatchEvent(new CustomEvent("flash-calibration-updated", {
+        detail: { flash }
+    }));
+    renderFlashControl();
+    updatePreview();
+    setStatus("Flash ajoute. Deplacez la forme puis enregistrez.", "ready");
 }
 
 function getPoolReferenceImage() {
@@ -335,6 +556,69 @@ function applyPoolLabels() {
     };
     workspace.controls.source.setAnnotations([{ ...annotation, ...sourceCenter }], { silent: true });
     workspace.controls.destination.setAnnotations([{ ...annotation, ...destinationCenter }], { silent: true });
+}
+
+function renderFlashControl() {
+    const container = getElement("config_flash_workspace");
+    if (!container || !activeSourceImage || !activeMeta) {
+        clearFlashControl(false);
+        return;
+    }
+
+    const flashPoints = getFlashPoints();
+    const hasFlash = flashPoints.length >= 2;
+    setFlashActionState(hasFlash);
+    if (!hasFlash) {
+        clearFlashControl();
+        return;
+    }
+
+    const sourceSize = getSourceSize(activeMeta);
+    const sourcePoints = referencePointsToSourcePoints(flashPoints, activeMeta);
+    if (sourcePoints.length < 2) {
+        clearFlashControl();
+        return;
+    }
+    const value = sourcePoints.map((point) => sourcePointToPct(point, sourceSize));
+
+    flashControl?.remove?.();
+    flashControl = ImgCtrlPts.createImageControlPoints({
+        image: activeSourceImage,
+        width: CONTROL_WIDTH,
+        value,
+        label: false,
+        mode: "drag-shape",
+        interactionMode: "shape",
+        pointDisplay: "dots",
+        polygon: true,
+        background: true,
+        optimize: true,
+        minPoints: value.length,
+        maxPoints: value.length,
+        addPointOnDoubleClick: false,
+        radius: 0,
+        dotRadius: 0,
+        hitRadius: 14,
+        ariaLabel: "Flash control points",
+        theme: {
+            polygon: "rgba(255, 201, 71, 0.95)",
+            point: "rgba(255, 201, 71, 0.95)",
+            selectedPoint: "rgba(249, 56, 56, 0.95)",
+            grid: "rgba(255, 201, 71, 0.22)"
+        }
+    });
+    flashControl.addEventListener("input", () => {
+        applyFlashToMetadata();
+        updatePreview();
+    });
+    flashControl.addEventListener("change", () => {
+        applyFlashToMetadata();
+        updatePreview();
+    });
+
+    container.replaceChildren(flashControl);
+    setFlashActionState(true);
+    applyFlashToMetadata();
 }
 
 function getActiveMetaFromPage() {
@@ -471,6 +755,7 @@ function updatePreview() {
         poolImage: calibration.poolImage,
         srcPts: calibration.srcPts,
         destPts: calibration.destPts,
+        flash: megaData?.[0]?.flash ?? null,
         homography: calibration.homography
     }, null, 2);
 
@@ -499,6 +784,9 @@ async function renderConfiguration() {
     const videos = Array.isArray(metadata?.videos) ? metadata.videos : [];
     if (!metadata || videos.length === 0) {
         container.replaceChildren();
+        workspace?.remove?.();
+        workspace = null;
+        clearFlashControl();
         const preview = getElement("config_json_preview");
         if (preview) {
             preview.textContent = "";
@@ -514,6 +802,9 @@ async function renderConfiguration() {
     activeMeta = videos[selectedVideoIndex(videos)];
     if (!activeMeta?.srcPts || !activeMeta?.destPts) {
         container.replaceChildren();
+        workspace?.remove?.();
+        workspace = null;
+        clearFlashControl();
         const preview = getElement("config_json_preview");
         if (preview) {
             preview.textContent = "";
@@ -529,11 +820,12 @@ async function renderConfiguration() {
         activeReferenceSize = getImageSize(activeReferenceImage);
     } catch (error) {
         container.replaceChildren();
+        clearFlashControl();
         setStatus(error.message, "error");
         return;
     }
 
-    activeSourceImage = createVideoSnapshot(activeMeta);
+    activeSourceImage = await createVideoSnapshot(activeMeta);
 
     const sourceSize = getSourceSize(activeMeta);
     const sourcePoints = activeMeta.srcPts.map((point) => sourcePointToPct(point, sourceSize));
@@ -546,8 +838,8 @@ async function renderConfiguration() {
         sourceImage: activeSourceImage,
         referenceImage: activeReferenceImage,
         width: CONTROL_WIDTH,
-        columns: "repeat(3, minmax(250px, 1fr))",
-        gap: "12px",
+        columns: "repeat(2, minmax(360px, 1fr))",
+        gap: "16px",
         sourcePoints,
         destinationPoints,
         alpha: 0.64,
@@ -563,9 +855,12 @@ async function renderConfiguration() {
             grid: "rgba(46, 163, 221, 0.22)"
         }
     });
+    workspace.classList.add("video-calibration-workspace");
+    workspace.controls?.warped?.parentElement?.remove();
     workspace.addEventListener("input", schedulePreviewUpdate);
     workspace.addEventListener("change", schedulePreviewUpdate);
     container.replaceChildren(workspace);
+    renderFlashControl();
 
     setStatus(currentVideoMatches(activeMeta)
         ? "Image video courante utilisee pour la calibration."
@@ -589,31 +884,58 @@ async function saveConfiguration() {
     updatePreview();
 
     try {
-        const response = await fetch("http://127.0.0.1:8001/saveMetadata", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                competition: selected_comp,
-                run: selected_run,
-                metadata: megaData[0]
-            })
-        });
-
-        if (!response.ok) {
-            const errorText = await response.text();
-            throw new Error(errorText || `HTTP ${response.status}`);
-        }
-
-        const payload = await response.json();
+        const payload = await writeMetadataToJson();
         setStatus(`Coordonnees enregistrees: ${payload.path}`, "saved");
     } catch (error) {
         setStatus(`Coordonnees mises a jour en memoire, ecriture JSON impossible: ${error.message}`, "error");
     }
 }
 
+async function writeMetadataToJson() {
+    const response = await fetch(getLocalApiUrl("/saveMetadata"), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            competition: selected_comp,
+            run: selected_run,
+            metadata: megaData[0]
+        })
+    });
+
+    if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(errorText || `HTTP ${response.status}`);
+    }
+
+    return response.json();
+}
+
+async function saveFlashConfiguration() {
+    if (getFlashPoints().length < 2) {
+        setStatus("Aucun flash a enregistrer pour cette course.", "empty");
+        return;
+    }
+
+    if (!flashControl) {
+        await renderConfiguration();
+    }
+
+    applyFlashToMetadata();
+    updatePreview();
+
+    try {
+        const payload = await writeMetadataToJson();
+        setStatus(`Flash enregistre: ${payload.path}`, "saved");
+    } catch (error) {
+        setStatus(`Flash mis a jour en memoire, ecriture JSON impossible: ${error.message}`, "error");
+    }
+}
+
 function bindControls() {
     getElement("config_refresh")?.addEventListener("click", renderConfiguration);
     getElement("config_save")?.addEventListener("click", saveConfiguration);
+    getElement("config_flash_add")?.addEventListener("click", addFlashConfiguration);
+    getElement("config_flash_save")?.addEventListener("click", saveFlashConfiguration);
     getElement("config_video_select")?.addEventListener("change", renderConfiguration);
     getElement("config_pool_select")?.addEventListener("change", renderConfiguration);
     window.addEventListener("calibration-view-opened", renderConfiguration);

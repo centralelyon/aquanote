@@ -4,7 +4,9 @@
 """
 
 from pathlib import Path
+import argparse
 import json
+import os
 
 from flask import Flask, jsonify, request
 from flask_caching import Cache
@@ -12,7 +14,7 @@ from flask_compress import Compress
 
 
 ROOT_DIR = Path(__file__).resolve().parent
-DATA_DIR = ROOT_DIR / "courses_demo"
+DATA_DIR = ROOT_DIR / "videos"
 POOL_IMAGE_EXTENSIONS = {".png", ".jpg", ".jpeg", ".webp"}
 POOL_IMAGE_KEYWORDS = ("pool", "piscine", "swimming")
 
@@ -36,6 +38,17 @@ COMPRESS_MIN_SIZE = 500
 cache = Cache(config={"CACHE_TYPE": "simple"})
 cache.init_app(app)
 Compress(app)
+
+
+def valid_port(value):
+    try:
+        port = int(value)
+    except (TypeError, ValueError) as exc:
+        raise argparse.ArgumentTypeError("port must be an integer") from exc
+
+    if not 1 <= port <= 65535:
+        raise argparse.ArgumentTypeError("port must be between 1 and 65535")
+    return port
 
 
 @app.after_request
@@ -151,4 +164,12 @@ def save_metadata():
 
 
 if __name__ == "__main__":
-    app.run(host="127.0.0.1", port=8001, debug=False)
+    parser = argparse.ArgumentParser(description="Run the Aquanote local data API.")
+    parser.add_argument(
+        "--port",
+        type=valid_port,
+        default=valid_port(os.environ.get("AQUANOTE_API_PORT", "8001")),
+        help="API port to listen on. Defaults to AQUANOTE_API_PORT or 8001.",
+    )
+    args = parser.parse_args()
+    app.run(host="127.0.0.1", port=args.port, debug=False)

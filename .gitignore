@@ -89,3 +89,4 @@ dist/
 # Ignorer les dépendances
 node_modules/
 .env
+package-lock.json

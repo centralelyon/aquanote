@@ -10,6 +10,7 @@ import { updateTable } from './main.js';
 import { construct_modify_selected_annotation_table } from './data_handler.js';
 import { getSize } from './utils.js';
 import { getBar, get_orr, eucDistance } from './homography_handler.js';
+import { getVideoDisplayTransform } from './video_surface.js';
 /**
  * @brief Dictionnaire des couleurs pour chaque type d'événement de natation
  * Associe chaque mode d'annotation (cycle, turn, finish, etc.) à sa couleur d'affichage
@@ -33,6 +34,19 @@ export let mode_color = {
  * Boolean correspondant au bouton Show Labels : true -> affichage des labels des annotations, false -> pas d'affichages de ces labels
  */
 export let lab_flipper = true;
+
+function videoPointToDisplay(point, meta) {
+    const transform = getVideoDisplayTransform(meta);
+    if (!transform || !Array.isArray(point)) {
+        return null;
+    }
+    return {
+        x: transform.x + Number(point[0]) * transform.k,
+        y: transform.y + Number(point[1]) * transform.k,
+        k: transform.k
+    };
+}
+
 /**
  * @brief Construction d'une barre d'annotation visuelle sur le canvas vidéo
  * Crée un élément canvas avec la couleur et position appropriées selon le type d'événement
@@ -59,9 +73,11 @@ export function makeBar(data, idx, idswim, scale, elemSize, vidSize, meta) {
     can.setAttribute("swim", idswim)
     can.setAttribute("num", idx)
     let pts = getBar([data.x, data.y], meta, getDisplayLaneIndex(idswim, meta))
+    const displayStart = videoPointToDisplay(pts[0], meta);
+    const displayScale = displayStart?.k ?? (elemSize[0] / vidSize[0]);
 
 
-    can.height = Math.round((eucDistance(pts[0], pts[1])) * (elemSize[0] / vidSize[0])) * 1.2
+    can.height = Math.max(1, Math.round((eucDistance(pts[0], pts[1])) * displayScale * 1.2))
 
     let pointer_color = "red"
 
@@ -73,8 +89,8 @@ export function makeBar(data, idx, idswim, scale, elemSize, vidSize, meta) {
     context.fillRect(1, 0, 1, 300)
     context.fillRect(0, 0, 3, 5)
     context.fillRect(0, can.height - 5, 3, 300)
-    can.style["top"] = (scale[1](pts[0][1])) + "%";
-    can.style["left"] = (scale[0](pts[0][0])) + "%";
+    can.style["top"] = displayStart ? `${displayStart.y}px` : (scale[1](pts[0][1])) + "%";
+    can.style["left"] = displayStart ? `${displayStart.x}px` : (scale[0](pts[0][0])) + "%";
 
     can.style["transform"] = "rotate(" + get_orr(pts[0], pts[1]) + "deg)"
 
@@ -87,8 +103,8 @@ export function makeBar(data, idx, idswim, scale, elemSize, vidSize, meta) {
 
         div.innerHTML = "<p>#" + idx + "<br> " + (parseInt(data["cumul"] * 100) / 100).toString() + "m <br>" + ((data.frame_number / frame_rate)).toFixed(2) + "s</p>"
 
-        div.style["left"] = (scale[0](pts[0][0] - 1) + 0.4) + "%";
-        div.style["top"] = (scale[1](pts[0][1]) + 3) + "%";
+        div.style["left"] = displayStart ? `${displayStart.x - displayScale}px` : (scale[0](pts[0][0] - 1) + 0.4) + "%";
+        div.style["top"] = displayStart ? `${displayStart.y + 3 * displayScale}px` : (scale[1](pts[0][1]) + 3) + "%";
         div.style["height"] = can.height + "px"
         div.style["transform"] = "rotate(" + get_orr(pts[0], pts[1]) + "deg)"
     }

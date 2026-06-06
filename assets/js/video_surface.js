@@ -44,6 +44,17 @@ function resolveViewSize(container = getContainer()) {
     };
 }
 
+function canUseVideoImage(meta = currentMeta, videoElement = getVideoElement()) {
+    const source = videoElement?.currentSrc || videoElement?.getAttribute("src") || "";
+    return Boolean(
+        videoElement &&
+        videoElement.readyState >= 2 &&
+        (!meta?.name || source.includes(meta.name)) &&
+        positiveNumber(videoElement.videoWidth, videoElement.width) > 0 &&
+        positiveNumber(videoElement.videoHeight, videoElement.height) > 0
+    );
+}
+
 function ensureTransparentImage(size) {
     if (
         transparentImage &&
@@ -71,7 +82,7 @@ function getPoolControlPoints(meta = currentMeta) {
     }));
 }
 
-function getVideoDisplayTransform(meta = currentMeta) {
+export function getVideoDisplayTransform(meta = currentMeta) {
     const videoElement = getVideoElement();
     const size = resolveSourceSize(meta, videoElement);
 
@@ -157,17 +168,20 @@ function createPoolSurface(meta = currentMeta) {
         control = null;
     }
 
+    const videoElement = getVideoElement();
+    const useVideoBackground = poolControlsVisible && canUseVideoImage(meta, videoElement);
+
     control = ImgCtrlPts.createImageControlPoints({
-        image: ensureTransparentImage(sourceSize),
+        image: useVideoBackground ? videoElement : ensureTransparentImage(sourceSize),
         width: viewSize.width,
         height: viewSize.height,
         value: poolControlsVisible ? getPoolControlPoints(meta) : [],
         zoom: false,
-        animate: false,
+        animate: useVideoBackground,
         label: false,
         polygon: true,
         mask: false,
-        background: false,
+        background: useVideoBackground,
         padding: 0,
         radius: 7,
         hitRadius: 11,
@@ -186,6 +200,7 @@ function createPoolSurface(meta = currentMeta) {
     });
 
     control.id = SURFACE_ID;
+    control.dataset.videoBackground = String(useVideoBackground);
     control.classList.add("imgctrlpts-pool-surface");
     control.style.position = "absolute";
     control.style.inset = "0";
@@ -221,6 +236,15 @@ export function refreshVideoSurface(meta = currentMeta) {
 }
 
 export function redrawVideoSurface() {
+    if (
+        poolControlsVisible &&
+        currentMeta &&
+        control?.dataset.videoBackground !== "true" &&
+        canUseVideoImage(currentMeta)
+    ) {
+        createPoolSurface(currentMeta);
+        return;
+    }
     syncPoolSurfaceTransform();
     control?.redraw();
 }
@@ -229,9 +253,7 @@ export function setPoolControlsVisible(visible, meta = currentMeta) {
     poolControlsVisible = Boolean(visible);
     currentMeta = meta ?? currentMeta;
 
-    if (!control) {
-        createPoolSurface(currentMeta);
-    }
+    createPoolSurface(currentMeta);
 
     if (!control) {
         return;

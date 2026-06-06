@@ -7,13 +7,25 @@ import { scaleZoom,mode} from './refactor-script.js';
 import { getPoolBar, get_orr, eucDistance } from './homography_handler.js';
 import { get_meter_plot_label  } from './cycles_handler.js';
 import { getMeta } from './utils.js';
-import { setPoolControlsVisible } from './video_surface.js';
+import { getVideoDisplayTransform, setPoolControlsVisible } from './video_surface.js';
 
 export let show_indicator_lines = false;// Boolean correspondant au bouton Ligne Ref : true -> affichage et aide à la visée des lignes indicatrices, false -> pas d'affichage ni aide
 export let show_pool_boundaries = false;// Boolean correspondant à l'affichage des limites de la piscine calibrées dans le JSON
 let last_mode = "enter";// Dernier Mode d'annotation : quand on active les lignes ref on passe automatiquement en mode intermed, et quand on les désactive, on repasse en last_mode 
 let ecart_bord_premiere_barre=5;
 let ecart_barres=10;
+
+function videoPointToDisplay(point, meta) {
+    const transform = getVideoDisplayTransform(meta);
+    if (!transform || !Array.isArray(point)) {
+        return null;
+    }
+    return {
+        x: transform.x + Number(point[0]) * transform.k,
+        y: transform.y + Number(point[1]) * transform.k,
+        k: transform.k
+    };
+}
 
 /**
  * @var ecart_bord_premiere_barre donne l'écart entre chaque barre
@@ -84,15 +96,18 @@ export function plot_indicator_lines(isPlot){
             let wscale = d3.scaleLinear([2.5, 2.5], [2.5, 2.5])
             can.width = wscale(scaleZoom)
 
-            can.height = Math.round(eucDistance(pts_ind[0], pts_ind[1]) * (vid.offsetWidth / twidth)) //+ 10 ici
+            const displayStart = videoPointToDisplay(pts_ind[0], meta);
+            const displayEnd = videoPointToDisplay(pts_ind[1], meta);
+            const displayScale = displayStart?.k ?? (vid.offsetWidth / twidth);
+            can.height = Math.max(1, Math.round(eucDistance(pts_ind[0], pts_ind[1]) * displayScale)) //+ 10 ici
 
             context.fillStyle = "rgba(255, 247, 0, 0.5)"
             context.fillRect(0, 0, 50, 9999)
 
             let tpool_xscale = d3.scaleLinear([twidth, 0], [100, 0]);
             let tpool_yscale = d3.scaleLinear([0, theight], [0, 100]);
-            can.style["top"] = (tpool_yscale(pts_ind[0][1])) + "%";
-            can.style["left"] = (tpool_xscale(pts_ind[0][0] )) + "%";
+            can.style["top"] = displayStart ? `${displayStart.y}px` : (tpool_yscale(pts_ind[0][1])) + "%";
+            can.style["left"] = displayStart ? `${displayStart.x}px` : (tpool_xscale(pts_ind[0][0] )) + "%";
 
             can.style["transform"] = "rotate(" + get_orr(pts_ind[1], pts_ind[0]) + "deg)"
             container.append(can) 
@@ -101,8 +116,8 @@ export function plot_indicator_lines(isPlot){
             let div = document.createElement("p");
             div.setAttribute("class", "line_can line_tool line_ind")
             div.innerText = Math.round(get_meter_plot_label(meter)*100)/100 + " m"
-            div.style["left"] = (tpool_xscale(pts_ind[1][0])) + "%";
-            div.style["top"] = (tpool_yscale(pts_ind[1][1])) + "%";
+            div.style["left"] = displayEnd ? `${displayEnd.x}px` : (tpool_xscale(pts_ind[1][0])) + "%";
+            div.style["top"] = displayEnd ? `${displayEnd.y}px` : (tpool_yscale(pts_ind[1][1])) + "%";
 
             container.append(div)
         }
@@ -156,6 +171,16 @@ window.addEventListener('DOMContentLoaded', function() {
     });
 
     document.getElementById('vid')?.addEventListener('loadedmetadata', function() {
+        if (show_pool_boundaries) {
+            plot_pool_boundaries(true);
+        }
+    });
+    document.getElementById('vid')?.addEventListener('loadeddata', function() {
+        if (show_pool_boundaries) {
+            plot_pool_boundaries(true);
+        }
+    });
+    document.getElementById('vid')?.addEventListener('canplay', function() {
         if (show_pool_boundaries) {
             plot_pool_boundaries(true);
         }

@@ -5,6 +5,7 @@
 
 import { megaData, selected_comp, n_camera } from './loader.js';
 import { get_run_selected,  selected_data, vue_du_dessus } from './refactor-script.js';
+import { getLocalApiPort, hasCustomLocalApiPort } from './local_api.js';
 
 /**
  * @brief Récupère les métadonnées de la caméra active
@@ -62,6 +63,9 @@ export function update_url() {
 
     if (selected_data !== '') {
         mess += "&data=" + selected_data;
+    }
+    if (hasCustomLocalApiPort()) {
+        mess += "&apiPort=" + getLocalApiPort();
     }
     history.pushState({}, null, mess);
 }

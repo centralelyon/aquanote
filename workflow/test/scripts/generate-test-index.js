@@ -7,8 +7,8 @@ import { dirname, join } from 'path'
 import { fileURLToPath } from 'url'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
-const rootDir = join(__dirname, '..')
-const testDir = join(rootDir, 'test')
+const rootDir = join(__dirname, '..', '..', '..')
+const testDir = join(rootDir, 'workflow', 'test')
 
 /**
  * Génère un fichier index-test.html basé sur index.html
@@ -16,7 +16,7 @@ const testDir = join(rootDir, 'test')
  */
 function generateTestIndexFile() {
   try {
-    const indexPath = join(rootDir, '..', 'index.html')
+    const indexPath = join(rootDir, 'index.html')
     const testIndexPath = join(testDir, 'index-test.html')
     
     // Lire le fichier index.html original
@@ -25,7 +25,7 @@ function generateTestIndexFile() {
     // Remplacer la CSP stricte par une CSP détendue pour les tests
     const testContent = originalContent.replace(
       /<meta http-equiv="Content-Security-Policy" content="[^"]*">/,
-      `<meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-eval'; connect-src 'self' http://127.0.0.1:8001; media-src 'self' http://127.0.0.1:8001; img-src 'self' data:; script-src 'self' 'unsafe-eval';">`
+      `<meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-eval'; connect-src 'self' http://127.0.0.1:* http://localhost:*; media-src 'self' http://127.0.0.1:* http://localhost:*; img-src 'self' data:; script-src 'self' 'unsafe-eval';">`
     ).replace(
       /<title>[^<]*<\/title>/,
       '<title>Annotation Natation - Test Environment</title>'

@@ -19,6 +19,10 @@ import { nageurs } from "./jquery-custom.js";
 import "./ml-cycle-predictor-js/js/predictor.js";
 import "./video_configuration.js";
 import "./workspace_layout.js";
+import "./metadata_editor.js";
+import "./flash_marker.js";
+import "./synchronization.js";
+import { getLocalFilesRoot } from "./local_api.js";
 
 
 
@@ -36,9 +40,9 @@ function isGitHubMode() {
 }
 
 export let local_bool = !isGitHubMode();
-export const demoDataRoot = new URL("../../courses_demo/", import.meta.url).href;
+export const demoDataRoot = new URL("../../videos/", import.meta.url).href;
 export const packageJsonUrl = new URL("../../package.json", import.meta.url).href;
-export let base = local_bool ? "http://127.0.0.1:8001/files/" : demoDataRoot;
+export let base = local_bool ? getLocalFilesRoot() : demoDataRoot;
 
 function updateVersionDisplay(version) {
     const versionElement = document.getElementById('app-version');
@@ -90,22 +94,24 @@ export function displaySwimmers(data) {
         meta = megaData[0].videos.filter(d => (d.name.includes("fixeDroite")))[0] // done like this bcause we don't have the src yet
     }
     else {
-        meta = megaData[0].videos;
+        meta = Array.isArray(megaData[0].videos) ? megaData[0].videos[0] : megaData[0].videos;
     }
     if (vue_du_dessus) {
         meta = megaData[0].videos.filter(d => d.name.includes("dessus"))[0];
     }
 
-    let keys = getLaneKeysFromRaceMetadata({ lignes: data });
+    const laneKeys = getLaneKeysFromRaceMetadata({ lignes: data });
+    let displayKeys = laneKeys.slice();
     if (!isOneIsUp(meta)) {
-        keys = keys.reverse()
+        displayKeys = displayKeys.reverse()
     }
 
-    for (let i = 0; i < keys.length; i++) {
-        const swimmerName = data[keys[i]].replace("�", "é");
-        nageurs[i] = swimmerName;
-        let optionClass = "swimmer-option" + (i === selected_swim ? " selected" : "");
-        container.insertAdjacentHTML("beforeend", `<option class='${optionClass}' value='${i}'>${i + 1}- ${swimmerName}</option>`);
+    for (const laneKey of displayKeys) {
+        const laneIndex = laneKeys.indexOf(laneKey);
+        const swimmerName = data[laneKey].replace("�", "é");
+        nageurs[laneIndex] = swimmerName;
+        let optionClass = "swimmer-option" + (laneIndex === selected_swim ? " selected" : "");
+        container.insertAdjacentHTML("beforeend", `<option class='${optionClass}' value='${laneIndex}'>${laneIndex + 1}- ${swimmerName}</option>`);
     }
 
     // Synchroniser la valeur du select avec selected_swim

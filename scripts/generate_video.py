@@ -167,7 +167,8 @@ def create_video_writer(
         candidates = [(output_path, "MJPG")]
     else:
         candidates = [
-            (output_path, "mp4v"),
+            (output_path, "avc1"),
+            (output_path, "H264"),
             (output_path.with_suffix(".avi"), "MJPG"),
         ]
 

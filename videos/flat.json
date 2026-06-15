@@ -20,5 +20,12 @@
             "espadonModifie": false,
             "data_checked": false
         }
+    },
+    "2026_sportsdata": {
+        "2026_sportsdata_translation_carre_100_demifinale": {
+            "espadon": false,
+            "espadonModifie": false,
+            "data_checked": false
+        }
     }
 }

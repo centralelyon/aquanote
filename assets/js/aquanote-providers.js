@@ -12,7 +12,7 @@ import { makeFallbackProvider, parseCsvText } from "./data-provider.js";
 
 // ── Configuration ──────────────────────────────────────────────────────────────
 const API_BASE = "http://localhost:8000/aquanote";
-const STATIC_BASE = "courses_demo/";
+const STATIC_BASE = "videos/";
 
 // ── Static data ────────────────────────────────────────────────────────────────
 // Update this when CSV files or competitions are added/removed from the repo.

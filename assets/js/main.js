@@ -16,6 +16,7 @@ import { getMeta } from './utils.js'
 import { findCycleIndexAtFrame } from "./cycles_handler.js";
 import "./plot_handler.js";
 import "./jquery-custom.js";
+import "./workspace_layout.js";
 import "./ml-cycle-predictor-js/js/predictor.js";
 
 
@@ -36,6 +37,9 @@ function isGitHubMode() {
 
 export let local_bool = !isGitHubMode();
 export let base = "./";
+export const demoDataRoot = typeof document !== "undefined"
+    ? new URL("videos/", document.baseURI).href
+    : "videos/";
 
 
 

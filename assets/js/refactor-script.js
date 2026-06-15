@@ -419,16 +419,18 @@ export function clampSelectedSwim(laneCount) {
 
     $("#loadbtn").on("click", function () {
         const selected_comp = $("#competition").val();
-        if (!compets[selected_comp].some(run => run.name === get_run_selected())) {
-            alert(`L'épreuve "${get_run_selected()}" n'existe pas.`);
+        const runToLoad = get_run_selected();
+        const knownRuns = compets[selected_comp];
+        if (knownRuns?.length > 0 && !knownRuns.some(run => run.name === runToLoad)) {
+            alert(`L'épreuve "${runToLoad}" n'existe pas.`);
             return;
         }
         $(".crop_can").remove();
         $(".swname_pool").remove();
-    
+
         const temp = $("#temp").val();
         selected_data = (temp === "new_data" ? '' : temp);
-        load_run(get_run_selected(), selected_data);
+        load_run(runToLoad, selected_data);
         update_url();
     });
     $("#run_part1").on("change", function () {

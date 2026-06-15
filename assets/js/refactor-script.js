@@ -4,9 +4,9 @@
  */
 
 import { choose_tab,construct_modify_selected_annotation_table, add_element_to_data,vide_last_added_data, last_added_data, currate_events, construct_last_added_data_table } from './data_handler.js';
-import { meters_checkpoints,megaData,curr_swims, frame_rate, compets, getDatas, selected_comp, load_run, turn_distances, selected_run, edit_vidName, vidName, getRuns, get_quality, get_temp_start, pool_size, n_camera, getLaneYPosition, resolveRunName } from './loader.js';
+import { meters_checkpoints,megaData,curr_swims, frame_rate, compets, getDatas, selected_comp, load_run, turn_distances, selected_run, edit_vidName, vidName, getRuns, get_quality, get_temp_start, pool_size, n_camera, getLaneYPosition, resolveRunName, getRunDisplayParts } from './loader.js';
 import { draw_stats, set_placeholder_of_time_entry, update_swimmer } from './side_views.js';
-import { updateTable, setGrad,frameId_to_RunTime, base, metrics_calculation } from './main.js';
+import { updateTable, setGrad,frameId_to_RunTime, metrics_calculation } from './main.js';
 import { activate_shortcut,deactivate_shortcut, nageurs } from './jquery-custom.js';
 import { getPointInverted,getPoolBar, eucDistance, get_orr } from './homography_handler.js';
 import { getMeta, getSize,update_url } from './utils.js';
@@ -15,6 +15,7 @@ import { indicator_correction, show_indicator_lines, plot_indicator_lines, hide_
 import { positionCurseur,edit_positionCurseur } from './shortcuts_handler.js'
 import { vidReset } from './videoHandler.js';
 import { getVideoDisplayTransform, redrawVideoSurface, refreshVideoSurface, zoomVideoSurface } from './video_surface.js';
+import { dataProvider } from './aquanote-providers.js';
 
 
 export let video_volume = 0;
@@ -42,6 +43,15 @@ const codeNaNforDownload = "";// Lors du téléchargement des données, si une d
 //choose_right_plot({"checked":false});
 choose_tab(null,"data_entry",'side_tab_content','sideTabLinks')
 construct_modify_selected_annotation_table(true)
+
+function videoUrl(filename, time = null) {
+    const url = dataProvider.getVideoUrl(selected_comp, selected_run, filename);
+    return time == null ? url : `${url}#t=${Math.max(0, time)}`;
+}
+
+function videoMetaByNamePart(namePart) {
+    return megaData[0]?.videos?.find(d => d.name && d.name.includes(namePart));
+}
 
 function syncRefactorGlobals() {
     if (typeof window === "undefined") {
@@ -271,8 +281,13 @@ export function clampSelectedSwim(laneCount) {
     $("#quality").on("change",() =>{
         edit_vidName( $('#quality').val());
         let vid = document.getElementById("vid")
-        let metaDroite = megaData[0].videos.filter(d => d.name.includes("fixeDroite")) [0]
-        let metaGauche = megaData[0].videos.filter(d => d.name.includes("fixeGauche")) [0]
+        let metaDroite = videoMetaByNamePart("fixeDroite")
+        let metaGauche = videoMetaByNamePart("fixeGauche")
+        if (!metaDroite || !metaGauche) {
+            vid.setAttribute("src", videoUrl(vidName, vid.currentTime));
+            refreshVideoSurface(getMeta());
+            return;
+        }
 
         let right_attr = "start_flash"
         let left_attr = "start_synchro_flash"
@@ -284,11 +299,11 @@ export function clampSelectedSwim(laneCount) {
         if (vid.getAttribute("src").includes("fixeDroite")) {
 
             let t = vid.currentTime - metaDroite[right_attr] + metaGauche[left_attr]
-            vid.setAttribute("src", base+ selected_comp + "/" + selected_run + "/" + vidName+ '#t=' + t)
+            vid.setAttribute("src", videoUrl(vidName, t))
             setGrad(t)
         } else {
             let t = vid.currentTime - metaDroite[right_attr] + metaGauche[left_attr]
-            vid.setAttribute("src", base+ selected_comp + "/" + selected_run + "/" + vidName+ '#t=' + t)
+            vid.setAttribute("src", videoUrl(vidName, t))
             setGrad(t)
         }
         refreshVideoSurface(getMeta());
@@ -307,8 +322,11 @@ export function clampSelectedSwim(laneCount) {
     $("#vidsw").on("click", () => {
         if (n_camera > 1) {
             let vid = document.getElementById("vid")
-            let metaDroite = megaData[0].videos.filter(d => d.name.includes("fixeDroite")) [0]
-            let metaGauche = megaData[0].videos.filter(d => d.name.includes("fixeGauche")) [0]
+            let metaDroite = videoMetaByNamePart("fixeDroite")
+            let metaGauche = videoMetaByNamePart("fixeGauche")
+            if (!metaDroite || !metaGauche) {
+                return;
+            }
 
             let right_attr = "start_flash"
             let left_attr = "start_synchro_flash"
@@ -318,11 +336,13 @@ export function clampSelectedSwim(laneCount) {
             }
             if (vid.getAttribute("src").includes("fixeDroite")) {
                 let t = vid.currentTime + metaDroite[right_attr] - metaGauche[left_attr]
-                vid.setAttribute("src", base+ selected_comp + "/" + selected_run + "/" + vidName.replace("fixeDroite","fixeGauche")+ '#t=' + t)
+                edit_vidName(metaGauche.name);
+                vid.setAttribute("src", videoUrl(metaGauche.name, t))
                 setGrad(t)
             } else {
                 let t = vid.currentTime - metaDroite[right_attr] + metaGauche[left_attr]
-                vid.setAttribute("src", base+ selected_comp + "/" + selected_run + "/" + vidName.replace("fixeGauche","fixeDroite")+ '#t=' + t)
+                edit_vidName(metaDroite.name);
+                vid.setAttribute("src", videoUrl(metaDroite.name, t))
                 setGrad(t)
             }
             refreshVideoSurface(getMeta());
@@ -344,15 +364,22 @@ export function clampSelectedSwim(laneCount) {
         let vid = document.getElementById("vid")
         if (vid.getAttribute("src").includes("dessus")) {
                 let t = 0
-                vid.setAttribute("src", base+ selected_comp + "/" + selected_run + "/" + vidName.replace("dessus","fixeGauche")+ '#t=' + t)
+                const sideMeta = videoMetaByNamePart("fixeGauche") || videoMetaByNamePart("fixeDroite") || megaData[0]?.videos?.[0];
+                if (sideMeta?.name) {
+                    edit_vidName(sideMeta.name);
+                    vid.setAttribute("src", videoUrl(sideMeta.name, t))
+                }
                 setGrad(t)
                 vue_du_dessus = false;
             } else {
                 let t = 0
-                let vidName2 = selected_run+"_dessus.mp4"
-                vid.setAttribute("src", base+ selected_comp + "/" + selected_run + "/" + vidName2+ '#t=' + t);
-                setGrad(t)
-                vue_du_dessus = true;
+                let metaDessus = videoMetaByNamePart("dessus");
+                if (metaDessus?.name) {
+                    edit_vidName(metaDessus.name);
+                    vid.setAttribute("src", videoUrl(metaDessus.name, t));
+                    setGrad(t)
+                    vue_du_dessus = true;
+                }
             }
         refreshVideoSurface(getMeta());
         updateBarsFromEvent(selected_swim, true); //
@@ -405,19 +432,19 @@ export function clampSelectedSwim(laneCount) {
         vid.currentTime -= 1;
     })
 
-    $("#competition").on("change", function () {
+    $("#competition").on("change", async function () {
         let val = $(this).val()
-        getRuns(val)
+        await getRuns(val)
 
     })
 
-    $("#run").on("input", function () {
+    $("#run").on("input", async function () {
 
         let val = $(this).val()
-        getDatas($("#competition").val(), val)
+        await getDatas($("#competition").val(), val)
     })
 
-    $("#loadbtn").on("click", function () {
+    $("#loadbtn").on("click", async function () {
         const selected_comp = $("#competition").val();
         const runToLoad = get_run_selected();
         const knownRuns = compets[selected_comp];
@@ -428,9 +455,10 @@ export function clampSelectedSwim(laneCount) {
         $(".crop_can").remove();
         $(".swname_pool").remove();
 
+        await getDatas(selected_comp, runToLoad);
         const temp = $("#temp").val();
         selected_data = (temp === "new_data" ? '' : temp);
-        load_run(runToLoad, selected_data);
+        await load_run(runToLoad, selected_data);
         update_url();
     });
     $("#run_part1").on("change", function () {
@@ -443,24 +471,24 @@ export function clampSelectedSwim(laneCount) {
             return;
         }
     
+        const matchingRuns = compets[selectedComp]
+            .filter(run => getRunDisplayParts(run.name, selectedComp)[0] === selectedTypeNage);
+
         // Filtrer les options pour run_part2
-        const filteredSexeNageurs = compets[selectedComp]
-            .filter(run => run.name.includes(selectedTypeNage)) // Filtrer par type de nage
-            .map(run => run.name.split("_")[4]) // Extraire le sexe
+        const filteredSexeNageurs = matchingRuns
+            .map(run => getRunDisplayParts(run.name, selectedComp)[1]) // Extraire le sexe
             .filter((value, index, self) => value && self.indexOf(value) === index); // Supprimer les doublons
     
         fillDropdown("run_part2", filteredSexeNageurs);
     
         // Vider les menus suivants
-        let filteredDistances = compets[selectedComp]
-            .filter(run => run.name.includes(selectedTypeNage)) // Filtrer par type de nage et sexe
-            .map(run => run.name.split("_")[5]) // Extraire la distance
+        let filteredDistances = matchingRuns
+            .map(run => getRunDisplayParts(run.name, selectedComp)[2]) // Extraire la distance
             .filter((value, index, self) => value && self.indexOf(value) === index); // Supprimer les doublons
         filteredDistances = Array.from(filteredDistances).sort((a, b) => parseInt(a) - parseInt(b));
         fillDropdown("run_part3", filteredDistances);
-        const filteredEtapes = compets[selectedComp]
-            .filter(run => run.name.includes(selectedTypeNage)) // Filtrer par type de nage, sexe et distance
-            .map(run => run.name.split("_")[6]) // Extraire l'étape
+        const filteredEtapes = matchingRuns
+            .map(run => getRunDisplayParts(run.name, selectedComp)[3]) // Extraire l'étape
             .filter((value, index, self) => value && self.indexOf(value) === index); // Supprimer les doublons
         
         fillDropdown("run_part4", filteredEtapes);
@@ -477,18 +505,22 @@ export function clampSelectedSwim(laneCount) {
             return;
         }
     
+        const matchingRuns = compets[selectedComp]
+            .filter(run => {
+                const parts = getRunDisplayParts(run.name, selectedComp);
+                return parts[0] === selectedTypeNage && parts[1] === selectedSexeNageur;
+            });
+
         // Filtrer les options pour run_part3
-        let filteredDistances = compets[selectedComp]
-            .filter(run => run.name.includes(selectedTypeNage) && run.name.includes(selectedSexeNageur)) // Filtrer par type de nage et sexe
-            .map(run => run.name.split("_")[5]) // Extraire la distance
+        let filteredDistances = matchingRuns
+            .map(run => getRunDisplayParts(run.name, selectedComp)[2]) // Extraire la distance
             .filter((value, index, self) => value && self.indexOf(value) === index); // Supprimer les doublons
         filteredDistances = Array.from(filteredDistances).sort((a, b) => parseInt(a) - parseInt(b));
         fillDropdown("run_part3", filteredDistances);
     
         // Vider les menus suivants
-        const filteredEtapes = compets[selectedComp]
-            .filter(run => run.name.includes(selectedTypeNage) && run.name.includes(selectedSexeNageur)) // Filtrer par type de nage, sexe et distance
-            .map(run => run.name.split("_")[6]) // Extraire l'étape
+        const filteredEtapes = matchingRuns
+            .map(run => getRunDisplayParts(run.name, selectedComp)[3]) // Extraire l'étape
             .filter((value, index, self) => value && self.indexOf(value) === index); // Supprimer les doublons
     
         fillDropdown("run_part4", filteredEtapes);
@@ -508,8 +540,11 @@ export function clampSelectedSwim(laneCount) {
     
         // Filtrer les options pour run_part4
         const filteredEtapes = compets[selectedComp]
-            .filter(run => run.name.includes(selectedTypeNage) && run.name.includes(selectedSexeNageur) && run.name.includes(selectedDistance)) // Filtrer par type de nage, sexe et distance
-            .map(run => run.name.split("_")[6]) // Extraire l'étape
+            .filter(run => {
+                const parts = getRunDisplayParts(run.name, selectedComp);
+                return parts[0] === selectedTypeNage && parts[1] === selectedSexeNageur && parts[2] === selectedDistance;
+            })
+            .map(run => getRunDisplayParts(run.name, selectedComp)[3]) // Extraire l'étape
             .filter((value, index, self) => value && self.indexOf(value) === index); // Supprimer les doublons
     
         fillDropdown("run_part4", filteredEtapes);
@@ -520,8 +555,8 @@ export function clampSelectedSwim(laneCount) {
         const part2 = $("#run_part2").val();
         const part3 = $("#run_part3").val();
 
-        // Vérifier si les trois champs ont des valeurs sélectionnées
-        if (part1 && part2 && part3) {
+        // Vérifier si une course peut être résolue
+        if (part1 || part2 || part3) {
             getDatas($("#competition").val(), get_run_selected());
         }
     });
@@ -531,7 +566,7 @@ export function clampSelectedSwim(laneCount) {
         const part2 = $("#run_part2").val();
         const part3 = $("#run_part3").val();
         const part4 = $("#run_part4").val();
-        if (part1 && part2 && part3 && part4) {
+        if (part1 || part2 || part3 || part4) {
             getDatas($("#competition").val(), get_run_selected());
         }
     }
@@ -553,14 +588,14 @@ export function clampSelectedSwim(laneCount) {
      * Method used to generate the report related to the current run
      */
     export function generateRunReport(){
-        let url = `${base}${selected_comp}/${selected_run}/${$("#temp").val()}`
+        let url = dataProvider.getVideoUrl(selected_comp, selected_run, $("#temp").val())
         // let lien = window.location.href.match(/[0-9]+_[^&]+/g)
         let lien = "https://observablehq.com/d/9dbe52f370657ce8?s="+url
         window.open(lien,'_blank')
     }
     window.generateRunReport = generateRunReport;
     $("#pathToReport").on("click",function() {
-        let url = `${base}${selected_comp}/${selected_run}/${$("#temp").val()}`
+        let url = dataProvider.getVideoUrl(selected_comp, selected_run, $("#temp").val())
         // let lien = window.location.href.match(/[0-9]+_[^&]+/g)
         let lien = "https://observablehq.com/d/9dbe52f370657ce8?s="+url
         window.open(lien,'_blank')
@@ -772,11 +807,13 @@ export function clic_souris_video(e) {
 
             if (avg > (pool_size[0] / 2) - 3 && !vid.getAttribute("src").includes("fixeGauche")) { //TODO: Adapt to start side
 
-                let metaLeft = megaData[0].videos.filter(d => d.name.includes("fixeGauche"))[0]
+                let metaLeft = videoMetaByNamePart("fixeGauche")
+                if (!metaLeft?.name) return;
                 temp_start = get_temp_start(metaLeft);
 
 
-                vid.setAttribute("src", base + "/" + selected_comp + "/" + selected_run + "/" + metaLeft.name)
+                edit_vidName(metaLeft.name);
+                vid.setAttribute("src", videoUrl(metaLeft.name))
                 refreshVideoSurface(metaLeft);
                 vid.currentTime = temp_start + tdat[0].frame_number / frame_rate;
                 selected_num = curr_swims[selected_swim].length - 1;
@@ -787,10 +824,12 @@ export function clic_souris_video(e) {
 
             } else if (avg < (pool_size[0] / 2) - 3 && !vid.getAttribute("src").includes("fixeDroite")) { //TODO: Adapt to start side
 
-                let metaRight = megaData[0].videos.filter(d => d.name.includes("fixeDroite"))[0];
+                let metaRight = videoMetaByNamePart("fixeDroite");
+                if (!metaRight?.name) return;
                 temp_start = get_temp_start(metaRight);
 
-                vid.setAttribute("src", base + "/" + selected_comp + "/" + selected_run + "/" + metaRight.name)
+                edit_vidName(metaRight.name);
+                vid.setAttribute("src", videoUrl(metaRight.name))
                 refreshVideoSurface(metaRight);
                 vid.currentTime = temp_start + tdat[0].frame_number / frame_rate;
                 selected_num = 0
@@ -1253,19 +1292,34 @@ let pt=[0,0];
     
     
     export function get_run_selected(){
-        // Vérifie d'abord si un paramètre 'course' est présent dans l'URL
-        const urlParams = new URLSearchParams(window.location.search);
-        const courseParam = urlParams.get('course');
-        if (courseParam && courseParam.trim() !== "" && $("#run_part3").val()=='') {
-            return resolveRunName(courseParam);
-        }
-        // Sinon, comportement habituel
+        const selectedComp = $("#competition").val();
+        const knownRuns = compets[selectedComp] || [];
+        const hasKnownRun = (runName) => knownRuns.some(run => run.name === runName);
+
         const part1 = $("#run_part1").val();
         const part2 = $("#run_part2").val();
         const part3 = $("#run_part3").val();
         const part4 = $("#run_part4").val();
-        const selected_comp1 = $("#competition").val();
-        return resolveRunName(`${selected_comp1}_${part1}_${part2}_${part3}_${part4}`);
+
+        // Vérifie d'abord si un paramètre 'course' est présent dans l'URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const courseParam = resolveRunName(urlParams.get('course'));
+        if (courseParam && courseParam.trim() !== "" && !part3 && hasKnownRun(courseParam)) {
+            return courseParam;
+        }
+
+        // Sinon, comportement habituel
+        const legacyRunName = resolveRunName(`${selectedComp}_${part1}_${part2}_${part3}_${part4}`);
+        if (hasKnownRun(legacyRunName)) {
+            return legacyRunName;
+        }
+
+        const matchingRun = knownRuns.find((run) => {
+            const parts = getRunDisplayParts(run.name, selectedComp);
+            return [part1, part2, part3, part4]
+                .every((part, index) => !part || parts[index] === part);
+        });
+        return matchingRun?.name || selected_run || knownRuns[0]?.name || legacyRunName;
     }
     window.get_run_selected = get_run_selected;
     export function edit_temp_start(x){

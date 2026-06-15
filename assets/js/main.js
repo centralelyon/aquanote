@@ -4,7 +4,7 @@
  */
 
 
-import { init, megaData, curr_swims, frame_rate, temp_end, n_camera } from "./loader.js"
+import { init, megaData, curr_swims, frame_rate, temp_end, n_camera, selected_comp, selected_run } from "./loader.js"
 import { construct_data_row, data_onclick } from "./data_handler.js"
 import { selected_swim, temp_start, updateSwimSwitch, vue_du_dessus } from "./refactor-script.js"
 import "./plot_handler.js"
@@ -18,6 +18,12 @@ import "./plot_handler.js";
 import "./jquery-custom.js";
 import "./workspace_layout.js";
 import "./ml-cycle-predictor-js/js/predictor.js";
+import "./configuration_panel.js";
+import "./video_configuration.js";
+import "./metadata_editor.js";
+import "./synchronization.js";
+import "./flash_marker.js";
+import { getApiBaseUrl, getDataSourceMode, getLocalServerUrl } from "./local_api.js";
 
 
 
@@ -389,33 +395,21 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    // Source de données
-    const currentSource = new URLSearchParams(window.location.search).get("source") ?? "auto";
-    const sourceLabel = document.getElementById("source-label");
-    if (sourceLabel) sourceLabel.textContent = currentSource;
+    document.getElementById("view_data_source")?.addEventListener("click", function () {
+        if (!selected_comp || !selected_run) {
+            return;
+        }
 
-    const sourceMenu = document.getElementById("source-menu");
-    // Override hover-based CSS — this dropdown is click-controlled only
-    if (sourceMenu) {
-        sourceMenu.style.display = "none";
-        sourceMenu.style.zIndex = "1000";
-    }
-    document.getElementById("data_source")?.addEventListener("click", function (e) {
-        e.stopPropagation();
-        sourceMenu.style.display = sourceMenu.style.display === "block" ? "none" : "block";
-    });
-
-    sourceMenu?.querySelectorAll("[data-source]").forEach(btn => {
-        if (btn.dataset.source === currentSource) btn.style.fontWeight = "bold";
-        btn.addEventListener("click", function () {
-            const params = new URLSearchParams(window.location.search);
-            params.set("source", this.dataset.source);
-            window.location.search = params.toString();
-        });
-    });
-
-    document.addEventListener("click", () => {
-        if (sourceMenu) sourceMenu.style.display = "none";
+        const source = getDataSourceMode();
+        let url;
+        if (source === "api") {
+            url = `${getApiBaseUrl()}/getDatas/${selected_comp}/${selected_run}`;
+        } else if (source === "local") {
+            url = `${getLocalServerUrl()}/getDatas/${selected_comp}/${selected_run}`;
+        } else {
+            url = new URL(`videos/${selected_comp}/${selected_run}/`, document.baseURI).href;
+        }
+        window.open(url, "_blank", "noopener");
     });
 });
 
@@ -441,4 +435,3 @@ function downloadRaccourcis() {
     document.body.removeChild(link);
 
 }
-

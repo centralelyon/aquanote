@@ -10,10 +10,10 @@
     "**/.conda/**": true,
     "**/.mypy_cache/**": true,
     //"**/*.min.js": true,
-    "**/latex/**":true,
-    "**/playwright-report/**":true,
-    "**/build/**":true,
-    "**/codes/**":true,
+    "**/latex/**": true,
+    "**/playwright-report/**": true,
+    "**/build/**": true,
+    "**/codes/**": true,
     //"**/coverage/**":true,
   },
   "files.exclude": {
@@ -26,10 +26,11 @@
     "**/.conda": true,
     "**/.mypy_cache": true,
     //"**/*.min.js": true,
-    "**/latex/**":true,
-    "**/playwright-report/**":true,
-    "**/build/**":true,
+    "**/latex/**": true,
+    "**/playwright-report/**": true,
+    "**/build/**": true,
     //"**/codes_python_divers/**": true,
-    "**/coverage/**":true,
-  }
+    "**/coverage/**": true,
+  },
+  "python-envs.defaultEnvManager": "ms-python.python:system"
 }

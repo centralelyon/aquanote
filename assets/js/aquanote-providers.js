@@ -2,49 +2,42 @@
  * @file aquanote-providers.js
  * @brief Site-specific data provider factories for Aquanote.
  *
- * To switch data source, add ?source=api|static|auto to the URL.
- * Default (no param): auto — tries API first, falls back to static.
- *
- * To point to a different API (e.g. production), change API_BASE.
+ * To switch data source, add ?source=local|api|static|auto to the URL.
+ * Default (no param): auto — tries the local server first, falls back to static.
+ * Configure localServerUrl or apiUrl in the URL or the Configuration tab.
  */
 
 import { makeFallbackProvider, parseCsvText } from "./data-provider.js";
+import { getApiBaseUrl, getDataSourceMode, getLocalServerUrl } from "./local_api.js";
 
 // ── Configuration ──────────────────────────────────────────────────────────────
-const API_BASE = "http://localhost:8000/aquanote";
 const STATIC_BASE = "videos/";
 
-// ── Static data ────────────────────────────────────────────────────────────────
-// Update this when CSV files or competitions are added/removed from the repo.
-const staticData = {
-    competitions: [
-        { name: "2025_courses_demo", type: "directory" }
-    ],
-    runs: {
-        "2025_courses_demo": [
-            { name: "2025_courses_demo_translation_carre_100_demifinale", type: "directory" },
-            { name: "2025_courses_demo_translation_carre_50_finale", type: "directory" },
-            { name: "2025_courses_demo_translation_carre_50_serie", type: "directory" }
-        ]
-    },
-    csvFiles: {
-        "2025_courses_demo_translation_carre_100_demifinale": [
-            { name: "exemple_annotation_cycle.csv", type: "file" }
-        ],
-        "2025_courses_demo_translation_carre_50_finale": [
-            { name: "exemple_annotation_ligne_5_cycles.csv", type: "file" }
-        ],
-        "2025_courses_demo_translation_carre_50_serie": []
-    }
+let staticProviderData = {
+    competitions: [],
+    runs: {},
+    csvFiles: {},
+    videos: {},
+    aliases: {},
 };
+
+export function setStaticProviderData(data) {
+    staticProviderData = {
+        competitions: Array.isArray(data?.competitions) ? data.competitions : [],
+        runs: data?.runs && typeof data.runs === "object" ? data.runs : {},
+        csvFiles: data?.csvFiles && typeof data.csvFiles === "object" ? data.csvFiles : {},
+        videos: data?.videos && typeof data.videos === "object" ? data.videos : {},
+        aliases: data?.aliases && typeof data.aliases === "object" ? data.aliases : {},
+    };
+}
 
 // ── Provider factories ─────────────────────────────────────────────────────────
 
-function makeStaticProvider(data, basePath) {
+function makeStaticProvider(basePath) {
     return {
-        getCompets: async () => data.competitions,
-        getRuns: async (comp) => data.runs[comp] ?? [],
-        getDatas: async (comp, run) => data.csvFiles[run] ?? [],
+        getCompets: async () => staticProviderData.competitions,
+        getRuns: async (comp) => staticProviderData.runs[comp] ?? [],
+        getDatas: async (comp, run) => staticProviderData.csvFiles[run] ?? [],
         getQuality: async () => [],
         loadRunJson: async (comp, run) => {
             const url = `${basePath}${comp}/${run}/${run}.json`;
@@ -62,7 +55,7 @@ function makeStaticProvider(data, basePath) {
     };
 }
 
-function makeApiProvider(baseUrl) {
+function makeHttpProvider(baseUrl) {
     async function apiFetch(path) {
         const res = await fetch(`${baseUrl}${path}`);
         if (!res.ok) throw new Error(`API ${res.status}: ${path}`);
@@ -128,15 +121,16 @@ export function buildProvider() {
         return makeElectronProvider();
     }
 
-    const source = new URLSearchParams(window.location.search).get("source");
+    const source = getDataSourceMode();
 
-    if (source === "static") return makeStaticProvider(staticData, STATIC_BASE);
-    if (source === "api")    return makeApiProvider(API_BASE);
+    if (source === "static") return makeStaticProvider(STATIC_BASE);
+    if (source === "local")  return makeHttpProvider(getLocalServerUrl());
+    if (source === "api")    return makeHttpProvider(getApiBaseUrl());
 
-    // Default: try API first, fall back to static.
+    // Default: try the local server first, fall back to static files.
     return makeFallbackProvider(
-        makeApiProvider(API_BASE),
-        makeStaticProvider(staticData, STATIC_BASE),
+        makeHttpProvider(getLocalServerUrl()),
+        makeStaticProvider(STATIC_BASE),
         { stickyFallback: true }
     );
 }

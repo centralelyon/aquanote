@@ -5,7 +5,7 @@
 
 import { megaData, selected_comp, n_camera } from './loader.js';
 import { get_run_selected,  selected_data, vue_du_dessus } from './refactor-script.js';
-import { getLocalApiPort, hasCustomLocalApiPort } from './local_api.js';
+import { getApiBaseUrl, getDataSourceMode, getLocalServerUrl } from './local_api.js';
 
 /**
  * @brief Récupère les métadonnées de la caméra active
@@ -15,8 +15,13 @@ import { getLocalApiPort, hasCustomLocalApiPort } from './local_api.js';
  */
 export function getMeta() {
     let vid = document.getElementById("vid");
+    const src = vid?.currentSrc || vid?.getAttribute("src") || "";
     if (vue_du_dessus) {
         return megaData[0].videos.filter(d => d.name.includes("dessus"))[0];
+    }
+    const matchingMeta = megaData[0]?.videos?.find(d => d.name && src.includes(d.name));
+    if (matchingMeta) {
+        return matchingMeta;
     }
     if (n_camera > 1) {
         let side = vid.getAttribute("src").includes("fixeDroite") ;
@@ -55,19 +60,38 @@ export function getSize(meta) {
  * Permet le partage d'état via URL et la navigation dans l'historique
  */
 export function update_url() {
-    let mess = "?competition=" + selected_comp;
+    const params = new URLSearchParams(window.location.search);
+    params.set("competition", selected_comp);
 
     if (get_run_selected() !== '') {
-        mess += "&course=" + get_run_selected();
+        params.set("course", get_run_selected());
+    } else {
+        params.delete("course");
     }
 
     if (selected_data !== '') {
-        mess += "&data=" + selected_data;
+        params.set("data", selected_data);
+    } else {
+        params.delete("data");
     }
-    if (hasCustomLocalApiPort()) {
-        mess += "&apiPort=" + getLocalApiPort();
+
+    const source = getDataSourceMode();
+    if (source !== "auto") {
+        params.set("source", source);
     }
-    history.pushState({}, null, mess);
+
+    const localServerUrl = getLocalServerUrl();
+    if (localServerUrl !== "http://127.0.0.1:8000") {
+        params.set("localServerUrl", localServerUrl);
+        params.delete("apiPort");
+    }
+
+    const apiBaseUrl = getApiBaseUrl();
+    if (apiBaseUrl !== "http://localhost:8000/aquanote") {
+        params.set("apiUrl", apiBaseUrl);
+    }
+
+    history.pushState({}, null, `?${params.toString()}`);
 }
 
 /**

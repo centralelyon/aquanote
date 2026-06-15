@@ -23,9 +23,9 @@ import {
     normalizeFlatManifest,
     resolveRunAlias,
 } from "./demo_manifest.js";
-import {base, demoDataRoot, displaySwimmers, local_bool, setGrad} from "./main.js"
+import { demoDataRoot, displaySwimmers, setGrad } from "./main.js"
 import { formatValidationIssue, validateCsvUrlHeaders } from "./sportsdata.js";
-import { dataProvider } from "./aquanote-providers.js";
+import { dataProvider, setStaticProviderData } from "./aquanote-providers.js";
 
 let flat;
 let flatManifest = null;
@@ -144,6 +144,39 @@ export function resolveRunName(runName) {
     return resolveRunAlias(runName, staticData.aliases);
 }
 
+export function getRunDisplayParts(runName, competitionName = selected_comp) {
+    const normalizedRunName = resolveRunName(runName);
+    if (!normalizedRunName) {
+        return ["", "", "", ""];
+    }
+
+    const prefix = competitionName ? `${competitionName}_` : "";
+    let runWithoutCompetition = prefix && normalizedRunName.startsWith(prefix)
+        ? normalizedRunName.slice(prefix.length)
+        : normalizedRunName;
+
+    const rawParts = runWithoutCompetition.split("_").filter(Boolean);
+    if (prefix && rawParts[0] && /^\d{4}$/.test(rawParts[0])) {
+        runWithoutCompetition = rawParts.slice(1).join("_");
+    }
+
+    const parts = runWithoutCompetition.split("_").filter(Boolean);
+    return [
+        parts[0] || "",
+        parts[1] || "",
+        parts[2] || "",
+        parts.slice(3).join("_") || "",
+    ];
+}
+
+function addRunPartsToSets(runName, competitionName, type_nage, sexe_nageurs, distance, étape_compétition) {
+    const [part1, part2, part3, part4] = getRunDisplayParts(runName, competitionName);
+    if (part1) type_nage.add(part1);
+    if (part2) sexe_nageurs.add(part2);
+    if (part3) distance.add(part3);
+    if (part4) étape_compétition.add(part4);
+}
+
 function getDemoAssetUrl(relativePath) {
     return new URL(relativePath, demoDataRoot).href;
 }
@@ -163,6 +196,7 @@ async function populateStaticDataFromManifest(loadVideos = false) {
               }
             : null
     );
+    setStaticProviderData(staticData);
 }
 
 async function loadStaticDataFromFlat() {
@@ -239,13 +273,7 @@ function processRunData(runs) {
 
   // Parcourir les noms des courses
   runs.forEach(run => {
-      const parts = run.split("_"); // Séparer le nom par "_"
-      
-      // Ajouter les éléments dans les listes correspondantes
-      if (parts[3]) type_nage.add(parts[3]);
-      if (parts[4]) sexe_nageurs.add(parts[4]);
-      if (parts[5]) distance.add(parts[5]);
-      if (parts[6]) étape_compétition.add(parts[6]);
+      addRunPartsToSets(run, selected_comp, type_nage, sexe_nageurs, distance, étape_compétition);
   });
   const sortedDistance = Array.from(distance).sort((a, b) => parseInt(a) - parseInt(b));
 
@@ -261,11 +289,7 @@ function syncRunSelectorsFromRunName(runName, competitionName = selected_comp) {
     }
 
     const normalizedRunName = resolveRunName(runName);
-    const prefix = `${competitionName}_`;
-    const runWithoutCompetition = normalizedRunName.startsWith(prefix)
-        ? normalizedRunName.slice(prefix.length)
-        : normalizedRunName;
-    const [part1, part2, part3, part4] = runWithoutCompetition.split("_");
+    const [part1, part2, part3, part4] = getRunDisplayParts(normalizedRunName, competitionName);
 
     if (part1) {
         $("#run_part1").val(part1);
@@ -305,6 +329,14 @@ export async function getDatas(comp, run) {
     select.append("<option value='new_data'>new_data</option>");
 }
 
+async function dataExistsForRun(comp, run, data) {
+    if (!data || data === "new_data") {
+        return true;
+    }
+    const entries = await dataProvider.getDatas(comp, run);
+    return entries.some(entry => entry.name === data);
+}
+
 /**
  * @brief permet de récupérer les compétitions disponibles sur le serveur.
  */
@@ -315,7 +347,7 @@ export async function getCompets() {
     $("#competition").empty();
 
     const data = await dataProvider.getCompets();
-    const c = data.filter(d => d.type == "directory" && d.name[0] == "2");
+    const c = data.filter(d => d.type == "directory");
 
     let select = $("#competition");
     for (let i = 0; i < c.length; i++) {
@@ -396,9 +428,6 @@ export async function getRuns(comp) {
         if (runs[i].name === requestedRun) {
             selected_run = runs[i].name;
         }
-        if (runs[i].name[0] !== "2") {
-            continue;
-        }
         let tclass = "data_missing";
         if (flat && flat[runs[i].name] && "espadon" in flat[runs[i].name]) {
             if (flat[runs[i].name]["espadon"] || flat[runs[i].name]["espadonModifie"]) {
@@ -412,19 +441,16 @@ export async function getRuns(comp) {
         }
         let nomAffiche = runs[i].name.replace(comp + "_", '');
         select.append("<option value='" + runs[i].name + "' class='" + tclass + "'>" + nomAffiche + "</option>");
-        const parts = runs[i].name.split("_");
-        if (parts[3]) type_nage.add(parts[3]);
-        if (parts[4]) sexe_nageurs.add(parts[4]);
-        if (parts[5]) distance.add(parts[5]);
-        if (parts[6]) étape_compétition.add(parts[6]);
+        addRunPartsToSets(runs[i].name, comp, type_nage, sexe_nageurs, distance, étape_compétition);
     }
     const sortedDistance = Array.from(distance).sort((a, b) => parseInt(a) - parseInt(b));
     fillDropdown("run_part1", Array.from(type_nage));
     fillDropdown("run_part2", Array.from(sexe_nageurs));
     fillDropdown("run_part3", Array.from(sortedDistance));
     fillDropdown("run_part4", Array.from(étape_compétition));
+    $("#run").val(selected_run);
     syncRunSelectorsFromRunName(selected_run, comp);
-    getDatas(comp, selected_run);
+    await getDatas(comp, selected_run);
     return runs;
   } else {
       const type_nage = new Set();
@@ -441,18 +467,16 @@ export async function getRuns(comp) {
               selected_run = compets[comp][i].name;
           }
           select.append("<option value='" + compets[comp][i].name + "'>" + compets[comp][i].name + "</option>");
-          const parts = compets[comp][i].name.split("_");
-          if (parts[3]) type_nage.add(parts[3]);
-          if (parts[4]) sexe_nageurs.add(parts[4]);
-          if (parts[5]) distance.add(parts[5]);
-          if (parts[6]) étape_compétition.add(parts[6]);
+          addRunPartsToSets(compets[comp][i].name, comp, type_nage, sexe_nageurs, distance, étape_compétition);
           }
         const sortedDistance = Array.from(distance).sort((a, b) => parseInt(a) - parseInt(b));
         fillDropdown("run_part1", Array.from(type_nage));
         fillDropdown("run_part2", Array.from(sexe_nageurs));
         fillDropdown("run_part3", Array.from(sortedDistance));
         fillDropdown("run_part4", Array.from(étape_compétition));
+        $("#run").val(selected_run);
         syncRunSelectorsFromRunName(selected_run || compets[comp][0]?.name, comp);
+        await getDatas(comp, selected_run);
   }
   return compets[comp];
 }
@@ -517,6 +541,14 @@ export async function load_run(run, data, starTime = null) {
   try {
     selected_comp = $("#competition").val();
 
+    if (data && data !== "new_data") {
+      const existsForRun = await dataExistsForRun(selected_comp, run, data);
+      if (!existsForRun) {
+        console.warn(`Ignoring stale data selection "${data}" for run "${run}".`);
+        data = "";
+      }
+    }
+
     let t;
 
     try {
@@ -541,19 +573,18 @@ export async function load_run(run, data, starTime = null) {
       if (t.videos && t.videos.length > 0) {
         if (n_camera > 1) {
           meta = t.videos.find(d => d.name.includes("fixeDroite"));
-          vidName = run + "_fixeDroite.mp4";
 
           if (meta && meta["start_side"] === "left") {
             meta = t.videos.find(d => d.name.includes("fixeGauche"));
-            vidName = run + "_fixeGauche.mp4";
           }}
         else if (n_camera === 1) {
           meta = t.videos[0];
-          vidName = meta.name;
         }
 
         if (!meta) {
           errors.push("Vidéo 'fixeDroite' ou 'fixeGauche' introuvable.");
+        } else {
+          vidName = meta.name;
         }
       } else {
         errors.push("Aucune vidéo référencée dans le JSON.");
@@ -714,13 +745,7 @@ export async function load_run(run, data, starTime = null) {
       displaySwimmers(t["lignes"]);
       $("#vid").attr("crossorigin", "anonymous");
       
-      if (n_camera > 1) {
-      if (meta && meta["start_side"] === "right") {
-        $("#vid").attr("src", dataProvider.getVideoUrl(selected_comp, run, run + '_fixeDroite.mp4'));
-      } else {
-        $("#vid").attr("src", dataProvider.getVideoUrl(selected_comp, run, run + '_fixeGauche.mp4'));
-      }}
-      else{
+      if (meta?.name) {
         $("#vid").attr("src", dataProvider.getVideoUrl(selected_comp, run, meta.name));
       }
       vide_last_added_data();

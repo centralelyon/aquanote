@@ -2,10 +2,10 @@ import ImgCtrlPts from "../../node_modules/imgctrlpts/packages/javascript/ImgCtr
 import { megaData, selected_comp, selected_run } from "./loader.js";
 import { getMeta } from "./utils.js";
 import { refreshVideoSurface } from "./video_surface.js";
-import { getLocalApiUrl, getLocalFilesRoot } from "./local_api.js";
+import { canWriteMetadata, getLocalApiUrl, isStaticDataSource } from "./local_api.js";
+import { dataProvider } from "./aquanote-providers.js";
 
 const APP_ROOT_URL = new URL("../../", import.meta.url);
-const DEMO_DATA_ROOT = new URL("../../videos/", import.meta.url).href;
 const DEFAULT_POOL_IMAGE = {
     name: "Swimming pool 50m above",
     path: "videos/Swimming_pool_50m_above.png"
@@ -113,6 +113,11 @@ function uniquePoolImages(entries) {
 }
 
 async function loadPoolImages() {
+    if (isStaticDataSource()) {
+        poolImages = uniquePoolImages(FALLBACK_POOL_IMAGES);
+        return poolImages;
+    }
+
     try {
         const response = await fetch(getLocalApiUrl("/getPoolImages"));
         if (response.ok) {
@@ -200,7 +205,10 @@ function pointsToArrays(points) {
 function setFlashActionState(hasFlash, canAdd = Boolean(activeMeta && activeSourceImage)) {
     const saveButton = getElement("config_flash_save");
     if (saveButton) {
-        saveButton.disabled = !hasFlash;
+        saveButton.disabled = !hasFlash || !canWriteMetadata();
+        saveButton.title = canWriteMetadata()
+            ? ""
+            : "Mode statique: l'ecriture JSON est indisponible.";
     }
 
     const addButton = getElement("config_flash_add");
@@ -331,14 +339,6 @@ function currentVideoMatches(meta) {
     return Boolean(meta?.name && src.includes(meta.name));
 }
 
-function isStaticMode() {
-    return (
-        window.location.hostname.includes("github.io") ||
-        window.location.hostname.includes("githubusercontent.com") ||
-        window.location.pathname.includes("/annotation/")
-    );
-}
-
 function videoUrlForMeta(meta) {
     const currentSource = getElement("vid")?.currentSrc || getElement("vid")?.getAttribute("src") || "";
     if (currentVideoMatches(meta)) {
@@ -346,8 +346,7 @@ function videoUrlForMeta(meta) {
     }
 
     if (selected_comp && selected_run && meta?.name) {
-        const root = isStaticMode() ? DEMO_DATA_ROOT : getLocalFilesRoot();
-        return new URL(`${selected_comp}/${selected_run}/${meta.name}`, root).href;
+        return dataProvider.getVideoUrl(selected_comp, selected_run, meta.name);
     }
 
     return currentSource;
@@ -892,6 +891,10 @@ async function saveConfiguration() {
 }
 
 async function writeMetadataToJson() {
+    if (!canWriteMetadata()) {
+        throw new Error("mode statique: aucune ecriture serveur disponible");
+    }
+
     const response = await fetch(getLocalApiUrl("/saveMetadata"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -939,6 +942,16 @@ function bindControls() {
     getElement("config_video_select")?.addEventListener("change", renderConfiguration);
     getElement("config_pool_select")?.addEventListener("change", renderConfiguration);
     window.addEventListener("calibration-view-opened", renderConfiguration);
+
+    for (const buttonId of ["config_save", "config_flash_save"]) {
+        const button = getElement(buttonId);
+        if (button) {
+            button.disabled = !canWriteMetadata();
+            button.title = canWriteMetadata()
+                ? ""
+                : "Mode statique: l'ecriture JSON est indisponible.";
+        }
+    }
 }
 
 if (document.readyState === "loading") {

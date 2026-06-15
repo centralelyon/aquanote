@@ -1,7 +1,7 @@
 import { getLaneCount, megaData, selected_comp, selected_run } from "./loader.js";
 import { edit_temp_start } from "./refactor-script.js";
 import { getMeta } from "./utils.js";
-import { getLocalApiUrl } from "./local_api.js";
+import { canWriteMetadata, getLocalApiUrl } from "./local_api.js";
 
 const REFRESH_INTERVAL_MS = 250;
 const POOL_REFERENCE_WIDTH = 900;
@@ -347,7 +347,10 @@ function renderSynchronizePanel({ preserveFlashInput = false, preserveStatus = f
         useCurrentButton.disabled = !hasMetadata;
     }
     if (saveButton) {
-        saveButton.disabled = !hasMetadata;
+        saveButton.disabled = !hasMetadata || !canWriteMetadata();
+        saveButton.title = canWriteMetadata()
+            ? ""
+            : "Mode statique: l'ecriture JSON est indisponible.";
     }
     if (syncVideoButton) {
         syncVideoButton.disabled = true;
@@ -412,6 +415,12 @@ async function saveSynchronization() {
     } catch (error) {
         setStatus(error.message, "error");
         return null;
+    }
+
+    if (!canWriteMetadata()) {
+        renderSynchronizePanel();
+        setStatus("Synchronisation mise a jour en memoire; mode statique sans ecriture JSON.", "ready");
+        return result;
     }
 
     try {
@@ -483,6 +492,14 @@ function bindSynchronizePanel() {
     window.addEventListener("flash-calibration-updated", () => {
         renderSynchronizePanel({ preserveStatus: true });
     });
+
+    const saveButton = getElement("sync_save");
+    if (saveButton) {
+        saveButton.disabled = !canWriteMetadata();
+        saveButton.title = canWriteMetadata()
+            ? ""
+            : "Mode statique: l'ecriture JSON est indisponible.";
+    }
 }
 
 if (document.readyState === "loading") {

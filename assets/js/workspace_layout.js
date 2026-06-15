@@ -47,6 +47,9 @@ function showWorkspace(targetId) {
     if (target.id === "metadata_view") {
         window.dispatchEvent(new CustomEvent("metadata-view-opened"));
     }
+    if (target.id === "configuration_view") {
+        window.dispatchEvent(new CustomEvent("configuration-view-opened"));
+    }
     if (target.id === "synchronize_view") {
         window.dispatchEvent(new CustomEvent("synchronize-view-opened"));
     }

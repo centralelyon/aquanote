@@ -2,7 +2,7 @@ import { megaData, selected_comp, selected_run, getLaneKeysFromRaceMetadata, isO
 import { nageurs, deactivate_shortcut, activate_shortcut } from "./jquery-custom.js";
 import { catalogPaths, fetchCatalog, toSelectOptions } from "./sportsdata.js";
 import { getMeta } from "./utils.js";
-import { getLocalApiUrl } from "./local_api.js";
+import { canWriteMetadata, getLocalApiUrl } from "./local_api.js";
 
 const STRUCTURED_RESERVED_KEYS = new Set(["lignes", "videos"]);
 const SPORTSDATA_BASE_URL = new URL("../sportsdata/", import.meta.url).href;
@@ -588,6 +588,12 @@ async function saveMetadata() {
         return;
     }
 
+    if (!canWriteMetadata()) {
+        setStatus("Metadonnees mises a jour en memoire; mode statique sans ecriture JSON.", "ready");
+        renderMetadataEditor();
+        return;
+    }
+
     try {
         const response = await fetch(getLocalApiUrl("/saveMetadata"), {
             method: "POST",
@@ -744,6 +750,13 @@ function bindMetadataEditor() {
     getElement("metadata_race_fields")?.addEventListener("click", handleTableClick);
     getElement("metadata_swimmers")?.addEventListener("click", handleSwimmerTableClick);
     window.addEventListener("metadata-view-opened", renderMetadataEditor);
+    const saveButton = getElement("metadata_save");
+    if (saveButton) {
+        saveButton.disabled = !canWriteMetadata();
+        saveButton.title = canWriteMetadata()
+            ? ""
+            : "Mode statique: l'ecriture JSON est indisponible.";
+    }
 }
 
 if (document.readyState === "loading") {

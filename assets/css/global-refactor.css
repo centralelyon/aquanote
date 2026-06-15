@@ -1293,3 +1293,48 @@ input:checked + .slider:before {
 .swimmerName {
     cursor: pointer;
 }
+
+.configuration-panel {
+    max-width: 760px;
+    padding: 24px 0;
+}
+
+.configuration-row {
+    display: grid;
+    grid-template-columns: 180px minmax(280px, 1fr);
+    gap: 12px;
+    align-items: center;
+    margin-bottom: 14px;
+}
+
+.configuration-row label {
+    margin: 0;
+    font-weight: 600;
+}
+
+.configuration-row input,
+.configuration-row select {
+    width: 100%;
+    margin: 0;
+}
+
+.configuration-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 18px;
+}
+
+.configuration-status {
+    min-height: 20px;
+    margin-top: 12px;
+}
+
+.configuration-status[data-state="error"] {
+    color: #b00020;
+}
+
+@media (max-width: 720px) {
+    .configuration-row {
+        grid-template-columns: 1fr;
+    }
+}

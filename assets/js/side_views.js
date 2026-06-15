@@ -190,7 +190,8 @@ export function drawCycleBars(data, d3Instance = d3) {
             data[i]["dist"] = Math.abs(data[i].x - data[i + 1].x);
         }
         data[data.length - 1]["dist"] = 0;
-        let y = d3Instance.scaleLinear([3.5, 0], [20, 174]).clamp(true);
+        const maxDistance = Math.max(...data.map((d) => Number(d.dist) || 0), 0);
+        let y = d3Instance.scaleLinear([0, Math.max(maxDistance, 0.1)], [174, 20]).nice().clamp(true);
         let x = d3Instance.scaleBand()
             .domain(d3Instance.range(data.length))
             .range([marginLeft, 190])
@@ -249,7 +250,8 @@ export function drawCycleTimeBars(data) {
         }
 
         data[data.length - 1]["dist"] = 0
-        let y = d3.scaleLinear([2, 0], [20, 174]).clamp(true);
+        const maxDuration = Math.max(...data.map((d) => Number(d.dist) || 0), 0);
+        let y = d3.scaleLinear([0, Math.max(maxDuration, 0.1)], [174, 20]).nice().clamp(true);
 
         let x = d3.scaleBand()
             .domain(d3.range(data.length))

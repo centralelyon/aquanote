@@ -47,6 +47,10 @@ vi.mock('../../../assets/js/homography_handler.js', () => ({
   eucDistance: vi.fn().mockReturnValue(1)
 }))
 
+vi.mock('../../../assets/js/video_surface.js', () => ({
+  getVideoDisplayTransform: vi.fn().mockReturnValue(null)
+}))
+
 // Mock jQuery globalement
 global.$ = vi.fn(() => ({
   val: vi.fn().mockReturnValue("0"),

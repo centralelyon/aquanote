@@ -5,6 +5,7 @@
 
 import { edit_scaleZoom,flipper } from "./refactor-script.js";
 import { ttop,tleft, edit_tleft, edit_ttop } from "./shortcuts_handler.js";
+import { moveVideoSurfaceTo, resetVideoSurfaceTransform } from "./video_surface.js";
 // Variables lié à l'affichage de la vidéo
 let tevx;
 let tevy;
@@ -46,8 +47,7 @@ export function vidDrag(event) {
  */
 export function moveVid(elem,deplX,deplY){
     if (!flipper) {
-        elem.css("left", deplX)
-        elem.css("top", deplY)
+        moveVideoSurfaceTo(deplX, deplY)
     }
 }
 
@@ -57,11 +57,7 @@ export function moveVid(elem,deplX,deplY){
  */
 export function vidReset() {
 
-    const elem = $("#video")
-    elem.css("left", 0)
-    elem.css("top", 0)
     edit_scaleZoom(1);
-    elem.css("transform", "scale(1)")
+    resetVideoSurfaceTransform();
 }
 window.vidReset = vidReset;
-

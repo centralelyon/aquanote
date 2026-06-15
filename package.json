@@ -1,6 +1,6 @@
 {
   "name": "config",
-  "version": "1.1",
+  "version": "1.2",
   "description": "",
   "author": "",
   "license": "ISC",
@@ -29,13 +29,14 @@
     "test:watch": "node node_modules/vitest/vitest.mjs --config workflow/test/vitest.config.js --watch",
     "test:e2e": "node node_modules/playwright/cli.js test --config workflow/test/playwright.config.js",
     "test:all": "npm run test && npm run test:e2e",
-    "dev": "http-server . -a 127.0.0.1 -p 8000 -c-1 --cors",
-    "serve": "http-server . -a 127.0.0.1 -p 8000 -c-1 --cors",
+    "dev": "http-server . -a 127.0.0.1 -p 8001 -c-1 --cors",
+    "serve": "http-server . -a 127.0.0.1 -p 8001 -c-1 --cors",
     "lint": "eslint  --config workflow/linter/eslint.config.mjs",
-    "start": "http-server . -a 127.0.0.1 -p 8000 -c-1 --cors"
+    "start": "http-server . -a 127.0.0.1 -p 8001 -c-1 --cors"
   },
   "dependencies": {
     "csv-parse": "^6.1.0",
+    "imgctrlpts": "github:centralelyon/ImgCtrlPts",
     "node-fetch": "^3.3.2",
     "perspective-transform": "^1.1.3"
   }

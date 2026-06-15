@@ -59,7 +59,7 @@ To use the site locally, you need to pull the branch and go offline with competi
 
 ### Structure of annotated data 
 
-Aquanote uses a specific data structure to store the annotations. It is based on a CSV file for each video, with samples provided in the [`course_demo`](courses_demo/2025_courses_demo/2025_courses_demo_translation_carre_100_demifinale) folder. Here is a sample of such a CSV file:
+Aquanote uses a specific data structure to store the annotations. It is based on a CSV file for each video, with samples provided in the [`videos`](videos/2025_courses_demo/2025_courses_demo_translation_carre_100_demifinale) folder. Here is a sample of such a CSV file:
 
 ```
 frameId,swimmerId,swimmerName,lane,cumul,eventId,eventX,eventY,event,TempsVideo (s),Temps (s),distance (m),tempo (s),frequence (cylce/min),amplitude (m),vitesse (m/s)
@@ -75,17 +75,17 @@ To analyse the CSV file, a dedicated repository is available:
 
 ### Adding new videos
 
-The videos provided is in the `courses_demo` folder are samples. To add your own videos, you need to follow the same structure as in the demo folder. 
+The videos provided is in the `videos` folder are samples. To add your own videos, you need to follow the same structure as in the demo folder. 
 
 Each competition should have its own subfolder, and then videos to used should be specified in a `metadata JSON` file located at the root of each competition folder. For example, for the demo competition the metadata file is `2025_courses_demo_translation_carre_50_finale`, 
 
-**[flatdir](https://github.com/centralelyon/flatdir)** is a Python module to flatten a directory structure and automatically generate the required JSON files at the root of each competition folder (like the [`courses_demo/flat.json`](courses_demo/flat.json) JSON, add `> flat.json` to save the output in such a file):
+**[flatdir](https://github.com/centralelyon/flatdir)** is a Python module to flatten a directory structure and automatically generate the required JSON files at the root of each competition folder (like the [`videos/flat.json`](videos/flat.json) JSON, add `> flat.json` to save the output in such a file):
 
-> python -m flatdir courses_demo --limit 10 --nested --only type=directory --add espadon=false --add espadonModifie=false --add data_checked=false --no-defaults --min-depth 1 --add-depth 2 --ignore-typical > courses_demo/flat.json
+> python -m flatdir videos --limit 10 --nested --only type=directory --add espadon=false --add espadonModifie=false --add data_checked=false --no-defaults --min-depth 1 --add-depth 2 --ignore-typical > videos/flat.json
 
 ### Pre-processing videos
 
-A `metadata JSON` contains information about pre-processing steps for each race to analyzed and should be created before the annotation phase. This includes temporal calibration (start and end times), spatial calibration (real-world dimensions) and athletes information (names, lanes). An example of such a JSON file is available in the demo folder: [`courses_demo/2025_courses_demo_translation_carre_50_finale/metadata.json`.](courses_demo/2025_courses_demo_translation_carre_50_finale/metadata.json).
+A `metadata JSON` contains information about pre-processing steps for each race to analyzed and should be created before the annotation phase. This includes temporal calibration (start and end times), spatial calibration (real-world dimensions) and athletes information (names, lanes). An example of such a JSON file is available in the demo folder: [`videos/2025_courses_demo/2025_courses_demo_translation_carre_50_finale/2025_courses_demo_translation_carre_50_finale.json`.](videos/2025_courses_demo/2025_courses_demo_translation_carre_50_finale/2025_courses_demo_translation_carre_50_finale.json).
 
 While some pre-processingt steps can be done directly in Aquanote, some require external video and image processing tools. We suggest two tools to achieve this: 
 
@@ -108,7 +108,7 @@ To use another metadata file or output path:
 
 ```sh
 python scripts/generate_video.py \
-  --metadata courses_demo/2025_courses_demo/2025_courses_demo_translation_carre_100_demifinale/2025_courses_demo_translation_carre_100_demifinale.json \
+  --metadata videos/2025_courses_demo/2025_courses_demo_translation_carre_100_demifinale/2025_courses_demo_translation_carre_100_demifinale.json \
   --output demo_homography.mp4
 ```
 

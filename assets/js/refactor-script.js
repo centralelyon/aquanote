@@ -14,6 +14,7 @@ import { get_last_checkpoint, get_meter_plot_label,highlightCycle, mode_color, e
 import { indicator_correction, show_indicator_lines, plot_indicator_lines, hide_indicator_lines,action_indicator_lines } from './plot_handler.js';
 import { positionCurseur,edit_positionCurseur } from './shortcuts_handler.js'
 import { vidReset } from './videoHandler.js';
+import { getVideoDisplayTransform, redrawVideoSurface, refreshVideoSurface, zoomVideoSurface } from './video_surface.js';
 
 
 export let video_volume = 0;
@@ -52,6 +53,119 @@ function syncRefactorGlobals() {
 }
 
 syncRefactorGlobals();
+
+function formatPlaybackSpeed(value) {
+    const number = Number(value);
+    return Number.isInteger(number) ? String(number) : number.toFixed(1);
+}
+
+function setRangeFill(elem, value) {
+    const minValue = Number(elem.attr("min") ?? 0);
+    const maxValue = Number(elem.attr("max") ?? 1);
+    const percent = maxValue > minValue
+        ? Math.max(0, Math.min(100, ((value - minValue) / (maxValue - minValue)) * 100))
+        : 0;
+
+    elem.css('background',
+        'linear-gradient(to right,'
+        + 'rgba(35, 33, 87, 1) 0%, '
+        + 'rgba(35, 33, 87, 1) ' + percent + '%, '
+        + '#FFF ' + (percent + 0.01) + '%, '
+        + '#FFF 100%) '
+    );
+}
+
+function setPlaybackSpeed(value) {
+    const speedControl = $("#poolop");
+    const minValue = Number(speedControl.attr("min") ?? 0.1);
+    const maxValue = Number(speedControl.attr("max") ?? 2);
+    const numericValue = Number(value);
+    const nextSpeed = Number.isFinite(numericValue)
+        ? Math.max(minValue, Math.min(maxValue, numericValue))
+        : 1;
+
+    video_speed = nextSpeed;
+    const videoElement = document.getElementById('vid');
+    if (videoElement) {
+        videoElement.playbackRate = video_speed;
+    }
+    speedControl.val(String(video_speed));
+    $("#speed").html("x" + formatPlaybackSpeed(video_speed));
+    setRangeFill(speedControl, video_speed);
+}
+
+function seekToRaceStart() {
+    const videoElement = document.getElementById("vid");
+    if (!videoElement || !Number.isFinite(temp_start)) {
+        return;
+    }
+
+    const wasPlaying = !videoElement.paused;
+    const raceStart = Math.max(0, temp_start);
+    videoElement.currentTime = raceStart;
+    last_checkpoint = 0;
+
+    const timebar = $("#timebar");
+    if (Number.isFinite(videoElement.duration) && videoElement.duration > 0) {
+        const percent = raceStart * 100 / videoElement.duration;
+        timebar.val(percent);
+        setGrad(percent / 100);
+    } else {
+        setGrad(0);
+    }
+
+    $(".crop_can").remove();
+    $(".div_can").remove();
+    updateBarsFromEvent(selected_swim, true);
+
+    const rangeV = document.getElementById('nodule');
+    if (rangeV) {
+        rangeV.innerHTML = `<span>${sec_to_timestr(0)}s</span>`;
+    }
+    if (wasPlaying) {
+        videoElement.play();
+    }
+}
+
+function eventToVideoNormalizedPoint(event, meta) {
+    const container = document.getElementById("video");
+    const transform = getVideoDisplayTransform(meta);
+    const [sourceWidth, sourceHeight] = getSize(meta);
+    if (!container || !transform || !sourceWidth || !sourceHeight) {
+        return null;
+    }
+
+    const bounds = container.getBoundingClientRect();
+    const scaleX = bounds.width > 0 ? container.offsetWidth / bounds.width : 1;
+    const scaleY = bounds.height > 0 ? container.offsetHeight / bounds.height : 1;
+    const localX = (event.clientX - bounds.left) * scaleX;
+    const localY = (event.clientY - bounds.top) * scaleY;
+    const sourceX = (localX - transform.x) / transform.k;
+    const sourceY = (localY - transform.y) / transform.k;
+
+    if (
+        sourceX < 0 ||
+        sourceY < 0 ||
+        sourceX > sourceWidth ||
+        sourceY > sourceHeight
+    ) {
+        return null;
+    }
+
+    return [sourceX / sourceWidth, sourceY / sourceHeight];
+}
+
+function videoPointToDisplay(point, meta) {
+    const transform = getVideoDisplayTransform(meta);
+    if (!transform || !Array.isArray(point)) {
+        return null;
+    }
+    return {
+        x: transform.x + Number(point[0]) * transform.k,
+        y: transform.y + Number(point[1]) * transform.k,
+        k: transform.k
+    };
+}
 
 export function clampSelectedSwim(laneCount) {
     if (laneCount <= 0) {
@@ -129,12 +243,12 @@ export function clampSelectedSwim(laneCount) {
 
     $(".modebtn").on("click", function () {
 
-        $(".selected").toggleClass("selected")
+        $(".modebtn.selected").removeClass("selected")
         let elem = $(this)
 
         let name = elem.attr("name")
 
-        elem.toggleClass("selected")
+        elem.addClass("selected")
 
         mode = name
     })
@@ -177,6 +291,7 @@ export function clampSelectedSwim(laneCount) {
             vid.setAttribute("src", base+ selected_comp + "/" + selected_run + "/" + vidName+ '#t=' + t)
             setGrad(t)
         }
+        refreshVideoSurface(getMeta());
         updateBarsFromEvent(selected_swim, true);
         if (flipper)
             highlightCycle(selected_swim, selected_cycle)
@@ -210,6 +325,7 @@ export function clampSelectedSwim(laneCount) {
                 vid.setAttribute("src", base+ selected_comp + "/" + selected_run + "/" + vidName.replace("fixeGauche","fixeDroite")+ '#t=' + t)
                 setGrad(t)
             }
+            refreshVideoSurface(getMeta());
             updateBarsFromEvent(selected_swim, true); //
             if (flipper)
                 highlightCycle(selected_swim, selected_cycle)
@@ -238,6 +354,7 @@ export function clampSelectedSwim(laneCount) {
                 setGrad(t)
                 vue_du_dessus = true;
             }
+        refreshVideoSurface(getMeta());
         updateBarsFromEvent(selected_swim, true); //
             if (flipper)
                 highlightCycle(selected_swim, selected_cycle)
@@ -267,6 +384,8 @@ export function clampSelectedSwim(laneCount) {
         let vid = document.getElementById("vid");
         vid.currentTime += 1    
     })
+
+    $("#race-start").on("click", seekToRaceStart)
 
     $("#next-frame").on("click", () => {
 
@@ -300,16 +419,18 @@ export function clampSelectedSwim(laneCount) {
 
     $("#loadbtn").on("click", function () {
         const selected_comp = $("#competition").val();
-        if (!compets[selected_comp].some(run => run.name === get_run_selected())) {
-            alert(`L'épreuve "${get_run_selected()}" n'existe pas.`);
+        const runToLoad = get_run_selected();
+        const knownRuns = compets[selected_comp];
+        if (knownRuns?.length > 0 && !knownRuns.some(run => run.name === runToLoad)) {
+            alert(`L'épreuve "${runToLoad}" n'existe pas.`);
             return;
         }
         $(".crop_can").remove();
         $(".swname_pool").remove();
-    
+
         const temp = $("#temp").val();
         selected_data = (temp === "new_data" ? '' : temp);
-        load_run(get_run_selected(), selected_data);
+        load_run(runToLoad, selected_data);
         update_url();
     });
     $("#run_part1").on("change", function () {
@@ -343,6 +464,7 @@ export function clampSelectedSwim(laneCount) {
             .filter((value, index, self) => value && self.indexOf(value) === index); // Supprimer les doublons
         
         fillDropdown("run_part4", filteredEtapes);
+        refreshDatasForCurrentRun();
     });
     
     $("#run_part2").on("change", function () {
@@ -370,6 +492,7 @@ export function clampSelectedSwim(laneCount) {
             .filter((value, index, self) => value && self.indexOf(value) === index); // Supprimer les doublons
     
         fillDropdown("run_part4", filteredEtapes);
+        refreshDatasForCurrentRun();
     });
     
     $("#run_part3").on("change", function () {
@@ -390,6 +513,7 @@ export function clampSelectedSwim(laneCount) {
             .filter((value, index, self) => value && self.indexOf(value) === index); // Supprimer les doublons
     
         fillDropdown("run_part4", filteredEtapes);
+        refreshDatasForCurrentRun();
     });
     $("#run_part4").on("change", function () {
         const part1 = $("#run_part1").val();
@@ -401,20 +525,27 @@ export function clampSelectedSwim(laneCount) {
             getDatas($("#competition").val(), get_run_selected());
         }
     });
+
+    function refreshDatasForCurrentRun() {
+        const part1 = $("#run_part1").val();
+        const part2 = $("#run_part2").val();
+        const part3 = $("#run_part3").val();
+        const part4 = $("#run_part4").val();
+        if (part1 && part2 && part3 && part4) {
+            getDatas($("#competition").val(), get_run_selected());
+        }
+    }
     
     function fillDropdown(dropdownId, options) {
         const dropdown = $(`#${dropdownId}`);
         dropdown.empty(); // Vider les options existantes
     
-        // Ajouter une option par défaut
-        dropdown.append('<option value="">Sélectionnez une option</option>');
-    
         // Ajouter les nouvelles options
         options.forEach(option => {
             dropdown.append(`<option value="${option}">${option}</option>`);
         });
-        if (options.length === 1) {
-            dropdown.val(options[0]).trigger('change');
+        if (options.length > 0) {
+            dropdown.val(options[0]);
         }
     }
 
@@ -486,22 +617,10 @@ export function clampSelectedSwim(laneCount) {
 
     $("#poolop").on("input", function () {
         let elem = $("#poolop")
-        let val = parseFloat(elem.val())
-        let val2 = val + 0.0001
-
-        video_speed = val;
-        document.getElementById('vid').playbackRate = video_speed;
-       
-        $("#speed").html("x" + val)
-
-        elem.css('background',
-            'linear-gradient(to right,'
-            + 'rgba(35, 33, 87, 1) 0%, '
-            + 'rgba(35, 33, 87, 1) ' + (val * 100) + '%, '
-            + '#FFF ' + (val2 * 100) + '%, '
-            + '#FFF 100%) '
-        )
+        setPlaybackSpeed(parseFloat(elem.val()));
     })
+
+    setPlaybackSpeed($("#poolop").val());
 
     $("#cyclebar").on("mouseover", "rect", function () {
 
@@ -576,14 +695,11 @@ export function clic_souris_video(e) {
             vid.style.cursor = "crosshair";
             updateBarsFromEvent(selected_swim, true);
         } else {
-            var bounds = e.target.getBoundingClientRect();
-            let x = e.clientX - bounds.left;
-            let y = e.clientY - bounds.top;
-            
-            x = x - vid.style["left"]
-            y = y - vid.style["top"]
-
-            let pt = getPointInverted([(x / scaleZoom) / vid.offsetWidth, (y / scaleZoom) / vid.offsetHeight], meta) //todo:get Offset stuff
+            const normalizedPoint = eventToVideoNormalizedPoint(e, meta);
+            if (!normalizedPoint) {
+                return;
+            }
+            let pt = getPointInverted(normalizedPoint, meta)
             
             let trx_scale = d3.scaleLinear([0, 960], [pool_size[0], 0]);
             let meters_plot_label = (show_indicator_lines ? indicator_correction(trx_scale(pt[0])):trx_scale(pt[0]));
@@ -661,6 +777,7 @@ export function clic_souris_video(e) {
 
 
                 vid.setAttribute("src", base + "/" + selected_comp + "/" + selected_run + "/" + metaLeft.name)
+                refreshVideoSurface(metaLeft);
                 vid.currentTime = temp_start + tdat[0].frame_number / frame_rate;
                 selected_num = curr_swims[selected_swim].length - 1;
 
@@ -674,6 +791,7 @@ export function clic_souris_video(e) {
                 temp_start = get_temp_start(metaRight);
 
                 vid.setAttribute("src", base + "/" + selected_comp + "/" + selected_run + "/" + metaRight.name)
+                refreshVideoSurface(metaRight);
                 vid.currentTime = temp_start + tdat[0].frame_number / frame_rate;
                 selected_num = 0
                 updateBarsFromEvent(selected_swim, true);
@@ -702,6 +820,10 @@ export function clic_souris_video(e) {
         }
         let rangeV = document.getElementById('nodule')
         rangeV.innerHTML = `<span>${sec_to_timestr((vid.currentTime - temp_start).toFixed(3))}s</span>`;
+    })
+
+    $("#vid").on("loadedmetadata", function () {
+        this.playbackRate = video_speed;
     })
 
     $("#timebar").on("input", function () {
@@ -980,24 +1102,13 @@ export function focusout_time_input(e){
     });
 let pt=[0,0];
     export function zoom(delta_zoom,deltaX=undefined,deltaY=undefined){
-        const elem = $("#video")
-        let nextScaleZoom = Math.min(Math.max(1, scaleZoom + delta_zoom),6.8)
-        elem.css("transform", "scale(" + (nextScaleZoom) + ")")
-        
-        if(deltaX != undefined && deltaY != undefined){
-            let pleft = parseFloat(elem.css("left"))
-            let ptop = parseFloat(elem.css("top"))
-            
-            elem.css("left",pleft - deltaX*(1-scaleZoom/nextScaleZoom))
-            elem.css("top",ptop - deltaY*(1-scaleZoom/nextScaleZoom))
-        }
-        scaleZoom = nextScaleZoom
+        const center = (deltaX !== undefined && deltaY !== undefined)
+            ? { x: deltaX, y: deltaY }
+            : undefined;
+        scaleZoom = zoomVideoSurface(delta_zoom, center);
     }
 
     $("#video").on("mousemove", function (e) {
-        let bounds = e.target.getBoundingClientRect();
-        let x = e.clientX - bounds.left;
-        let y = e.clientY - bounds.top;
         let vid = document.getElementById("vid");
     
         if (!vid) {
@@ -1017,10 +1128,13 @@ let pt=[0,0];
             return;
         }
     
-        x = x - parseFloat(vid.style["left"] || 0);
-        y = y - parseFloat(vid.style["top"] || 0);
         if (e.target == vid) {
-            pt = getPointInverted([(x / scaleZoom) / vid.offsetWidth, (y / scaleZoom) / vid.offsetHeight], meta);
+            const normalizedPoint = eventToVideoNormalizedPoint(e, meta);
+            if (!normalizedPoint) {
+                $(".lin_mesure").remove();
+                return;
+            }
+            pt = getPointInverted(normalizedPoint, meta);
         } //todo:get Offset stuff
         let trx_scale = d3.scaleLinear([0, 960], [pool_size[0], 0]);
         // On corrige la position de la ligne dans le cas où il y a des lignes indicatrices pour aider à une mesure précise
@@ -1047,7 +1161,10 @@ let pt=[0,0];
             let wscale = d3.scaleLinear([2.5, 2.5], [2.5, 2.5])
             can.width = wscale(scaleZoom)
 
-            can.height = Math.round(eucDistance(pts[0], pts[1]) * (vid.offsetWidth / twidth)) //+ 10
+            const displayStart = videoPointToDisplay(pts[0], meta);
+            const displayEnd = videoPointToDisplay(pts[1], meta);
+            const displayScale = displayStart?.k ?? (vid.offsetWidth / twidth);
+            can.height = Math.max(1, Math.round(eucDistance(pts[0], pts[1]) * displayScale)) //+ 10
             let pointer_color = "#232156" //"rgba(35, 33, 86, 0.2)"
 
             if(mode in mode_color){
@@ -1058,20 +1175,20 @@ let pt=[0,0];
 
             let tpool_xscale = d3.scaleLinear([twidth, 0], [100, 0]);
             let tpool_yscale = d3.scaleLinear([0, theight], [0, 100]);
-            can.style["top"] = (tpool_yscale(pts[0][1])) + "%";
-            can.style["left"] = (tpool_xscale(pts[0][0])) + "%";
+            can.style["top"] = displayStart ? `${displayStart.y}px` : (tpool_yscale(pts[0][1])) + "%";
+            can.style["left"] = displayStart ? `${displayStart.x}px` : (tpool_xscale(pts[0][0])) + "%";
             can.style["transform"] = "rotate(" + get_orr(pts[1], pts[0]) + "deg)"
             container.append(can)
 
             let div = document.createElement("p");
             div.setAttribute("class", "line_can line_tool lin_mesure")
             div.innerText = (Math.round(get_meter_plot_label(cursor_position) * 100, 2) / 100) + " m"
-            div.style["left"] = (tpool_xscale(pts[1][0] - 2.5)) + "%";
+            div.style["left"] = displayEnd ? `${displayEnd.x - 2.5 * displayScale}px` : (tpool_xscale(pts[1][0] - 2.5)) + "%";
 
             if (twidth === 2704) {
-                div.style["top"] = (tpool_yscale(pts[1][1]) + 3) + "%";
+                div.style["top"] = displayEnd ? `${displayEnd.y + 3 * displayScale}px` : (tpool_yscale(pts[1][1]) + 3) + "%";
             } else {
-                div.style["top"] = (tpool_yscale(pts[1][1])) + "%";
+                div.style["top"] = displayEnd ? `${displayEnd.y}px` : (tpool_yscale(pts[1][1])) + "%";
             }
             container.append(div)
         }
@@ -1086,6 +1203,7 @@ let pt=[0,0];
     $('#vid').on('canplay', () => {
         $("#vid-cont").attr("class", "")
         $("#vid").css("opacity", "1")
+        redrawVideoSurface();
     })
 
     $("svg").on("click", "rect, circle", function () {
@@ -1208,12 +1326,13 @@ let pt=[0,0];
             
             // Mettre à jour les classes CSS des options
             const options = swimSwitch.querySelectorAll('option');
-            options.forEach((option, index) => {
-                if (index === selected_swim) {
+            options.forEach((option) => {
+                if (Number(option.value) === selected_swim) {
                     option.className = "swimmer-option selected";
                 } else {
                     option.className = "swimmer-option";
                 }
             });
+            swimSwitch.dispatchEvent(new Event("change", { bubbles: true }));
         }
     }

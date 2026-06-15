@@ -1,5 +1,6 @@
-const DEFAULT_LOCAL_API_PORT = "8001";
+const DEFAULT_LOCAL_API_PORT = "8000";
 const LOCAL_API_HOST = "127.0.0.1";
+const LOCAL_API_PREFIX = "/aquanote";
 
 function isValidPort(value) {
     const port = String(value ?? "").trim();
@@ -36,7 +37,7 @@ export function getLocalApiOrigin() {
 
 export function getLocalApiUrl(path = "") {
     const normalizedPath = path.startsWith("/") ? path : `/${path}`;
-    return `${getLocalApiOrigin()}${normalizedPath}`;
+    return `${getLocalApiOrigin()}${LOCAL_API_PREFIX}${normalizedPath}`;
 }
 
 export function getLocalFilesRoot() {

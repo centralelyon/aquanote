@@ -24,8 +24,8 @@ import {
     resolveRunAlias,
 } from "./demo_manifest.js";
 import {base, demoDataRoot, displaySwimmers, local_bool, setGrad} from "./main.js"
-import { getLocalApiUrl } from "./local_api.js";
 import { formatValidationIssue, validateCsvUrlHeaders } from "./sportsdata.js";
+import { dataProvider } from "./aquanote-providers.js";
 
 let flat;
 let flatManifest = null;
@@ -291,47 +291,9 @@ function syncRunSelectorsFromRunName(runName, competitionName = selected_comp) {
 export async function getDatas(comp, run) {
     run = resolveRunName(run);
     datas = [];
-    let c = [];
 
-    if (isGitHubMode()) {
-        c = staticData.csvFiles[run] || [];
-    } else {
-        const url = getApiUrl("/getDatas/" + comp + "/" + run);
-        
-        await $.ajax({
-            type: "GET",
-            url: url,
-            processData: false,
-            contentType: false,
-            crossDomain: true,
-            crossOrigin: true,
-            success: function (d) {
-                // Vérifier si d est un tableau, sinon essayer de le convertir
-                let data = d;
-                if (typeof d === 'string') {
-                    try {
-                        data = JSON.parse(d);
-                    } catch (e) {
-                        console.error("Erreur lors du parsing JSON:", e);
-                        data = [];
-                    }
-                }
-                
-                if (!Array.isArray(data)) {
-                    console.error("Les données reçues ne sont pas un tableau:", data);
-                    data = [];
-                }
-                
-                c = data.filter(d => d.type === "file" && d.name.includes(".csv"));
-            },
-            error: function(xhr, status, error) {
-                console.error("getDatas: Error callback:", status, error, xhr);
-                console.error("getDatas: Response text:", xhr.responseText);
-            }
-        });
-    }
+    const c = await dataProvider.getDatas(comp, run);
 
-    // Remplissage du select
     let select = $("#temp");
     select.empty();
 
@@ -349,76 +311,25 @@ export async function getDatas(comp, run) {
 export async function getCompets() {
     const queryString = getUrlVars();
     const competitionParam = queryString["competition"];
-    
+
     $("#competition").empty();
-    
-    if (isGitHubMode()) {
-        let select = $("#competition");
-        let c = staticData.competitions.filter(d => d.type == "directory" && d.name[0] == "2");
 
-        for (let i = 0; i < c.length; i++) {
-            if (c[i].name === competitionParam) {
-                selected_comp = c[i].name;
-            }
-            select.append("<option value='" + c[i].name + "'>" + c[i].name + "</option>");
+    const data = await dataProvider.getCompets();
+    const c = data.filter(d => d.type == "directory" && d.name[0] == "2");
+
+    let select = $("#competition");
+    for (let i = 0; i < c.length; i++) {
+        if (c[i].name === competitionParam) {
+            selected_comp = c[i].name;
         }
-
-        if (selected_comp === "" && c.length > 0) {
-            selected_comp = c[0].name;
-        }
-        $("#competition").val(selected_comp);
-
-        c.map(d => compets[d.name] = []);
-        syncLoaderGlobals();
-        return Promise.resolve();
-    } else {
-        const url = getApiUrl("/getCompets");
-        
-        return await $.ajax({
-            type: 'GET',
-            url: url,
-            cache: false,
-            async: true,
-            success: function (d) {
-                // Vérifier si d est un tableau, sinon essayer de le convertir
-                let data = d;
-                if (typeof d === 'string') {
-                    try {
-                        data = JSON.parse(d);
-                    } catch (e) {
-                        console.error("Erreur lors du parsing JSON:", e);
-                        data = [];
-                    }
-                }
-                
-                if (!Array.isArray(data)) {
-                    console.error("Les données reçues ne sont pas un tableau:", data);
-                    data = [];
-                }
-                
-                let select = $("#competition");
-                let c = data.filter(d => d.type == "directory" && d.name[0] == "2");
-
-                for (let i = 0; i < c.length; i++) {
-                    if (c[i].name === competitionParam) {
-                        selected_comp = c[i].name;
-                    }
-                    select.append("<option value='" + c[i].name + "'>" + c[i].name + "</option>");
-                }
-
-                if (selected_comp === "" && c.length > 0) {
-                    selected_comp = c[0].name;
-                }
-                $("#competition").val(selected_comp);
-
-                c.map(d => compets[d.name] = []);
-                syncLoaderGlobals();
-            },
-            error: function(xhr, status, error) {
-                console.error("getCompets: Error callback:", status, error, xhr);
-            }
-        });
+        select.append("<option value='" + c[i].name + "'>" + c[i].name + "</option>");
     }
+    if (selected_comp === "" && c.length > 0) {
+        selected_comp = c[0].name;
+    }
+    $("#competition").val(selected_comp);
+    c.map(d => compets[d.name] = []);
+    syncLoaderGlobals();
 }
 
 /**
@@ -438,61 +349,11 @@ export function setcompets(c){
  * @returns {void}
  */
 export async function get_quality(comp, run, actual_side) {
-    let c = [];
+    const c = await dataProvider.getQuality(comp, run, actual_side);
 
-    if (isGitHubMode()) {
-        // Mode GitHub - pas de fichiers de qualité dans la démo
-        c = [];
-    } else {
-        const url = getApiUrl("/getQuality/" + comp + "/" + run);
-        
-        await $.ajax({
-            type: 'GET',
-            url: url,
-            cache: false,
-            async: true,
-            success: function (d) {
-                // Vérifier si d est un tableau, sinon essayer de le convertir
-                let data = d;
-                if (typeof d === 'string') {
-                    try {
-                        data = JSON.parse(d);
-                    } catch (e) {
-                        console.error("Erreur lors du parsing JSON:", e);
-                        data = [];
-                    }
-                }
-                
-                if (!Array.isArray(data)) {
-                    console.error("Les données reçues ne sont pas un tableau:", data);
-                    data = [];
-                }
-                
-                c = data.filter(d => d.type == "file" && d.name.includes("fixeGauche"));
-                if (actual_side == "droite") {
-                    c = data.filter(d => d.type == "file" && d.name.includes("fixeDroite"));
-                }
-            },
-            error: function(xhr, status, error) {
-                console.error("getQuality: Error callback:", status, error, xhr);
-                console.error("getQuality: Response text:", xhr.responseText);
-            }
-        });
-    }
-
-    // Remplissage du select
     let select = $("#quality");
     select.empty();
     select.append('<option value="">change quality</option>');
-
-    // Filtrage côté local (pour garder le même comportement)
-    if (local_bool && c.length > 0) {
-        if (actual_side == "droite") {
-            c = c.filter(d => d.name.includes("fixeDroite"));
-        } else {
-            c = c.filter(d => d.name.includes("fixeGauche"));
-        }
-    }
 
     for (let i = 0; i < c.length; i++) {
         let optionName = c[i].name.split("_");
@@ -520,11 +381,11 @@ export async function getRuns(comp) {
   }
   
   if (!compets[comp] || compets[comp].length === 0) {
-      if (isGitHubMode()) {
-    let select = $("#run");
-    let runs = staticData.runs[comp] || [];
+    const runs = await dataProvider.getRuns(comp);
     compets[comp] = runs;
     selected_run = runs[0]?.name || "";
+
+    let select = $("#run");
     select.empty();
 
     const type_nage = new Set();
@@ -539,6 +400,16 @@ export async function getRuns(comp) {
             continue;
         }
         let tclass = "data_missing";
+        if (flat && flat[runs[i].name] && "espadon" in flat[runs[i].name]) {
+            if (flat[runs[i].name]["espadon"] || flat[runs[i].name]["espadonModifie"]) {
+                tclass = "data_unchecked";
+            }
+        }
+        if (flat && flat[runs[i].name] && "data_checked" in flat[runs[i].name]) {
+            if (flat[runs[i].name]["data_checked"]) {
+                tclass = "data_checked";
+            }
+        }
         let nomAffiche = runs[i].name.replace(comp + "_", '');
         select.append("<option value='" + runs[i].name + "' class='" + tclass + "'>" + nomAffiche + "</option>");
         const parts = runs[i].name.split("_");
@@ -548,91 +419,13 @@ export async function getRuns(comp) {
         if (parts[6]) étape_compétition.add(parts[6]);
     }
     const sortedDistance = Array.from(distance).sort((a, b) => parseInt(a) - parseInt(b));
-  fillDropdown("run_part1", Array.from(type_nage));
-  fillDropdown("run_part2", Array.from(sexe_nageurs));
-  fillDropdown("run_part3", Array.from(sortedDistance));
-  fillDropdown("run_part4", Array.from(étape_compétition));
-  syncRunSelectorsFromRunName(selected_run, comp);
+    fillDropdown("run_part1", Array.from(type_nage));
+    fillDropdown("run_part2", Array.from(sexe_nageurs));
+    fillDropdown("run_part3", Array.from(sortedDistance));
+    fillDropdown("run_part4", Array.from(étape_compétition));
+    syncRunSelectorsFromRunName(selected_run, comp);
     getDatas(comp, selected_run);
     return runs;
-} else {
-    const url = getApiUrl("/getRuns/" + comp);
-    
-    await $.ajax({
-        type: "GET",
-        url: url,
-        processData: false,
-        contentType: false,
-        crossDomain: true,
-        crossOrigin: 'anonymous',
-        success: function (d) {
-            // Vérifier si d est un tableau, sinon essayer de le convertir
-            let data = d;
-            if (typeof d === 'string') {
-                try {
-                    data = JSON.parse(d);
-                } catch (e) {
-                    console.error("Erreur lors du parsing JSON:", e);
-                    data = [];
-                }
-            }
-            
-            if (!Array.isArray(data)) {
-                console.error("Les données reçues ne sont pas un tableau:", data);
-                data = [];
-            }
-            
-            let select = $("#run");
-            let runs = data.filter(d => d.type == "directory");
-            compets[comp] = runs;
-            selected_run = runs[0]?.name || "";
-            select.empty();
-
-            const type_nage = new Set();
-            const sexe_nageurs = new Set();
-            const distance = new Set();
-            const étape_compétition = new Set();
-            for (let i = 0; i < runs.length; i++) {
-                if (runs[i].name === requestedRun) {
-                    selected_run = runs[i].name;
-                }
-                if (runs[i].name[0] !== "2") {
-                    continue;
-                }
-                let tclass = "data_missing";
-                if ((flat[runs[i].name] && "espadon" in flat[runs[i].name])) {
-                    if (flat[runs[i].name]["espadon"] || flat[runs[i].name]["espadonModifie"]) {
-                        tclass = "data_unchecked";
-                    }
-                }
-                if (flat[runs[i].name] && "data_checked" in flat[runs[i].name]) {
-                    if (flat[runs[i].name]["data_checked"]) {
-                        tclass = "data_checked";
-                    }
-                }
-                let nomAffiche = runs[i].name.replace(comp + "_", '');
-                select.append("<option value='" + runs[i].name + "' class='" + tclass + "'>" + nomAffiche + "</option>");
-                const parts = runs[i].name.split("_");
-                if (parts[3]) type_nage.add(parts[3]);
-                if (parts[4]) sexe_nageurs.add(parts[4]);
-                if (parts[5]) distance.add(parts[5]);
-                if (parts[6]) étape_compétition.add(parts[6]);
-            }
-            const sortedDistance = Array.from(distance).sort((a, b) => parseInt(a) - parseInt(b));
-            fillDropdown("run_part1", Array.from(type_nage));
-            fillDropdown("run_part2", Array.from(sexe_nageurs));
-            fillDropdown("run_part3", Array.from(sortedDistance));
-            fillDropdown("run_part4", Array.from(étape_compétition));
-            syncRunSelectorsFromRunName(selected_run, comp);
-            getDatas(comp, selected_run);
-            return runs;
-        },
-        error: function(xhr, status, error) {
-            console.error("getRuns: Error callback:", status, error, xhr);
-            console.error("getRuns: Response text:", xhr.responseText);
-        }
-    });
-}
   } else {
       const type_nage = new Set();
       const sexe_nageurs = new Set();
@@ -724,17 +517,16 @@ export async function load_run(run, data, starTime = null) {
   try {
     selected_comp = $("#competition").val();
 
-    const jsonUrl = getDataPath() + selected_comp + "/" + run + "/" + run + '.json';
     let t;
 
     try {
-      t = await d3.json(jsonUrl, d3.autoType);
+      t = await dataProvider.loadRunJson(selected_comp, run);
     } catch (e) {
       console.error("Erreur lors du chargement du fichier JSON:", e);
-      console.error("URL tentée:", jsonUrl);
       errors.push("Fichier JSON non trouvé ou invalide : " + run + '.json');
       throw e;
     }
+
     let meta = null;
     vidName = "";
     $("#vidsw").show();
@@ -782,15 +574,16 @@ export async function load_run(run, data, starTime = null) {
     if (data !== "new_data" && data && data.trim() !== "") {
       let r = [];
       try {
-        const csvUrl = getDataPath() + selected_comp + "/" + run + "/" + data;
+        
+        const csvUrl = dataProvider.getVideoUrl(selected_comp, run, data);
+
         if (shouldValidateSwimmingTrackingCsv(data)) {
           validatedAnnotationRows = await validateAndParseSwimmingTrackingCsv(csvUrl, data);
           r = validatedAnnotationRows;
-        } else if (typeof d3 !== "undefined" && d3.csv) {
-          r = await d3.csv(csvUrl, d3.autoType);
         } else {
-          r = await fetchAndParseCsv(csvUrl);
+          r = await dataProvider.fetchCsv(selected_comp, run, data);
         }
+
         if (!Array.isArray(r)) r = [];
         if (r.length > 0 && r[0]['startTimeEdit'] != null && starTime == null) {
           edit_temp_start(r[0]['startTimeEdit']);
@@ -825,8 +618,8 @@ export async function load_run(run, data, starTime = null) {
         temp_end = tmax;
       }
       if (data && data.includes("automatique")) {
-        const csvUrl = getDataPath() + selected_comp + "/" + run + "/" + data;
-        let r = await d3.csv(csvUrl, d3.autoType);
+
+        let r = await dataProvider.fetchCsv(selected_comp, run, data);
         megaData = [t, r];
         let maxFrame = Math.max(...megaData[1].map(d => d.frame_number));
   
@@ -851,8 +644,10 @@ export async function load_run(run, data, starTime = null) {
       } else {
         megaData = [t, []];
         let time_dif;
-        const csvUrl = getDataPath() + selected_comp + "/" + run + "/" + data;
+
+        const csvUrl = dataProvider.getVideoUrl(selected_comp, run, data);
         let r = validatedAnnotationRows ?? await validateAndParseSwimmingTrackingCsv(csvUrl, data);
+
         if (r[0]['startTimeEdit'] != null) {
           time_dif = temp_start - r[0]['startTimeEdit'];
         } else {
@@ -921,12 +716,12 @@ export async function load_run(run, data, starTime = null) {
       
       if (n_camera > 1) {
       if (meta && meta["start_side"] === "right") {
-        $("#vid").attr("src", getDataPath() + selected_comp + "/" + run + "/" + run + '_fixeDroite.mp4');
+        $("#vid").attr("src", dataProvider.getVideoUrl(selected_comp, run, run + '_fixeDroite.mp4'));
       } else {
-        $("#vid").attr("src", getDataPath() + selected_comp + "/" + run + "/" + run + '_fixeGauche.mp4');
+        $("#vid").attr("src", dataProvider.getVideoUrl(selected_comp, run, run + '_fixeGauche.mp4'));
       }}
       else{
-        $("#vid").attr("src", getDataPath() + selected_comp + "/" + run + "/" + meta.name);
+        $("#vid").attr("src", dataProvider.getVideoUrl(selected_comp, run, meta.name));
       }
       vide_last_added_data();
       update_cycle_rapide();
@@ -976,39 +771,15 @@ export function edit_vidName(x) {
 }
 
 /**
- * @brief Retourne le chemin racine des fichiers de données selon l'environnement.
- * @returns {string} Le chemin racine des fichiers
- */
-function getDataPath() {
-    return base;
-}
-
-/**
- * @brief Retourne l'URL de l'API locale.
- * @param {string} path Chemin d'endpoint commençant par /
- * @returns {string} URL complète de l'API
- */
-function getApiUrl(path) {
-    return getLocalApiUrl(path);
-}
-
-/**
  * @brief Vérifie si on est en mode GitHub Pages (sans API locale).
  * @returns {boolean} true si on est sur GitHub, false sinon
  */
 function isGitHubMode() {
     return (
-        window.location.hostname.includes('github.io') || 
+        window.location.hostname.includes('github.io') ||
         window.location.hostname.includes('githubusercontent.com') ||
         window.location.pathname.includes('/annotation/')
     );
-}
-
-// Fonction utilitaire pour parser un CSV en JS (compatible CSP stricte)
-async function fetchAndParseCsv(url) {
-    const response = await fetch(url);
-    const text = await response.text();
-    return parseCsvText(text);
 }
 
 function parseCsvText(text) {

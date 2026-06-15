@@ -24,9 +24,10 @@
     align-items: center;
     justify-content: flex-start;
     position: relative;
+    z-index: 10;
     width: 100%;
-    overflow-x: auto;
-    overflow-y: hidden;
+    overflow-x: clip;
+    overflow-y: visible;
     min-height: 56px;
 }
 #header-right {

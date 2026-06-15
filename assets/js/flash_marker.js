@@ -1,4 +1,4 @@
-import ImgCtrlPts from "../../node_modules/imgctrlpts/packages/javascript/ImgCtrlPts.js";
+import ImgCtrlPts from "./vendor/ImgCtrlPts.js";
 import { megaData } from "./loader.js";
 import { getMeta } from "./utils.js";
 import { getVideoDisplayTransform } from "./video_surface.js";

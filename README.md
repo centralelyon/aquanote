@@ -4,8 +4,7 @@ _An annotation tool for race swimming videos (using one or multiple static camer
 
 <img src="https://centralelyon.github.io/swimming/figures/aquanote.png" alt="Aquanote screenshot" style="max-width:100%;height:auto;">
 
-## How to install and run locally
-
+## How to install
 
 ### Using `venv` (recommended)
 
@@ -35,25 +34,115 @@ pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
-### Basic usage:
+4. **Install the JavaScript dependencies:**
 
-You need to run 2 servers:
-
-1/ A server to deliver the files:
-
-```sh
-python local.py 
+```bash
+npm install
 ```
 
-2/ Another server that hosts the web application:
+## Basic usage
 
-```sh
+There are 3 main ways to run Aquanote:
+
+1. Static mode, using the bundled `videos/flat.json` index and local files. This is the mode used for GitHub Pages.
+2. Local Python server mode, using `local.py` to serve local competition data from `videos/`.
+3. API mode, using a VizAPI-compatible backend.
+
+Use **Static** for read-only demos and GitHub Pages, **Local Python server** for local annotation work and metadata writes, and **API** when Aquanote is connected to a shared backend. The application also has a **Configuration** tab where you can switch modes and set the local server or API URL without editing the code.
+
+### Static mode
+
+Static mode does not need the Python API. It serves the web app and reads the demo data directly from the repository.
+
+```bash
 npm start
 ```
 
-Then you can open your browser at http://127.0.0.1:8000
+Then open:
 
-To use the site locally, you need to pull the branch and go offline with competitions present in the `courses_natation_local` folder. (Start the folders with a **2** so they are detected, and keep the correct number of underscores `_` to avoid display issues in the dropdown menus.)  
+```text
+http://127.0.0.1:8001/?source=static
+```
+
+In static mode, Calibrate and Metadata can update the current browser session, but saving JSON back to disk requires the local Python server or an API backend.
+
+To refresh the static index after adding competitions or runs, regenerate `videos/flat.json`:
+
+```bash
+python -m flatdir videos --limit 10 --nested --only type=directory --add espadon=false --add espadonModifie=false --add data_checked=false --no-defaults --min-depth 1 --add-depth 2 --ignore-typical > videos/flat.json
+```
+
+### Local Python server
+
+Use this mode when you want to serve local files from the repository `videos/` folder with the small Flask server in `local.py`.
+
+In one terminal, start the local data server on port `8000`:
+
+```bash
+python local.py --port 8000
+```
+
+In another terminal, start the web app on port `8001`:
+
+```bash
+npm start
+```
+
+Then open:
+
+```text
+http://127.0.0.1:8001/?source=local
+```
+
+If the local server uses a different URL, set it in the Configuration tab or pass it in the URL:
+
+```text
+http://127.0.0.1:8001/?source=local&localServerUrl=http%3A%2F%2F127.0.0.1%3A8010
+```
+
+Local competitions must be present in `videos/`. Competition and run folder names should start with `2` so they are detected by the dropdown filters. Keep the expected underscore `_` structure in folder names to avoid display issues in the race dropdown menus.
+
+
+### API mode
+
+API mode expects a backend that exposes Aquanote through the `/aquanote` prefix, such as the VizAPI module:
+
+https://github.com/centralelyon/VizAPI/tree/main/app/modules/aquanote
+
+Start that API separately so it is available at:
+
+```text
+http://localhost:8000/aquanote
+```
+
+Then start the web app:
+
+```bash
+npm start
+```
+
+Open:
+
+```text
+http://127.0.0.1:8001/?source=api
+```
+
+If the API is not at `http://localhost:8000/aquanote`, set it in the Configuration tab or pass it in the URL:
+
+```text
+http://127.0.0.1:8001/?source=api&apiUrl=http%3A%2F%2Flocalhost%3A9000%2Faquanote
+```
+
+The API provider uses these endpoints:
+
+```text
+GET /aquanote/getCompets
+GET /aquanote/getRuns/{compet_id}
+GET /aquanote/getDatas/{compet_id}/{run_id}
+GET /aquanote/getQuality/{compet_id}/{run_id}
+GET /aquanote/files/{compet_id}/{run_id}/{filename}
+```
+
 
 ## Data structure and analysis
 

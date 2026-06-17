@@ -143,6 +143,13 @@ GET /aquanote/getQuality/{compet_id}/{run_id}
 GET /aquanote/files/{compet_id}/{run_id}/{filename}
 ```
 
+### Sportsdata CSV formats
+
+The Configuration tab has two Sportsdata CSV options:
+
+* **Sportsdata load schema** filters the CSV files shown for the selected run. Aquanote validates CSV headers in the current run folder against the selected Sportsdata swimming schema before adding them to the data dropdown. Static mode can only discover files listed in metadata or `flat.json`.
+* **Sportsdata save format** controls the columns used by the download button. The default is **Swimming tracking CSV**; **Swimming basic tracking CSV** writes `frameId,swimmerId,eventId,time,distance`.
+
 
 ## Data structure and analysis
 
@@ -205,6 +212,38 @@ To render the swimming lanes and lane labels on top of the generated frames:
 
 ```sh
 python scripts/generate_video.py --render-lanes
+```
+
+### Sportsdata basic tracking with a camera
+
+To generate Aquanote assets from a sportsdata basic tracking CSV with a side-pool
+camera perspective:
+
+```sh
+python scripts/generate_sportsdata_basic_tracking_camera.py
+```
+
+The script writes the camera it used as `sportsdata_basic_tracking_camera.json`
+next to the generated video, CSV, and metadata. You can pass your own camera:
+
+```sh
+python scripts/generate_sportsdata_basic_tracking_camera.py \
+  --camera my_camera.json
+```
+
+Camera JSON format:
+
+```json
+{
+  "fov": 55,
+  "aspect": 1.777778,
+  "near": 0.01,
+  "far": 1000,
+  "position": [25, 17, -25],
+  "target": [25, 0, 10],
+  "up": [0, 1, 0],
+  "roll": 0
+}
 ```
 
 

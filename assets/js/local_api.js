@@ -1,9 +1,13 @@
+import { DEFAULT_SPORTSDATA_CSV_FORMAT, normalizeSportsdataCsvFormatId } from "./sportsdata.js";
+
 const DEFAULT_LOCAL_SERVER_URL = "http://127.0.0.1:8000";
 const DEFAULT_API_BASE_URL = "http://localhost:8000/aquanote";
 const STORAGE_KEYS = {
     source: "aquanote.source",
     localServerUrl: "aquanote.localServerUrl",
-    apiBaseUrl: "aquanote.apiBaseUrl"
+    apiBaseUrl: "aquanote.apiBaseUrl",
+    sportsdataLoadFormat: "aquanote.sportsdataLoadFormat",
+    sportsdataSaveFormat: "aquanote.sportsdataSaveFormat"
 };
 const SOURCE_ALIASES = {
     server: "local",
@@ -88,6 +92,22 @@ export function getApiBaseUrl() {
     );
 }
 
+export function getSportsdataLoadFormatId() {
+    const params = getParams();
+    return normalizeSportsdataCsvFormatId(
+        params.get("sportsdataLoadFormat") || readStorage(STORAGE_KEYS.sportsdataLoadFormat),
+        DEFAULT_SPORTSDATA_CSV_FORMAT
+    );
+}
+
+export function getSportsdataSaveFormatId() {
+    const params = getParams();
+    return normalizeSportsdataCsvFormatId(
+        params.get("sportsdataSaveFormat") || readStorage(STORAGE_KEYS.sportsdataSaveFormat),
+        DEFAULT_SPORTSDATA_CSV_FORMAT
+    );
+}
+
 export function getActiveServerUrl() {
     return getDataSourceMode() === "api" ? getApiBaseUrl() : getLocalServerUrl();
 }
@@ -125,11 +145,13 @@ export function canWriteMetadata() {
     return !isStaticDataSource();
 }
 
-export function buildDataSourceUrl({ source, localServerUrl, apiBaseUrl }) {
+export function buildDataSourceUrl({ source, localServerUrl, apiBaseUrl, sportsdataLoadFormat, sportsdataSaveFormat }) {
     const params = new URLSearchParams(typeof window === "undefined" ? "" : window.location.search);
     const nextSource = normalizeSource(source, getDataSourceMode());
     const nextLocalServerUrl = normalizeBaseUrl(localServerUrl, DEFAULT_LOCAL_SERVER_URL);
     const nextApiBaseUrl = normalizeBaseUrl(apiBaseUrl, DEFAULT_API_BASE_URL);
+    const nextSportsdataLoadFormat = normalizeSportsdataCsvFormatId(sportsdataLoadFormat, getSportsdataLoadFormatId());
+    const nextSportsdataSaveFormat = normalizeSportsdataCsvFormatId(sportsdataSaveFormat, getSportsdataSaveFormatId());
 
     params.set("source", nextSource);
     params.delete("apiPort");
@@ -146,10 +168,24 @@ export function buildDataSourceUrl({ source, localServerUrl, apiBaseUrl }) {
         params.set("apiUrl", nextApiBaseUrl);
     }
 
+    if (nextSportsdataLoadFormat === DEFAULT_SPORTSDATA_CSV_FORMAT) {
+        params.delete("sportsdataLoadFormat");
+    } else {
+        params.set("sportsdataLoadFormat", nextSportsdataLoadFormat);
+    }
+
+    if (nextSportsdataSaveFormat === DEFAULT_SPORTSDATA_CSV_FORMAT) {
+        params.delete("sportsdataSaveFormat");
+    } else {
+        params.set("sportsdataSaveFormat", nextSportsdataSaveFormat);
+    }
+
     try {
         localStorage.setItem(STORAGE_KEYS.source, nextSource);
         localStorage.setItem(STORAGE_KEYS.localServerUrl, nextLocalServerUrl);
         localStorage.setItem(STORAGE_KEYS.apiBaseUrl, nextApiBaseUrl);
+        localStorage.setItem(STORAGE_KEYS.sportsdataLoadFormat, nextSportsdataLoadFormat);
+        localStorage.setItem(STORAGE_KEYS.sportsdataSaveFormat, nextSportsdataSaveFormat);
     } catch {
         // URL parameters remain the source of truth if localStorage is unavailable.
     }
@@ -160,5 +196,7 @@ export function buildDataSourceUrl({ source, localServerUrl, apiBaseUrl }) {
 export const DEFAULTS = {
     source: "auto",
     localServerUrl: DEFAULT_LOCAL_SERVER_URL,
-    apiBaseUrl: DEFAULT_API_BASE_URL
+    apiBaseUrl: DEFAULT_API_BASE_URL,
+    sportsdataLoadFormat: DEFAULT_SPORTSDATA_CSV_FORMAT,
+    sportsdataSaveFormat: DEFAULT_SPORTSDATA_CSV_FORMAT
 };

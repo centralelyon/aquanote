@@ -24,7 +24,7 @@ export function getMeta() {
         return matchingMeta;
     }
     if (n_camera > 1) {
-        let side = vid.getAttribute("src").includes("fixeDroite") ;
+        let side = src.includes("fixeDroite") ;
         return megaData[0].videos.filter(d => (side ? d.name.includes("fixeDroite") : d.name.includes("fixeGauche")))[0];
     }
     else {

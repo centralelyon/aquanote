@@ -1,5 +1,5 @@
 import ImgCtrlPts from "./vendor/ImgCtrlPts.js";
-import { megaData, selected_comp, selected_run } from "./loader.js";
+import { megaData, pool_size, selected_comp, selected_run } from "./loader.js";
 import { getMeta } from "./utils.js";
 import { refreshVideoSurface } from "./video_surface.js";
 import { canWriteMetadata, getLocalApiUrl, isStaticDataSource } from "./local_api.js";
@@ -170,6 +170,35 @@ function destinationPointToReferencePx(point, referenceSize = activeReferenceSiz
     return {
         x: Number(point?.[0] ?? point?.x ?? 0) * referenceSize.width / JSON_POOL_SIZE.width,
         y: Number(point?.[1] ?? point?.y ?? 0) * referenceSize.height / JSON_POOL_SIZE.height
+    };
+}
+
+function destinationPointsLookMetric(points) {
+    if (!Array.isArray(points) || points.length < 4) {
+        return false;
+    }
+
+    const xs = points.map((point) => Number(point?.[0] ?? point?.x));
+    const ys = points.map((point) => Number(point?.[1] ?? point?.y));
+    if (!xs.every(Number.isFinite) || !ys.every(Number.isFinite)) {
+        return false;
+    }
+
+    const maxX = Math.max(...xs);
+    const maxY = Math.max(...ys);
+    const poolLength = positiveNumber(pool_size?.[0], 50);
+    const poolWidth = positiveNumber(pool_size?.[1], 20);
+    return maxX <= poolLength * 1.25 && maxY <= poolWidth * 1.25;
+}
+
+function metricDestinationPointToReferencePx(point, referenceSize = activeReferenceSize ?? JSON_POOL_SIZE) {
+    const poolLength = positiveNumber(pool_size?.[0], 50);
+    const poolWidth = positiveNumber(pool_size?.[1], 20);
+    const x = Number(point?.[0] ?? point?.x ?? 0);
+    const y = Number(point?.[1] ?? point?.y ?? 0);
+    return {
+        x: x * referenceSize.width / poolLength,
+        y: y * referenceSize.height / poolWidth
     };
 }
 
@@ -828,8 +857,11 @@ async function renderConfiguration() {
 
     const sourceSize = getSourceSize(activeMeta);
     const sourcePoints = activeMeta.srcPts.map((point) => sourcePointToPct(point, sourceSize));
+    const destinationPointMapper = destinationPointsLookMetric(activeMeta.destPts)
+        ? metricDestinationPointToReferencePx
+        : destinationPointToReferencePx;
     const destinationPoints = activeMeta.destPts
-        .map((point) => destinationPointToReferencePx(point, activeReferenceSize))
+        .map((point) => destinationPointMapper(point, activeReferenceSize))
         .map((point) => referencePointToPct(point, activeReferenceSize));
 
     workspace?.remove();

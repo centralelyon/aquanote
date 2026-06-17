@@ -26,6 +26,7 @@ import {
 import { demoDataRoot, displaySwimmers, setGrad } from "./main.js"
 import { formatValidationIssue, validateCsvUrlHeaders } from "./sportsdata.js";
 import { dataProvider, setStaticProviderData } from "./aquanote-providers.js";
+import { getSportsdataLoadFormatId } from "./local_api.js";
 
 let flat;
 let flatManifest = null;
@@ -316,12 +317,12 @@ export async function getDatas(comp, run) {
     run = resolveRunName(run);
     datas = [];
 
-    const c = await dataProvider.getDatas(comp, run);
+    const c = await collectRunCsvEntries(comp, run);
 
     let select = $("#temp");
     select.empty();
 
-    let csvFiles = c.filter(d => d.name && d.name.includes(".csv"));
+    let csvFiles = await filterSportsdataCsvFiles(comp, run, c);
     for (let i = 0; i < csvFiles.length; i++) {
         select.append("<option value='" + csvFiles[i].name + "'>" + csvFiles[i].name + "</option>");
         datas.push(csvFiles[i].name);
@@ -333,8 +334,12 @@ async function dataExistsForRun(comp, run, data) {
     if (!data || data === "new_data") {
         return true;
     }
-    const entries = await dataProvider.getDatas(comp, run);
-    return entries.some(entry => entry.name === data);
+    if (datas.includes(data)) {
+        return true;
+    }
+    const entries = await collectRunCsvEntries(comp, run);
+    const validEntries = await filterSportsdataCsvFiles(comp, run, entries);
+    return validEntries.some(entry => entry.name === data);
 }
 
 /**
@@ -609,7 +614,10 @@ export async function load_run(run, data, starTime = null) {
         const csvUrl = dataProvider.getVideoUrl(selected_comp, run, data);
 
         if (shouldValidateSwimmingTrackingCsv(data)) {
-          validatedAnnotationRows = await validateAndParseSwimmingTrackingCsv(csvUrl, data);
+	          validatedAnnotationRows = normalizeSportsdataRows(
+	            await validateAndParseSportsdataCsv(csvUrl, data),
+	            t
+	          );
           r = validatedAnnotationRows;
         } else {
           r = await dataProvider.fetchCsv(selected_comp, run, data);
@@ -677,7 +685,10 @@ export async function load_run(run, data, starTime = null) {
         let time_dif;
 
         const csvUrl = dataProvider.getVideoUrl(selected_comp, run, data);
-        let r = validatedAnnotationRows ?? await validateAndParseSwimmingTrackingCsv(csvUrl, data);
+	        let r = validatedAnnotationRows ?? normalizeSportsdataRows(
+	          await validateAndParseSportsdataCsv(csvUrl, data),
+	          t
+	        );
 
         if (r[0]['startTimeEdit'] != null) {
           time_dif = temp_start - r[0]['startTimeEdit'];
@@ -832,15 +843,78 @@ function parseCsvText(text) {
     });
 }
 
+function csvEntry(name) {
+    return { name, type: "file" };
+}
+
+function addUniqueCsvEntry(entries, seen, name) {
+    const csvName = String(name || "").trim();
+    if (!csvName || !csvName.toLowerCase().endsWith(".csv") || seen.has(csvName)) {
+        return;
+    }
+    seen.add(csvName);
+    entries.push(csvEntry(csvName));
+}
+
+async function collectRunCsvEntries(comp, run) {
+    const entries = [];
+    const seen = new Set();
+
+    try {
+        const providerEntries = await dataProvider.getDatas(comp, run);
+        for (const entry of providerEntries || []) {
+            addUniqueCsvEntry(entries, seen, entry?.name);
+        }
+    } catch (error) {
+        console.warn(`Could not list CSV files for ${comp}/${run}:`, error);
+    }
+
+    try {
+        const metadata = await dataProvider.loadRunJson(comp, run);
+        for (const csvName of metadata?.csvFiles || []) {
+            addUniqueCsvEntry(entries, seen, csvName);
+        }
+        for (const csvName of metadata?.annotations || []) {
+            addUniqueCsvEntry(entries, seen, csvName);
+        }
+        addUniqueCsvEntry(entries, seen, metadata?.sourceSportsdata?.csv);
+    } catch (error) {
+        console.warn(`Could not inspect run metadata for CSV files in ${comp}/${run}:`, error);
+    }
+
+    return entries;
+}
+
+async function filterSportsdataCsvFiles(comp, run, entries) {
+    const formatId = getSportsdataLoadFormatId();
+    const csvFiles = (entries || []).filter((entry) => entry?.name && entry.name.toLowerCase().endsWith(".csv"));
+    const validationResults = await Promise.all(csvFiles.map(async (entry) => {
+        const csvUrl = dataProvider.getVideoUrl(comp, run, entry.name);
+        try {
+            const result = await validateCsvUrlHeaders(csvUrl, { formatId });
+            const errors = result.issues.filter((issue) => (issue.severity || "error") === "error");
+            return errors.length === 0 ? entry : null;
+        } catch (error) {
+            console.warn(`Skipping CSV with invalid ${formatId} header: ${entry.name}`, error);
+            return null;
+        }
+    }));
+
+    return validationResults.filter(Boolean);
+}
+
 function shouldValidateSwimmingTrackingCsv(data) {
     return Boolean(data && data !== "new_data" && !String(data).includes("automatique"));
 }
 
-async function validateAndParseSwimmingTrackingCsv(csvUrl, data) {
+async function validateAndParseSportsdataCsv(csvUrl, data) {
+    const formatId = getSportsdataLoadFormatId();
     const result = await validateCsvUrlHeaders(csvUrl, {
-        formatId: "formats.csv.swimming-tracking"
+        formatId
     });
-    const issueMessages = result.issues.map(formatValidationIssue);
+    const issueMessages = result.issues
+        .filter((issue) => (issue.severity || "error") === "error")
+        .map(formatValidationIssue);
     if (issueMessages.length > 0) {
         const message = `Sportsdata CSV header validation failed for ${data}:\n${issueMessages.join("\n")}`;
         console.error(message);
@@ -848,8 +922,70 @@ async function validateAndParseSwimmingTrackingCsv(csvUrl, data) {
     }
 
     console.log(`Sportsdata CSV header validation ok for ${data}`, {
-        format: "formats.csv.swimming-tracking",
+        format: formatId,
         headers: result.headers
     });
     return parseCsvText(result.text);
+}
+
+function formatSportsdataNumber(value) {
+    const number = Number(value);
+    return Number.isFinite(number) ? number : 0;
+}
+
+function normalizeBasicTrackingRows(rows, metadata) {
+    const poolLength = Number(metadata?.taille_piscine?.[0]) || 50;
+    const poolWidth = Number(metadata?.taille_piscine?.[1]) || 20;
+    const laneKeys = getLaneKeysFromRaceMetadata(metadata);
+    const laneCount = Math.max(1, laneKeys.length);
+    const sourceLane = metadata?.sourceSportsdata?.lane;
+    const defaultLaneIndex = Math.max(0, laneKeys.indexOf(sourceLane));
+    const swimmers = metadata?.lignes || {};
+    const startSide = String(metadata?.start_side || metadata?.videos?.[0]?.start_side || "left");
+    const swimmerIds = [...new Set(rows
+        .map((row) => Number(row.swimmerId))
+        .filter(Number.isFinite))]
+        .sort((left, right) => left - right);
+    const swimmerIdToLaneIndex = new Map(swimmerIds.map((swimmerId, index) => [swimmerId, index]));
+
+    return rows.map((row) => {
+        const rawSwimmerId = Number(row.swimmerId);
+        const swimmerId = swimmerIdToLaneIndex.has(rawSwimmerId)
+            ? swimmerIdToLaneIndex.get(rawSwimmerId)
+            : defaultLaneIndex;
+        const laneIndex = Math.max(0, Math.min(laneCount - 1, swimmerId));
+        const lane = laneKeys[laneIndex] || `ligne${laneIndex + 1}`;
+        const distance = formatSportsdataNumber(row.distance);
+        const time = formatSportsdataNumber(row.time);
+        const eventX = startSide === "left"
+            ? Math.max(0, Math.min(poolLength, poolLength - distance))
+            : Math.max(0, Math.min(poolLength, distance));
+        const eventY = (laneIndex + 0.5) * (poolWidth / laneCount);
+
+        return {
+            frameId: Number(row.frameId),
+            swimmerId,
+            swimmerName: swimmers[lane] || `Swimmer ${swimmerId + 1}`,
+            lane,
+            cumul: distance,
+            eventId: row.eventId,
+            eventX,
+            eventY,
+            event: row.eventId,
+            "TempsVideo (s)": time,
+            "Temps (s)": time,
+            "distance (m)": distance,
+            "tempo (s)": "",
+            "frequence (cylce/min)": "",
+            "amplitude (m)": "",
+            "vitesse (m/s)": ""
+        };
+    });
+}
+
+function normalizeSportsdataRows(rows, metadata) {
+    if (getSportsdataLoadFormatId() === "formats.csv.swimming-basic-tracking") {
+        return normalizeBasicTrackingRows(rows, metadata);
+    }
+    return rows;
 }

@@ -16,6 +16,7 @@ import { positionCurseur,edit_positionCurseur } from './shortcuts_handler.js'
 import { vidReset } from './videoHandler.js';
 import { getVideoDisplayTransform, redrawVideoSurface, refreshVideoSurface, zoomVideoSurface } from './video_surface.js';
 import { dataProvider } from './aquanote-providers.js';
+import { getSportsdataSaveFormatId } from './local_api.js';
 
 
 export let video_volume = 0;
@@ -899,7 +900,8 @@ export function clic_souris_video(e) {
     })
 
     $("#download").on("click", function () {
-        const head = [["frameId", "swimmerId", "swimmerName", "lane", "cumul", "eventId", "eventX", "eventY", "event", "TempsVideo (s)", "Temps (s)", "distance (m)", "tempo (s)", "frequence (cylce/min)", "amplitude (m)", "vitesse (m/s)"]];
+        const trackingHead = ["frameId", "swimmerId", "swimmerName", "lane", "cumul", "eventId", "eventX", "eventY", "event", "TempsVideo (s)", "Temps (s)", "distance (m)", "tempo (s)", "frequence (cylce/min)", "amplitude (m)", "vitesse (m/s)"];
+        const basicTrackingHead = ["frameId", "swimmerId", "eventId", "time", "distance"];
         let rows = []
         let swims = Object.keys(curr_swims)
         for (let i = 0; i < swims.length; i++) {
@@ -921,7 +923,7 @@ export function clic_souris_video(e) {
                 let tempsRow = frameId_to_RunTime(r["frame_number"]);
 
                 if (r["mode"] === "turn") {
-                    rows.push([r["frame_number"], (r["swimmer"]), nageur, lane, distanceRow, j, r["x"].toFixed(4), r["y"], eventRow, tempsVideo, tempsRow, distanceRow])
+                    rows.push([r["frame_number"], (r["swimmer"]), nageur, lane, distanceRow, eventRow, r["x"].toFixed(4), r["y"], eventRow, tempsVideo, tempsRow, distanceRow])
 
                     longueur +=1
                     skipNextCycle = true        
@@ -932,7 +934,7 @@ export function clic_souris_video(e) {
                         tempo.push(frameId_to_RunTime(r["frame_number"]))
                         ampli.push(r["cumul"])
         
-                        rows.push([r["frame_number"], (r["swimmer"]), nageur, lane, distanceRow, j, r["x"].toFixed(4), r["y"], eventRow, tempsVideo, tempsRow, distanceRow])
+                        rows.push([r["frame_number"], (r["swimmer"]), nageur, lane, distanceRow, eventRow, r["x"].toFixed(4), r["y"], eventRow, tempsVideo, tempsRow, distanceRow])
                     } else {
                         tempo.push(frameId_to_RunTime(r["frame_number"]))
                         ampli.push(r["cumul"])
@@ -948,17 +950,29 @@ export function clic_souris_video(e) {
                         if(isNaN(amplitudeRow)){amplitudeRow = codeNaNforDownload}
                         if(isNaN(vitesseRow)){vitesseRow = codeNaNforDownload}
 
-                        rows.push([r["frame_number"], (r["swimmer"]), nageur, lane, distanceRow, j, r["x"].toFixed(4), r["y"], eventRow, tempsVideo, tempsRow, distanceRow, tempoRow, frequenceRow, amplitudeRow, vitesseRow])
+                        rows.push([r["frame_number"], (r["swimmer"]), nageur, lane, distanceRow, eventRow, r["x"].toFixed(4), r["y"], eventRow, tempsVideo, tempsRow, distanceRow, tempoRow, frequenceRow, amplitudeRow, vitesseRow])
                     }
                 } else {
-                    rows.push([r["frame_number"], (r["swimmer"]), nageur, lane, distanceRow, j, r["x"].toFixed(4), r["y"], eventRow, tempsVideo, tempsRow, distanceRow])
+                    rows.push([r["frame_number"], (r["swimmer"]), nageur, lane, distanceRow, eventRow, r["x"].toFixed(4), r["y"], eventRow, tempsVideo, tempsRow, distanceRow])
                 }
 
             }
         }
 
+        let head = trackingHead;
+        if (getSportsdataSaveFormatId() === "formats.csv.swimming-basic-tracking") {
+            rows = rows.map(row => [
+                row[0],
+                row[1],
+                row[8],
+                row[10],
+                row[11]
+            ]);
+            head = basicTrackingHead;
+        }
+
         let csvContent = "data:text/csv;charset=utf-8,"
-            + head.map(e => e.join(",")).join("\n") + "\n"
+            + head.join(",") + "\n"
             + rows.map(e => e.join(",")).join("\n");
 
 
@@ -1152,12 +1166,6 @@ let pt=[0,0];
     
         if (!vid) {
             console.error("Element with ID 'vid' not found");
-            return;
-        }
-    
-        let src = vid.getAttribute("src");
-        if (!src) {
-            console.error("Attribute 'src' not found on element with ID 'vid'");
             return;
         }
     

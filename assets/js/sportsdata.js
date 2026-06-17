@@ -8,6 +8,26 @@ export const catalogPaths = {
 
 const DEFAULT_SPORTSDATA_BASE_URL = new URL("../sportsdata/", import.meta.url).href;
 
+export const SPORTS_DATA_CSV_FORMATS = [
+    {
+        id: "formats.csv.swimming-tracking",
+        title: "Swimming tracking CSV",
+        rulesId: "rules.swimming.tracking-csv"
+    },
+    {
+        id: "formats.csv.swimming-basic-tracking",
+        title: "Swimming basic tracking CSV",
+        rulesId: "rules.swimming.basic-tracking-csv"
+    }
+];
+
+export const DEFAULT_SPORTSDATA_CSV_FORMAT = SPORTS_DATA_CSV_FORMATS[0].id;
+
+export function normalizeSportsdataCsvFormatId(value, fallback = DEFAULT_SPORTSDATA_CSV_FORMAT) {
+    const id = String(value || "").trim();
+    return SPORTS_DATA_CSV_FORMATS.some((format) => format.id === id) ? id : fallback;
+}
+
 export async function fetchCatalog(path, baseUrl = "") {
     const url = new URL(path, baseUrl || import.meta.url);
     const response = await fetch(url.href);
@@ -28,6 +48,9 @@ export function toSelectOptions(catalog) {
 function csvFormatDeclarationPath(formatId) {
     if (formatId === "formats.csv.swimming-tracking" || formatId === "swimming-tracking-csv") {
         return "models/formats/csv/swimming-tracking.table-schema.json";
+    }
+    if (formatId === "formats.csv.swimming-basic-tracking" || formatId === "swimming-basic-tracking-csv") {
+        return "models/formats/csv/swimming-basic-tracking.table-schema.json";
     }
     if (formatId.startsWith("formats.csv.")) {
         return `models/formats/csv/${formatId.replace("formats.csv.", "")}.table-schema.json`;

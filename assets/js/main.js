@@ -4,7 +4,7 @@
  */
 
 
-import { findVideoByType, init, megaData, curr_swims, frame_rate, temp_end, n_camera, selected_comp, selected_run } from "./loader.js"
+import { findVideoByType, init, megaData, curr_swims, frame_rate, temp_end, n_camera, selected_comp, selected_run, getLaneKeysFromRaceMetadata, isOneIsUp } from "./loader.js"
 import { construct_data_row, data_onclick } from "./data_handler.js"
 import { selected_swim, temp_start, updateSwimSwitch, vue_du_dessus } from "./refactor-script.js"
 import "./plot_handler.js"
@@ -126,14 +126,16 @@ export function displaySwimmers(data) {
         meta = findVideoByType(megaData[0].videos, "dessus") || meta;
     }
 
-    let keys = Object.keys(data)
-    if (meta["one_is_up"] === false) {
+    const laneKeys = getLaneKeysFromRaceMetadata(megaData[0]);
+    let keys = [...laneKeys]
+    if (!isOneIsUp(meta)) {
         keys = keys.reverse()
     }
 
     for (let i = 0; i < keys.length; i++) {
-        let optionClass = "swimmer-option" + (i === selected_swim ? " selected" : "");
-        container.insertAdjacentHTML("beforeend", `<option class='${optionClass}' value='${i}'>${i + 1}- ${data[keys[i]].replace("�", "é")}</option>`);
+        const laneIndex = laneKeys.indexOf(keys[i]);
+        let optionClass = "swimmer-option" + (laneIndex === selected_swim ? " selected" : "");
+        container.insertAdjacentHTML("beforeend", `<option class='${optionClass}' value='${laneIndex}'>${laneIndex + 1}- ${data[keys[i]].replace("�", "é")}</option>`);
     }
 
     // Synchroniser la valeur du select avec selected_swim

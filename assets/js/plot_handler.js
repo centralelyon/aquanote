@@ -2,15 +2,16 @@
  * @file plot_handler.js
  * @brief fichier gèrant principalement l'affichage des barres de section.
  */
-import { pool_size } from './loader.js';
+import { getLaneCount, getLaneKeysFromRaceMetadata, isOneIsUp, pool_size } from './loader.js';
 import { scaleZoom,mode} from './refactor-script.js';
 import { getPoolBar, get_orr, eucDistance } from './homography_handler.js';
 import { get_meter_plot_label  } from './cycles_handler.js';
 import { getMeta } from './utils.js';
-import { getVideoDisplayTransform, setPoolControlsVisible } from './video_surface.js';
+import { getVideoDisplayTransform, setPoolControlsVisible, setPoolLaneOverlayVisible } from './video_surface.js';
 
 export let show_indicator_lines = false;// Boolean correspondant au bouton Ligne Ref : true -> affichage et aide à la visée des lignes indicatrices, false -> pas d'affichage ni aide
 export let show_pool_boundaries = false;// Boolean correspondant à l'affichage des limites de la piscine calibrées dans le JSON
+export let show_pool_lanes = false;// Boolean correspondant à l'affichage des lignes de nage calibrées dans le JSON
 let last_mode = "enter";// Dernier Mode d'annotation : quand on active les lignes ref on passe automatiquement en mode intermed, et quand on les désactive, on repasse en last_mode 
 let ecart_bord_premiere_barre=5;
 let ecart_barres=10;
@@ -148,19 +149,74 @@ export function plot_pool_boundaries(isPlot) {
     setPoolControlsVisible(true, meta);
 }
 
+function getPoolLaneOverlayOptions(meta) {
+    const laneKeys = getLaneKeysFromRaceMetadata();
+    const laneCount = Math.max(1, getLaneCount());
+    const labels = laneKeys.map((laneKey, index) => ({
+        label: String(index + 1),
+        laneIndex: isOneIsUp(meta) ? index : laneCount - index - 1,
+        laneKey
+    }));
+
+    return {
+        laneCount,
+        labels,
+        poolSize: pool_size
+    };
+}
+
+export function plot_pool_lanes(isPlot) {
+    if (!isPlot) {
+        setPoolLaneOverlayVisible(false);
+        return;
+    }
+
+    const annotateView = document.getElementById("annotate_view");
+    const videoContainer = document.getElementById("video");
+    if (annotateView?.hidden || !videoContainer || videoContainer.offsetWidth <= 0 || videoContainer.offsetHeight <= 0) {
+        return;
+    }
+
+    let meta = null;
+    try {
+        meta = getMeta();
+    } catch {
+        return;
+    }
+
+    setPoolLaneOverlayVisible(true, meta, getPoolLaneOverlayOptions(meta));
+}
+
 function syncPoolBoundariesToggle(checked) {
     show_pool_boundaries = checked;
     plot_pool_boundaries(show_pool_boundaries);
 }
 
+function syncPoolLanesToggle(checked) {
+    show_pool_lanes = checked;
+    plot_pool_lanes(show_pool_lanes);
+}
+
 function refreshVisiblePoolBoundaries() {
-    if (!show_pool_boundaries) {
+    if (!show_pool_boundaries && !show_pool_lanes) {
         return;
     }
     if (typeof requestAnimationFrame === "function") {
-        requestAnimationFrame(() => plot_pool_boundaries(true));
+        requestAnimationFrame(() => {
+            if (show_pool_boundaries) {
+                plot_pool_boundaries(true);
+            }
+            if (show_pool_lanes) {
+                plot_pool_lanes(true);
+            }
+        });
     } else {
-        plot_pool_boundaries(true);
+        if (show_pool_boundaries) {
+            plot_pool_boundaries(true);
+        }
+        if (show_pool_lanes) {
+            plot_pool_lanes(true);
+        }
     }
 }
 
@@ -169,25 +225,24 @@ window.addEventListener('DOMContentLoaded', function() {
     boundariesToggle?.addEventListener('change', function(e) {
         syncPoolBoundariesToggle(e.target.checked);
     });
+    const lanesToggle = document.getElementById('show_pool_lanes');
+    lanesToggle?.addEventListener('change', function(e) {
+        syncPoolLanesToggle(e.target.checked);
+    });
 
     document.getElementById('vid')?.addEventListener('loadedmetadata', function() {
-        if (show_pool_boundaries) {
-            plot_pool_boundaries(true);
-        }
+        refreshVisiblePoolBoundaries();
     });
     document.getElementById('vid')?.addEventListener('loadeddata', function() {
-        if (show_pool_boundaries) {
-            plot_pool_boundaries(true);
-        }
+        refreshVisiblePoolBoundaries();
     });
     document.getElementById('vid')?.addEventListener('canplay', function() {
-        if (show_pool_boundaries) {
-            plot_pool_boundaries(true);
-        }
+        refreshVisiblePoolBoundaries();
     });
 
     document.getElementById('vid')?.addEventListener('loadstart', function() {
         plot_pool_boundaries(false);
+        plot_pool_lanes(false);
     });
 
     window.addEventListener('resize', function() {

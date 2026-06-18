@@ -132,7 +132,7 @@ export function isOneIsUp(metaLike = megaData[0]?.videos?.[0] ?? megaData[0]) {
 
 export function getLaneYPosition(swimmerIndex, metaLike = megaData[0]?.videos?.[0] ?? megaData[0]) {
     const laneSpan = getLaneSpan(megaData[0] ?? metaLike);
-    return getDisplayLaneIndex(swimmerIndex, metaLike) * laneSpan;
+    return (getDisplayLaneIndex(swimmerIndex, metaLike) + 0.5) * laneSpan;
 }
 
 export function videoMatchesType(video, typeVideo) {

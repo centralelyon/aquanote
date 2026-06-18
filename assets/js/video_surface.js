@@ -1,4 +1,5 @@
 import ImgCtrlPts from "./vendor/ImgCtrlPts.js";
+import { poolPointToVideoPoint } from "./pool_geometry.js";
 
 const SURFACE_ID = "imgctrlpts-video-surface";
 const MAX_ZOOM = 6.8;
@@ -7,6 +8,13 @@ let control = null;
 let currentMeta = null;
 let transparentImage = null;
 let poolControlsVisible = false;
+let laneOverlayVisible = false;
+let laneOverlay = null;
+let laneOverlayOptions = {
+    laneCount: 1,
+    labels: [],
+    poolSize: [50, 20]
+};
 let resizeObserver = null;
 let scaleZoom = 1;
 let panLeft = 0;
@@ -119,8 +127,137 @@ export function getVideoDisplayTransform(meta = currentMeta) {
     };
 }
 
+function sourcePointToDisplay(point, meta = currentMeta) {
+    const transform = getVideoDisplayTransform(meta);
+    if (!transform || !Array.isArray(point)) {
+        return null;
+    }
+
+    return {
+        x: transform.x + Number(point[0]) * transform.k,
+        y: transform.y + Number(point[1]) * transform.k
+    };
+}
+
+function ensureLaneOverlay() {
+    const container = getContainer();
+    if (!container) {
+        return null;
+    }
+
+    if (!laneOverlay) {
+        laneOverlay = document.createElement("canvas");
+        laneOverlay.id = "pool-lane-overlay";
+        laneOverlay.className = "pool-lane-overlay";
+        laneOverlay.style.position = "absolute";
+        laneOverlay.style.inset = "0";
+        laneOverlay.style.width = "100%";
+        laneOverlay.style.height = "100%";
+        laneOverlay.style.pointerEvents = "none";
+        laneOverlay.style.zIndex = "999";
+    }
+
+    if (laneOverlay.parentElement !== container) {
+        container.append(laneOverlay);
+    }
+
+    return laneOverlay;
+}
+
+function drawPoolLaneOverlay() {
+    if (!laneOverlayVisible || !currentMeta) {
+        laneOverlay?.remove();
+        laneOverlay = null;
+        return;
+    }
+
+    const container = getContainer();
+    const canvas = ensureLaneOverlay();
+    if (!container || !canvas || container.clientWidth <= 0 || container.clientHeight <= 0) {
+        return;
+    }
+
+    const pixelRatio = window.devicePixelRatio || 1;
+    const width = Math.max(1, Math.round(container.clientWidth));
+    const height = Math.max(1, Math.round(container.clientHeight));
+    canvas.width = Math.round(width * pixelRatio);
+    canvas.height = Math.round(height * pixelRatio);
+    canvas.style.width = `${width}px`;
+    canvas.style.height = `${height}px`;
+
+    const context = canvas.getContext("2d");
+    context.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
+    context.clearRect(0, 0, width, height);
+
+    const poolSize = laneOverlayOptions.poolSize || [50, 20];
+    const poolLength = Number(poolSize[0]) || 50;
+    const poolWidth = Number(poolSize[1]) || 20;
+    const laneCount = Math.max(1, Math.round(Number(laneOverlayOptions.laneCount) || 1));
+    const laneHeight = poolWidth / laneCount;
+
+    context.save();
+    context.lineWidth = 2;
+    context.strokeStyle = "rgba(255, 166, 0, 0.95)";
+    context.font = "600 13px system-ui, sans-serif";
+    context.textAlign = "center";
+    context.textBaseline = "middle";
+
+    for (let i = 0; i <= laneCount; i += 1) {
+        const y = i * laneHeight;
+        const start = sourcePointToDisplay(poolPointToVideoPoint([0, y], poolSize, currentMeta), currentMeta);
+        const end = sourcePointToDisplay(poolPointToVideoPoint([poolLength, y], poolSize, currentMeta), currentMeta);
+        if (!start || !end) {
+            continue;
+        }
+        context.beginPath();
+        context.moveTo(start.x, start.y);
+        context.lineTo(end.x, end.y);
+        context.stroke();
+    }
+
+    const corners = [
+        [0, 0],
+        [0, poolWidth],
+        [poolLength, poolWidth],
+        [poolLength, 0]
+    ].map((point) => sourcePointToDisplay(poolPointToVideoPoint(point, poolSize, currentMeta), currentMeta));
+
+    if (corners.every(Boolean)) {
+        context.beginPath();
+        context.moveTo(corners[0].x, corners[0].y);
+        for (let i = 1; i < corners.length; i += 1) {
+            context.lineTo(corners[i].x, corners[i].y);
+        }
+        context.closePath();
+        context.stroke();
+    }
+
+    for (const item of laneOverlayOptions.labels || []) {
+        const laneIndex = Math.max(0, Math.min(Number(item.laneIndex) || 0, laneCount - 1));
+        const center = sourcePointToDisplay(
+            poolPointToVideoPoint([poolLength * 0.5, (laneIndex + 0.5) * laneHeight], poolSize, currentMeta),
+            currentMeta
+        );
+        if (!center) {
+            continue;
+        }
+
+        const text = String(item.label ?? "");
+        const metrics = context.measureText(text);
+        const boxWidth = metrics.width + 12;
+        const boxHeight = 20;
+        context.fillStyle = "rgba(255, 255, 255, 0.78)";
+        context.fillRect(center.x - boxWidth / 2, center.y - boxHeight / 2, boxWidth, boxHeight);
+        context.fillStyle = "rgba(35, 33, 87, 0.92)";
+        context.fillText(text, center.x, center.y);
+    }
+
+    context.restore();
+}
+
 function syncPoolSurfaceTransform() {
     if (!control) {
+        drawPoolLaneOverlay();
         return;
     }
 
@@ -130,6 +267,7 @@ function syncPoolSurfaceTransform() {
     } else {
         control.redraw();
     }
+    drawPoolLaneOverlay();
 }
 
 function applyContainerTransform() {
@@ -232,7 +370,9 @@ function createPoolSurface(meta = currentMeta) {
 
 export function refreshVideoSurface(meta = currentMeta) {
     currentMeta = meta ?? currentMeta;
-    return createPoolSurface(currentMeta);
+    const surface = createPoolSurface(currentMeta);
+    drawPoolLaneOverlay();
+    return surface;
 }
 
 export function redrawVideoSurface() {
@@ -247,6 +387,7 @@ export function redrawVideoSurface() {
     }
     syncPoolSurfaceTransform();
     control?.redraw();
+    drawPoolLaneOverlay();
 }
 
 export function setPoolControlsVisible(visible, meta = currentMeta) {
@@ -261,6 +402,16 @@ export function setPoolControlsVisible(visible, meta = currentMeta) {
 
     control.setValue(poolControlsVisible ? getPoolControlPoints(currentMeta) : [], { silent: true });
     syncPoolSurfaceTransform();
+}
+
+export function setPoolLaneOverlayVisible(visible, meta = currentMeta, options = {}) {
+    laneOverlayVisible = Boolean(visible);
+    currentMeta = meta ?? currentMeta;
+    laneOverlayOptions = {
+        ...laneOverlayOptions,
+        ...options
+    };
+    drawPoolLaneOverlay();
 }
 
 export function moveVideoSurfaceTo(x, y) {

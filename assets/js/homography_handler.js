@@ -4,6 +4,7 @@
  */
 import { getSize } from './utils.js';
 import { pool_size, getLaneCount } from './loader.js';
+import { getPoolLaneSegment } from './pool_geometry.js';
 
 const PerspT= window.PerspT;
 let pool_vid_xscale ;
@@ -74,29 +75,11 @@ export function getPointInverted(pt, meta) { // I.E. from side view to meters
  */
 
 export function getBar(pt, meta, swimmer) { // Here we take the assumption that pt is at the middle of a lane
-    //console.log(pt, "le pt ou on dessine");
-    pool_vid_xscale = d3.scaleLinear([0, pool_size[0]], [1920, 0]);
-    pool_vid_yscale = d3.scaleLinear([0, pool_size[1]], [1080, 0]);
-    let try_scale = d3.scaleLinear([0, 361], [0, 1080])
-    let trx_scale = d3.scaleLinear([0, 900], [0, 960])
-
-    let src_tmeta = meta.srcPts.map(d => [d[0], d[1]]) // Does their vids' x are from right to left?
-    let dst_tmeta = meta.destPts.map(d => [trx_scale(d[0]), try_scale(d[1])]) // This is in from_above reference
-    let srcCorners = src_tmeta.flat();
-    let dstCorners = dst_tmeta.flat();
-
-    let perspT = new PerspT(dstCorners, srcCorners);
-    //console.log(swimmer,pt[0], "le nageur puis les pt[0]")
     const laneCount = Math.max(1, getLaneCount());
-    const laneHeight = pool_size[1] / laneCount;
-    const lanePadding = laneHeight * 0.1;
-    const laneTop = swimmer * laneHeight + lanePadding;
-    const laneBottom = (swimmer + 1) * laneHeight - lanePadding;
-    let srcPt1 = [pool_vid_xscale(pt[0]) / 2, pool_vid_yscale(laneTop)];
-    let srcPt2 = [pool_vid_xscale(pt[0]) / 2, pool_vid_yscale(laneBottom)];
-    //console.log(srcPt1, srcPt2, "amuvais sources points")
-    let dstPt1 = perspT.transform(srcPt1[0], srcPt1[1]);
-    let dstPt2 = perspT.transform(srcPt2[0], srcPt2[1]);
+    const [dstPt1, dstPt2] = getPoolLaneSegment(pt[0], swimmer, laneCount, pool_size, meta, PerspT);
+    if (!dstPt1 || !dstPt2) {
+        return [[0, 0], [0, 0]];
+    }
 
     return [[dstPt1[0], dstPt1[1]], [dstPt2[0], dstPt2[1]]]
 }

@@ -4,7 +4,7 @@
  */
 
 import { choose_tab,construct_modify_selected_annotation_table, add_element_to_data,vide_last_added_data, last_added_data, currate_events, construct_last_added_data_table } from './data_handler.js';
-import { meters_checkpoints,megaData,curr_swims, frame_rate, compets, getDatas, selected_comp, load_run, turn_distances, selected_run, edit_vidName, vidName, getRuns, get_quality, get_temp_start, pool_size, n_camera, getLaneYPosition, resolveRunName, getRunDisplayParts } from './loader.js';
+import { findVideoByType, meters_checkpoints,megaData,curr_swims, frame_rate, compets, getDatas, selected_comp, load_run, turn_distances, selected_run, edit_vidName, vidName, getRuns, get_quality, get_temp_start, pool_size, n_camera, getLaneYPosition, resolveRunName, getRunDisplayParts, videoMatchesType } from './loader.js';
 import { draw_stats, set_placeholder_of_time_entry, update_swimmer } from './side_views.js';
 import { updateTable, setGrad,frameId_to_RunTime, metrics_calculation } from './main.js';
 import { activate_shortcut,deactivate_shortcut, nageurs } from './jquery-custom.js';
@@ -51,7 +51,13 @@ function videoUrl(filename, time = null) {
 }
 
 function videoMetaByNamePart(namePart) {
-    return megaData[0]?.videos?.find(d => d.name && d.name.includes(namePart));
+    return findVideoByType(megaData[0]?.videos, namePart);
+}
+
+function currentVideoMatches(typeVideo) {
+    const src = vid?.currentSrc || vid?.getAttribute("src") || "";
+    const meta = megaData[0]?.videos?.find((video) => video.name && src.includes(video.name));
+    return meta ? videoMatchesType(meta, typeVideo) : src.includes(typeVideo);
 }
 
 function syncRefactorGlobals() {
@@ -297,7 +303,7 @@ export function clampSelectedSwim(laneCount) {
             left_attr = "start_flash"
         }
 
-        if (vid.getAttribute("src").includes("fixeDroite")) {
+        if (currentVideoMatches("fixeDroite")) {
 
             let t = vid.currentTime - metaDroite[right_attr] + metaGauche[left_attr]
             vid.setAttribute("src", videoUrl(vidName, t))
@@ -335,7 +341,7 @@ export function clampSelectedSwim(laneCount) {
                 right_attr = "start_synchro_flash"
                 left_attr = "start_flash"
             }
-            if (vid.getAttribute("src").includes("fixeDroite")) {
+            if (currentVideoMatches("fixeDroite")) {
                 let t = vid.currentTime + metaDroite[right_attr] - metaGauche[left_attr]
                 edit_vidName(metaGauche.name);
                 vid.setAttribute("src", videoUrl(metaGauche.name, t))
@@ -363,7 +369,7 @@ export function clampSelectedSwim(laneCount) {
     })
     $("#vid_dessus").on("click", () => {
         let vid = document.getElementById("vid")
-        if (vid.getAttribute("src").includes("dessus")) {
+        if (currentVideoMatches("dessus")) {
                 let t = 0
                 const sideMeta = videoMetaByNamePart("fixeGauche") || videoMetaByNamePart("fixeDroite") || megaData[0]?.videos?.[0];
                 if (sideMeta?.name) {
@@ -398,10 +404,10 @@ export function clampSelectedSwim(laneCount) {
     })
 
     $("#quality").on("click",() =>{
-        if (vid.getAttribute("src").includes("fixeDroite")) {
+        if (currentVideoMatches("fixeDroite")) {
             actual_side = "droite"
         }
-        if (vid.getAttribute("src").includes("fixeGauche")) {
+        if (currentVideoMatches("fixeGauche")) {
             actual_side = "gauche"
         }
         get_quality(selected_comp, selected_run,actual_side)
@@ -806,7 +812,7 @@ export function clic_souris_video(e) {
 
             let avg = tdat.map(d => d.x).reduce((a, b) => (a + b)) / tdat.length
 
-            if (avg > (pool_size[0] / 2) - 3 && !vid.getAttribute("src").includes("fixeGauche")) { //TODO: Adapt to start side
+            if (avg > (pool_size[0] / 2) - 3 && !currentVideoMatches("fixeGauche")) { //TODO: Adapt to start side
 
                 let metaLeft = videoMetaByNamePart("fixeGauche")
                 if (!metaLeft?.name) return;
@@ -823,7 +829,7 @@ export function clic_souris_video(e) {
 
                 updateBarsFromEvent(selected_swim, true);
 
-            } else if (avg < (pool_size[0] / 2) - 3 && !vid.getAttribute("src").includes("fixeDroite")) { //TODO: Adapt to start side
+            } else if (avg < (pool_size[0] / 2) - 3 && !currentVideoMatches("fixeDroite")) { //TODO: Adapt to start side
 
                 let metaRight = videoMetaByNamePart("fixeDroite");
                 if (!metaRight?.name) return;

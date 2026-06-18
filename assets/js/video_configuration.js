@@ -24,6 +24,7 @@ const scheduleFrame = typeof requestAnimationFrame === "function"
     : (callback) => setTimeout(callback, 0);
 
 let workspace = null;
+let calibrationWorkspaces = [];
 let activeMeta = null;
 let activeSourceImage = null;
 let activeReferenceImage = null;
@@ -31,6 +32,7 @@ let activeReferenceSize = null;
 let activePoolImage = DEFAULT_POOL_IMAGE;
 let poolImages = FALLBACK_POOL_IMAGES;
 const referenceImagePromises = new Map();
+const videoSnapshotPromises = new Map();
 let updateFrame = null;
 let flashControl = null;
 
@@ -497,6 +499,18 @@ async function createVideoSnapshot(meta) {
     return canvas;
 }
 
+function videoSnapshotKey(meta) {
+    return `${selected_comp}/${selected_run}/${meta?.name || ""}`;
+}
+
+function getCachedVideoSnapshot(meta) {
+    const key = videoSnapshotKey(meta);
+    if (!videoSnapshotPromises.has(key)) {
+        videoSnapshotPromises.set(key, createVideoSnapshot(meta));
+    }
+    return videoSnapshotPromises.get(key);
+}
+
 function createDefaultFlashSourcePoints(meta = activeMeta) {
     const sourceSize = getSourceSize(meta);
     const sourcePoints = Array.isArray(meta?.srcPts) ? meta.srcPts : [];
@@ -570,20 +584,25 @@ function averagePoint(points) {
     };
 }
 
+function activeWorkspaceRecord() {
+    return calibrationWorkspaces.find((record) => record.video === activeMeta) || calibrationWorkspaces[0] || null;
+}
+
 function applyPoolLabels() {
-    if (!workspace?.controls) {
+    const record = activeWorkspaceRecord();
+    if (!record?.workspace?.controls) {
         return;
     }
-    const sourceCenter = averagePoint(workspace.value?.sourcePoints ?? []);
-    const destinationCenter = averagePoint(workspace.value?.destinationPoints ?? []);
+    const sourceCenter = averagePoint(record.workspace.value?.sourcePoints ?? []);
+    const destinationCenter = averagePoint(record.workspace.value?.destinationPoints ?? []);
     const annotation = {
         label: "piscine",
         radius: 5,
         color: "#2ea3dd",
         background: "rgba(35, 33, 87, 0.88)"
     };
-    workspace.controls.source.setAnnotations([{ ...annotation, ...sourceCenter }], { silent: true });
-    workspace.controls.destination.setAnnotations([{ ...annotation, ...destinationCenter }], { silent: true });
+    record.workspace.controls.source.setAnnotations([{ ...annotation, ...sourceCenter }], { silent: true });
+    record.workspace.controls.destination.setAnnotations([{ ...annotation, ...destinationCenter }], { silent: true });
 }
 
 function renderFlashControl() {
@@ -680,7 +699,8 @@ function syncVideoSelect(videos) {
     select.replaceChildren(...videos.map((video, index) => {
         const option = document.createElement("option");
         option.value = String(index);
-        option.textContent = video.name || `video ${index + 1}`;
+        const type = video.type_video ? `${video.type_video} - ` : "";
+        option.textContent = `${type}${video.name || `video ${index + 1}`}`;
         return option;
     }));
 
@@ -703,8 +723,33 @@ function selectedVideoIndex(videos) {
     return syncVideoSelect(videos);
 }
 
-function extractCalibrationValue() {
-    const value = workspace?.value;
+function videosForCalibration(videos) {
+    if (!Array.isArray(videos) || videos.length <= 1) {
+        return videos || [];
+    }
+    const sideVideos = videos.filter((video) => {
+        const type = String(video?.type_video || video?.name || "").toLowerCase();
+        return type.includes("fixegauche") || type.includes("fixedroite");
+    });
+    return sideVideos.length >= 2 ? sideVideos : videos;
+}
+
+function clearCalibrationWorkspaces(container) {
+    for (const record of calibrationWorkspaces) {
+        record.workspace?.remove?.();
+        record.element?.remove?.();
+    }
+    calibrationWorkspaces = [];
+    workspace?.remove?.();
+    workspace = null;
+    activeSourceImage = null;
+    if (container) {
+        container.replaceChildren();
+    }
+}
+
+function extractCalibrationValue(record = activeWorkspaceRecord()) {
+    const value = record?.workspace?.value;
     if (!value) {
         return null;
     }
@@ -719,33 +764,95 @@ function extractCalibrationValue() {
     };
 }
 
-function applyCalibrationToMetadata(calibration) {
-    if (!calibration || !activeMeta) {
+function workspaceInputFromMeta(meta) {
+    const sourceSize = getSourceSize(meta);
+    const sourcePoints = meta.srcPts.map((point) => sourcePointToPct(point, sourceSize));
+    const destinationPointMapper = destinationPointsLookMetric(meta.destPts)
+        ? metricDestinationPointToReferencePx
+        : destinationPointToReferencePx;
+    const destinationPoints = meta.destPts
+        .map((point) => destinationPointMapper(point, activeReferenceSize))
+        .map((point) => referencePointToPct(point, activeReferenceSize));
+    return { sourcePoints, destinationPoints };
+}
+
+function videoCalibrationTitle(video, index) {
+    const type = video.type_video ? `${video.type_video} - ` : "";
+    return `${type}${video.name || `video ${index + 1}`}`;
+}
+
+async function createCalibrationWorkspaceRecord(video, index) {
+    const sourceImage = await getCachedVideoSnapshot(video);
+    const { sourcePoints, destinationPoints } = workspaceInputFromMeta(video);
+    const wrapper = document.createElement("section");
+    wrapper.className = "video-calibration-item";
+    wrapper.dataset.active = video === activeMeta ? "true" : "false";
+
+    const title = document.createElement("h3");
+    title.textContent = videoCalibrationTitle(video, index);
+
+    const itemWorkspace = ImgCtrlPts.createWarpingWorkspace({
+        sourceImage,
+        referenceImage: activeReferenceImage,
+        width: CONTROL_WIDTH,
+        columns: "repeat(2, minmax(360px, 1fr))",
+        gap: "16px",
+        sourcePoints,
+        destinationPoints,
+        alpha: 0.64,
+        background: true,
+        optimize: true,
+        minPoints: 4,
+        maxPoints: 8,
+        label: true,
+        theme: {
+            polygon: video === activeMeta ? "rgba(46, 163, 221, 0.95)" : "rgba(61, 137, 94, 0.95)",
+            point: video === activeMeta ? "rgba(46, 163, 221, 0.95)" : "rgba(61, 137, 94, 0.95)",
+            selectedPoint: "rgba(249, 56, 56, 0.95)",
+            grid: video === activeMeta ? "rgba(46, 163, 221, 0.22)" : "rgba(61, 137, 94, 0.22)"
+        }
+    });
+    itemWorkspace.classList.add("video-calibration-workspace");
+    itemWorkspace.controls?.warped?.parentElement?.remove();
+    itemWorkspace.addEventListener("input", schedulePreviewUpdate);
+    itemWorkspace.addEventListener("change", schedulePreviewUpdate);
+    wrapper.append(title, itemWorkspace);
+    return { video, workspace: itemWorkspace, sourceImage, element: wrapper };
+}
+
+function applyCalibrationToMetadata(calibration, meta = activeMeta) {
+    if (!calibration || !meta) {
         return;
     }
 
-    activeMeta.srcPts = calibration.srcPts;
-    activeMeta.destPts = calibration.destPts;
+    meta.srcPts = calibration.srcPts;
+    meta.destPts = calibration.destPts;
     if (megaData?.[0]) {
         megaData[0].poolImage = calibration.poolImage;
     }
 
     refreshVideoSurface(getActiveMetaFromPage());
     window.dispatchEvent(new CustomEvent("pool-calibration-updated", {
-        detail: { meta: activeMeta, poolImage: calibration.poolImage }
+        detail: { meta, poolImage: calibration.poolImage }
     }));
 }
 
-function renderWarpResult() {
-    const canvas = getElement("config_warp_result");
-    const value = workspace?.value;
-    if (!canvas || !value || !activeSourceImage || !activeReferenceImage) {
+function applyVisibleCalibrationsToMetadata() {
+    for (const record of calibrationWorkspaces) {
+        const calibration = extractCalibrationValue(record);
+        if (calibration) {
+            applyCalibrationToMetadata(calibration, record.video);
+        }
+    }
+}
+
+function drawWarpResult(canvas, sourceImage, points, alpha = 0.6) {
+    if (!canvas || !points || !sourceImage || !activeReferenceImage) {
         return;
     }
 
     const referenceSize = activeReferenceSize ?? getImageSize(activeReferenceImage);
-    const pointCount = Math.min(value.sourcePointsPx.length, value.destinationPointsPx.length);
-    if (pointCount < 4) {
+    if (points.pointCount < 4) {
         const context = canvas.getContext("2d");
         canvas.width = referenceSize.width;
         canvas.height = referenceSize.height;
@@ -755,19 +862,109 @@ function renderWarpResult() {
 
     try {
         ImgCtrlPts.warpImageToCanvas({
-            sourceImage: activeSourceImage,
+            sourceImage,
             referenceImage: activeReferenceImage,
             destinationSize: referenceSize,
-            sourcePoints: value.sourcePointsPx.slice(0, pointCount),
-            destinationPoints: value.destinationPointsPx.slice(0, pointCount),
+            sourcePoints: points.sourcePointsPx,
+            destinationPoints: points.destinationPointsPx,
             canvas,
             width: CONTROL_WIDTH,
-            alpha: 0.6,
+            alpha,
             optimize: true,
             sampling: "nearest"
         });
     } catch (error) {
         setStatus(`Warping indisponible: ${error.message}`, "error");
+    }
+}
+
+function renderWarpResult() {
+    const canvas = getElement("config_warp_result");
+    const record = activeWorkspaceRecord();
+    const value = record?.workspace?.value;
+    if (!canvas || !value || !record.sourceImage || !activeReferenceImage) {
+        return;
+    }
+
+    const pointCount = Math.min(value.sourcePointsPx.length, value.destinationPointsPx.length);
+    drawWarpResult(canvas, record.sourceImage, {
+        pointCount,
+        sourcePointsPx: value.sourcePointsPx.slice(0, pointCount),
+        destinationPointsPx: value.destinationPointsPx.slice(0, pointCount)
+    });
+}
+
+function snapshotCanvasFromImage(image, size) {
+    const canvas = document.createElement("canvas");
+    canvas.width = Math.max(1, Math.round(size.width));
+    canvas.height = Math.max(1, Math.round(size.height));
+    canvas.getContext("2d").drawImage(image, 0, 0, canvas.width, canvas.height);
+    return canvas;
+}
+
+function blendChangedPixels(targetContext, targetImageData, referenceImageData, warpedImageData, opacity = 0.72) {
+    const target = targetImageData.data;
+    const reference = referenceImageData.data;
+    const warped = warpedImageData.data;
+    for (let index = 0; index < target.length; index += 4) {
+        const difference = Math.abs(warped[index] - reference[index])
+            + Math.abs(warped[index + 1] - reference[index + 1])
+            + Math.abs(warped[index + 2] - reference[index + 2]);
+        if (difference < 18) {
+            continue;
+        }
+        target[index] = Math.round(target[index] * (1 - opacity) + warped[index] * opacity);
+        target[index + 1] = Math.round(target[index + 1] * (1 - opacity) + warped[index + 1] * opacity);
+        target[index + 2] = Math.round(target[index + 2] * (1 - opacity) + warped[index + 2] * opacity);
+        target[index + 3] = 255;
+    }
+    targetContext.putImageData(targetImageData, 0, 0);
+}
+
+function drawMergedWarpResult() {
+    const canvas = getElement("config_warp_result");
+    if (!canvas || !activeReferenceImage) {
+        return;
+    }
+
+    const records = calibrationWorkspaces.filter((record) => record?.workspace?.value && record.sourceImage);
+    if (records.length === 0) {
+        return;
+    }
+
+    if (records.length === 1) {
+        renderWarpResult();
+        return;
+    }
+
+    const referenceSize = activeReferenceSize ?? getImageSize(activeReferenceImage);
+    canvas.width = referenceSize.width;
+    canvas.height = referenceSize.height;
+    canvas.style.width = `${CONTROL_WIDTH}px`;
+    const context = canvas.getContext("2d", { willReadFrequently: true });
+    context.drawImage(activeReferenceImage, 0, 0, canvas.width, canvas.height);
+
+    const referenceCanvas = snapshotCanvasFromImage(activeReferenceImage, referenceSize);
+    const referenceImageData = referenceCanvas.getContext("2d", { willReadFrequently: true })
+        .getImageData(0, 0, canvas.width, canvas.height);
+
+    for (const record of records) {
+        const value = record.workspace.value;
+        const pointCount = Math.min(value.sourcePointsPx.length, value.destinationPointsPx.length);
+        if (pointCount < 4) {
+            continue;
+        }
+
+        const offscreen = document.createElement("canvas");
+        drawWarpResult(offscreen, record.sourceImage, {
+            pointCount,
+            sourcePointsPx: value.sourcePointsPx.slice(0, pointCount),
+            destinationPointsPx: value.destinationPointsPx.slice(0, pointCount)
+        }, 0.78);
+        const targetImageData = context.getImageData(0, 0, canvas.width, canvas.height);
+        const warpedImageData = offscreen.getContext("2d", { willReadFrequently: true })
+            .getImageData(0, 0, canvas.width, canvas.height);
+        blendChangedPixels(context, targetImageData, referenceImageData, warpedImageData);
     }
 }
 
@@ -778,18 +975,22 @@ function updatePreview() {
         return;
     }
 
+    applyVisibleCalibrationsToMetadata();
     preview.textContent = JSON.stringify({
-        video: activeMeta.name,
+        selectedVideo: activeMeta.name,
         poolImage: calibration.poolImage,
-        srcPts: calibration.srcPts,
-        destPts: calibration.destPts,
+        videos: (megaData?.[0]?.videos || []).map((video) => ({
+            name: video.name,
+            type_video: video.type_video,
+            srcPts: video.srcPts,
+            destPts: video.destPts
+        })),
         flash: megaData?.[0]?.flash ?? null,
         homography: calibration.homography
     }, null, 2);
 
-    applyCalibrationToMetadata(calibration);
     applyPoolLabels();
-    renderWarpResult();
+    drawMergedWarpResult();
 }
 
 function schedulePreviewUpdate() {
@@ -811,9 +1012,7 @@ async function renderConfiguration() {
     const metadata = megaData?.[0];
     const videos = Array.isArray(metadata?.videos) ? metadata.videos : [];
     if (!metadata || videos.length === 0) {
-        container.replaceChildren();
-        workspace?.remove?.();
-        workspace = null;
+        clearCalibrationWorkspaces(container);
         clearFlashControl();
         const preview = getElement("config_json_preview");
         if (preview) {
@@ -829,9 +1028,7 @@ async function renderConfiguration() {
     syncVideoSelect(videos);
     activeMeta = videos[selectedVideoIndex(videos)];
     if (!activeMeta?.srcPts || !activeMeta?.destPts) {
-        container.replaceChildren();
-        workspace?.remove?.();
-        workspace = null;
+        clearCalibrationWorkspaces(container);
         clearFlashControl();
         const preview = getElement("config_json_preview");
         if (preview) {
@@ -847,71 +1044,51 @@ async function renderConfiguration() {
         activeReferenceImage = await getPoolReferenceImage();
         activeReferenceSize = getImageSize(activeReferenceImage);
     } catch (error) {
-        container.replaceChildren();
+        clearCalibrationWorkspaces(container);
         clearFlashControl();
         setStatus(error.message, "error");
         return;
     }
 
-    activeSourceImage = await createVideoSnapshot(activeMeta);
-
-    const sourceSize = getSourceSize(activeMeta);
-    const sourcePoints = activeMeta.srcPts.map((point) => sourcePointToPct(point, sourceSize));
-    const destinationPointMapper = destinationPointsLookMetric(activeMeta.destPts)
-        ? metricDestinationPointToReferencePx
-        : destinationPointToReferencePx;
-    const destinationPoints = activeMeta.destPts
-        .map((point) => destinationPointMapper(point, activeReferenceSize))
-        .map((point) => referencePointToPct(point, activeReferenceSize));
-
-    workspace?.remove();
-    workspace = ImgCtrlPts.createWarpingWorkspace({
-        sourceImage: activeSourceImage,
-        referenceImage: activeReferenceImage,
-        width: CONTROL_WIDTH,
-        columns: "repeat(2, minmax(360px, 1fr))",
-        gap: "16px",
-        sourcePoints,
-        destinationPoints,
-        alpha: 0.64,
-        background: true,
-        optimize: true,
-        minPoints: 4,
-        maxPoints: 8,
-        label: true,
-        theme: {
-            polygon: "rgba(46, 163, 221, 0.95)",
-            point: "rgba(46, 163, 221, 0.95)",
-            selectedPoint: "rgba(249, 56, 56, 0.95)",
-            grid: "rgba(46, 163, 221, 0.22)"
-        }
-    });
-    workspace.classList.add("video-calibration-workspace");
-    workspace.controls?.warped?.parentElement?.remove();
-    workspace.addEventListener("input", schedulePreviewUpdate);
-    workspace.addEventListener("change", schedulePreviewUpdate);
-    container.replaceChildren(workspace);
+    clearCalibrationWorkspaces(container);
+    const calibrationVideos = videosForCalibration(videos).filter((video) => video?.srcPts && video?.destPts);
+    calibrationWorkspaces = await Promise.all(calibrationVideos.map(createCalibrationWorkspaceRecord));
+    const activeRecord = activeWorkspaceRecord();
+    if (activeRecord && activeRecord.video !== activeMeta) {
+        activeMeta = activeRecord.video;
+    }
+    for (const record of calibrationWorkspaces) {
+        record.element.dataset.active = record.video === activeMeta ? "true" : "false";
+    }
+    workspace = activeRecord?.workspace || null;
+    activeSourceImage = activeRecord?.sourceImage || null;
+    container.replaceChildren(...calibrationWorkspaces.map((record) => record.element));
     renderFlashControl();
 
-    setStatus(currentVideoMatches(activeMeta)
-        ? "Image video courante utilisee pour la calibration."
-        : "La video selectionnee n'est pas l'image courante; les points restent modifiables.",
-    "ready");
+    const statusMessage = calibrationWorkspaces.length > 1
+        ? "Calibrations gauche et droite visibles. Le resultat fusionne les videos calibrees."
+        : currentVideoMatches(activeMeta)
+            ? "Image video courante utilisee pour la calibration."
+            : "La video selectionnee n'est pas l'image courante; les points restent modifiables.";
+    setStatus(statusMessage, "ready");
     updatePreview();
 }
 
 async function saveConfiguration() {
-    if (!workspace || !activeMeta) {
+    if (calibrationWorkspaces.length === 0 || !activeMeta) {
         await renderConfiguration();
     }
 
-    const calibration = extractCalibrationValue();
-    if (!calibration || calibration.pointCount < 4 || !activeMeta) {
+    const invalidRecord = calibrationWorkspaces.find((record) => {
+        const calibration = extractCalibrationValue(record);
+        return !calibration || calibration.pointCount < 4;
+    });
+    if (invalidRecord) {
         setStatus("Au moins 4 paires de points sont necessaires.", "error");
         return;
     }
 
-    applyCalibrationToMetadata(calibration);
+    applyVisibleCalibrationsToMetadata();
     updatePreview();
 
     try {

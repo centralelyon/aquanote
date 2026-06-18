@@ -223,11 +223,28 @@ camera perspective:
 python scripts/generate_sportsdata_basic_tracking_camera.py
 ```
 
-The script writes the camera it used as `sportsdata_basic_tracking_camera.json`
-next to the generated video, CSV, and metadata. You can pass your own camera:
+By default the script writes two side-pool videos, one for the left part of the
+pool and one for the right part, with overlap:
+
+```text
+{run_name}_fixeGauche.mp4
+{run_name}_fixeDroite.mp4
+```
+
+Each video entry in the generated metadata has `type_video` set to
+`fixeGauche` or `fixeDroite`. The camera payload is written as
+`sportsdata_basic_tracking_camera.json` next to the generated videos, CSV, and
+metadata. A runnable two-camera example is available at:
+
+```sh
+scripts/example_generate_sportsdata_two_cameras.sh
+```
+
+To generate a single video and pass your own camera:
 
 ```sh
 python scripts/generate_sportsdata_basic_tracking_camera.py \
+  --single-camera \
   --camera my_camera.json
 ```
 

@@ -1,11 +1,4 @@
 {
-    "2024_JO_Paris": {
-        "2024_JO_Paris_freestyle_hommes_50_finaleA": {
-            "espadon": false,
-            "espadonModifie": false,
-            "data_checked": false
-        }
-    },
     "2025_courses_demo": {
         "2025_courses_demo_translation_carre_100_demifinale": {
             "espadon": false,
@@ -29,6 +22,11 @@
         }
     },
     "2026_sportsdata": {
+        "2026_sportsdata_butterfly_hommes_50_finaleA": {
+            "espadon": false,
+            "espadonModifie": false,
+            "data_checked": false
+        },
         "2026_sportsdata_translation_carre_100_demifinale": {
             "espadon": false,
             "espadonModifie": false,

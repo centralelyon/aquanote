@@ -4,7 +4,7 @@
  */
 
 import { displayMode, selected_swim, temp_start, selected_cycle, last_checkpoint, vue_du_dessus } from './refactor-script.js';
-import { megaData, curr_swims, frame_rate, pool_size, n_camera, turn_distances, turn_times, getDisplayLaneIndex } from './loader.js';
+import { findVideoByType, megaData, curr_swims, frame_rate, pool_size, n_camera, turn_distances, turn_times, getDisplayLaneIndex } from './loader.js';
 import { draw_stats } from './side_views.js';
 import { updateTable } from './main.js';
 import { construct_modify_selected_annotation_table } from './data_handler.js';
@@ -201,7 +201,7 @@ export function get_last_checkpoint(checkpoints,run_frameId){
  * @return {number} cumul distance 
  */
 export function get_meter_plot_label(pool_meter_plot_label){
-    let metaDroite = ((megaData[0].videos.length > 1) ?megaData[0].videos.filter(d => d.name.includes("fixeDroite")) [0]: megaData[0].videos[0]);
+    let metaDroite = ((megaData[0].videos.length > 1) ? findVideoByType(megaData[0].videos, "fixeDroite") : megaData[0].videos[0]);
     if (metaDroite["start_side"] === "left") {
         pool_meter_plot_label = pool_size[0] - pool_meter_plot_label;
     }
@@ -284,14 +284,17 @@ export function updateBarsFromEvent(swim, affiche_tout=false ,meta = null) {
 
 
     if (!meta) {
-        let vid = document.getElementById("vid");
-        let side = vid.getAttribute("src").includes("fixeDroite");
         if (n_camera > 1) {
             if (!megaData || !Array.isArray(megaData) || !megaData[0] || !megaData[0].videos) {
                 console.warn('megaData not properly initialized in updateBarsFromEvent');
                 return;
             }
-            meta = megaData[0].videos.filter(d => (side ? d.name.includes("fixeDroite") : d.name.includes("fixeGauche")))[0];
+            meta = findVideoByType(megaData[0].videos, "fixeDroite");
+            const src = vid?.currentSrc || vid?.getAttribute("src") || "";
+            const matchingMeta = megaData[0].videos.find((video) => video.name && src.includes(video.name));
+            if (matchingMeta) {
+                meta = matchingMeta;
+            }
         } else {
             if (!megaData || !Array.isArray(megaData) || !megaData[0] || !megaData[0].videos) {
                 console.warn('megaData not properly initialized in updateBarsFromEvent');
@@ -300,7 +303,7 @@ export function updateBarsFromEvent(swim, affiche_tout=false ,meta = null) {
             meta = megaData[0].videos[0];
         }
         if (vue_du_dessus) {
-            meta = megaData[0].videos.filter(d => d.name.includes("dessus"))[0];
+            meta = findVideoByType(megaData[0].videos, "dessus") || meta;
         }
     }
     let [twidth, theight] = getSize(meta);

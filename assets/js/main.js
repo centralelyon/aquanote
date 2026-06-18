@@ -4,7 +4,7 @@
  */
 
 
-import { init, megaData, curr_swims, frame_rate, temp_end, n_camera, selected_comp, selected_run } from "./loader.js"
+import { findVideoByType, init, megaData, curr_swims, frame_rate, temp_end, n_camera, selected_comp, selected_run } from "./loader.js"
 import { construct_data_row, data_onclick } from "./data_handler.js"
 import { selected_swim, temp_start, updateSwimSwitch, vue_du_dessus } from "./refactor-script.js"
 import "./plot_handler.js"
@@ -117,13 +117,13 @@ export function displaySwimmers(data) {
     }
 
     if (n_camera > 1) {
-        meta = megaData[0].videos.filter(d => (d.name.includes("fixeDroite")))[0] // done like this bcause we don't have the src yet
+        meta = findVideoByType(megaData[0].videos, "fixeDroite") || megaData[0].videos[0]
     }
     else {
         meta = megaData[0].videos;
     }
     if (vue_du_dessus) {
-        meta = megaData[0].videos.filter(d => d.name.includes("dessus"))[0];
+        meta = findVideoByType(megaData[0].videos, "dessus") || meta;
     }
 
     let keys = Object.keys(data)

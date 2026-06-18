@@ -3,24 +3,20 @@
   "title": "Swimming rounds",
   "values": [
     {
-      "id": "serie",
-      "label": "Serie"
+      "id": "series",
+      "label": "Heats"
     },
     {
-      "id": "demifinale",
-      "label": "Demifinale"
-    },
-    {
-      "id": "finale",
-      "label": "Finale"
+      "id": "semifinale",
+      "label": "Semifinal"
     },
     {
       "id": "finaleA",
-      "label": "Finale A"
+      "label": "Final A"
     },
     {
       "id": "finaleB",
-      "label": "Finale B"
+      "label": "Final B"
     }
   ]
 }

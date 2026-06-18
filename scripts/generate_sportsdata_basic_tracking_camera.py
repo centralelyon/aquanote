@@ -49,6 +49,15 @@ REFERENCE_POOL_WIDTH = 900.0
 REFERENCE_POOL_HEIGHT = 361.0
 
 
+def filename_slug(value: str) -> str:
+    cleaned = "".join(ch if ch.isalnum() else "_" for ch in str(value).strip())
+    return "_".join(part for part in cleaned.split("_") if part)
+
+
+def camera_derived_run_name(args: argparse.Namespace) -> str:
+    return filename_slug(args.run_name) if args.run_name else derived_run_name(args)
+
+
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description=(
@@ -68,9 +77,22 @@ def parse_args() -> argparse.Namespace:
         "--camera",
         type=Path,
         help=(
-            "Camera JSON file. If omitted, a side-pool camera is derived from the "
-            "pool and video dimensions."
+            "Single-camera JSON file. Use with --single-camera. If omitted, "
+            "side-pool cameras are derived from the pool and video dimensions."
         ),
+    )
+    parser.add_argument("--camera-left", type=Path, help="Camera JSON file for the fixeGauche video.")
+    parser.add_argument("--camera-right", type=Path, help="Camera JSON file for the fixeDroite video.")
+    parser.add_argument(
+        "--single-camera",
+        action="store_true",
+        help="Generate one video instead of the default fixeGauche/fixeDroite pair.",
+    )
+    parser.add_argument(
+        "--overlap",
+        type=float,
+        default=10.0,
+        help="Meters of overlap between generated left and right camera views.",
     )
     parser.add_argument(
         "--camera-output",
@@ -179,6 +201,27 @@ def default_side_pool_camera(pool_length: float, pool_width: float, aspect: floa
     }
 
 
+def default_segment_camera(
+    pool_length: float,
+    pool_width: float,
+    aspect: float,
+    segment_start: float,
+    segment_end: float,
+) -> dict[str, Any]:
+    camera = default_side_pool_camera(pool_length, pool_width, aspect)
+    segment_center = (segment_start + segment_end) * 0.5
+    segment_width = max(1.0, segment_end - segment_start)
+    is_left = segment_center <= pool_length * 0.5
+    direction = -1.0 if is_left else 1.0
+    camera["fov"] = 47
+    camera["position"][0] = round(segment_center + direction * segment_width * 0.16, 3)
+    camera["position"][1] = round(max(11.0, pool_width * 0.72), 3)
+    camera["position"][2] = round(-max(21.0, pool_width * 1.08), 3)
+    camera["target"][0] = round(segment_center - direction * segment_width * 0.08, 3)
+    camera["target"][2] = round(pool_width * 0.48, 3)
+    return camera
+
+
 def create_reliable_video_writer(
     output_path: Path, fps: int, frame_width: int, frame_height: int
 ) -> tuple[cv2.VideoWriter, Path]:
@@ -277,13 +320,14 @@ def project_world_points(
     return pixels.astype(np.float32)
 
 
-def pool_corners_world(pool_length: float, pool_width: float) -> np.ndarray:
+def pool_corners_world(pool_length: float, pool_width: float, x_min: float = 0.0, x_max: float | None = None) -> np.ndarray:
+    x_max = pool_length if x_max is None else x_max
     return np.array(
         [
-            [0.0, 0.0, pool_width],
-            [pool_length, 0.0, pool_width],
-            [pool_length, 0.0, 0.0],
-            [0.0, 0.0, 0.0],
+            [x_min, 0.0, pool_width],
+            [x_max, 0.0, pool_width],
+            [x_max, 0.0, 0.0],
+            [x_min, 0.0, 0.0],
         ],
         dtype=np.float32,
     )
@@ -295,9 +339,11 @@ def camera_source_points(
     pool_width: float,
     frame_width: int,
     frame_height: int,
+    x_min: float = 0.0,
+    x_max: float | None = None,
 ) -> list[list[float]]:
     projected = project_world_points(
-        pool_corners_world(pool_length, pool_width),
+        pool_corners_world(pool_length, pool_width, x_min, x_max),
         camera,
         frame_width,
         frame_height,
@@ -305,29 +351,182 @@ def camera_source_points(
     return [[round(float(x), 3), round(float(y), 3)] for x, y in projected]
 
 
+def clamped(value: float, minimum: float, maximum: float) -> float:
+    return min(max(value, minimum), maximum)
+
+
+def segment_reference_dest_pts(
+    pool_length: float,
+    x_min: float,
+    x_max: float,
+) -> list[list[float]]:
+    left = x_min / pool_length * REFERENCE_POOL_WIDTH
+    right = x_max / pool_length * REFERENCE_POOL_WIDTH
+    return [
+        [round(left, 3), REFERENCE_POOL_HEIGHT],
+        [round(right, 3), REFERENCE_POOL_HEIGHT],
+        [round(right, 3), 0.0],
+        [round(left, 3), 0.0],
+    ]
+
+
+def reference_dest_pts_to_meters(
+    dest_pts: list[list[float]],
+    pool_length: float,
+    pool_width: float,
+) -> np.ndarray:
+    return np.array(
+        [
+            [
+                float(x) / REFERENCE_POOL_WIDTH * pool_length,
+                float(y) / REFERENCE_POOL_HEIGHT * pool_width,
+            ]
+            for x, y in dest_pts
+        ],
+        dtype=np.float32,
+    )
+
+
+def build_video_entry(
+    name: str,
+    type_video: str,
+    camera: dict[str, Any],
+    source_points: list[list[float]],
+    dest_points: list[list[float]],
+    fps: int,
+    width: int,
+    height: int,
+) -> dict[str, Any]:
+    return {
+        "destPts": dest_points,
+        "fps": fps,
+        "height": height,
+        "name": name,
+        "one_is_up": False,
+        "srcPts": source_points,
+        "start_moment": 0,
+        "start_side": "left",
+        "type_video": type_video,
+        "width": width,
+    }
+
+
+def build_video_specs(
+    args: argparse.Namespace,
+    run_name: str,
+    aspect: float,
+) -> tuple[dict[str, dict[str, Any]], list[dict[str, Any]]]:
+    if args.single_camera:
+        camera = load_camera(
+            args.camera.resolve() if args.camera else None,
+            args.pool_length,
+            args.pool_width,
+            aspect,
+        )
+        source_points = camera_source_points(
+            camera=camera,
+            pool_length=args.pool_length,
+            pool_width=args.pool_width,
+            frame_width=args.width,
+            frame_height=args.height,
+        )
+        dest_points = segment_reference_dest_pts(args.pool_length, 0.0, args.pool_length)
+        return {"side": camera}, [
+            build_video_entry(
+                name=f"{run_name}.mp4",
+                type_video="fixeDroite",
+                camera=camera,
+                source_points=source_points,
+                dest_points=dest_points,
+                fps=args.fps,
+                width=args.width,
+                height=args.height,
+            )
+        ]
+
+    overlap = clamped(float(args.overlap), 0.0, args.pool_length)
+    midpoint = args.pool_length * 0.5
+    left_min = 0.0
+    left_max = clamped(midpoint + overlap * 0.5, 0.0, args.pool_length)
+    right_min = clamped(midpoint - overlap * 0.5, 0.0, args.pool_length)
+    right_max = args.pool_length
+    left_camera = (
+        load_camera(args.camera_left.resolve(), args.pool_length, args.pool_width, aspect)
+        if args.camera_left
+        else default_segment_camera(args.pool_length, args.pool_width, aspect, left_min, left_max)
+    )
+    right_camera = (
+        load_camera(args.camera_right.resolve(), args.pool_length, args.pool_width, aspect)
+        if args.camera_right
+        else default_segment_camera(args.pool_length, args.pool_width, aspect, right_min, right_max)
+    )
+    cameras = {"fixeGauche": left_camera, "fixeDroite": right_camera}
+    videos = [
+        build_video_entry(
+            name=f"{run_name}_fixeGauche.mp4",
+            type_video="fixeGauche",
+            camera=left_camera,
+            source_points=camera_source_points(
+                camera=left_camera,
+                pool_length=args.pool_length,
+                pool_width=args.pool_width,
+                frame_width=args.width,
+                frame_height=args.height,
+                x_min=left_min,
+                x_max=left_max,
+            ),
+            dest_points=segment_reference_dest_pts(args.pool_length, left_min, left_max),
+            fps=args.fps,
+            width=args.width,
+            height=args.height,
+        ),
+        build_video_entry(
+            name=f"{run_name}_fixeDroite.mp4",
+            type_video="fixeDroite",
+            camera=right_camera,
+            source_points=camera_source_points(
+                camera=right_camera,
+                pool_length=args.pool_length,
+                pool_width=args.pool_width,
+                frame_width=args.width,
+                frame_height=args.height,
+                x_min=right_min,
+                x_max=right_max,
+            ),
+            dest_points=segment_reference_dest_pts(args.pool_length, right_min, right_max),
+            fps=args.fps,
+            width=args.width,
+            height=args.height,
+        ),
+    ]
+    videos[0]["start_flash"] = 0
+    videos[1]["start_synchro_flash"] = 0
+    return cameras, videos
+
+
 def build_metadata(
     run_name: str,
-    video_name: str,
     csv_name: str,
     source_csv_name: str,
     camera_name: str,
-    camera: dict[str, Any],
-    source_points: list[list[float]],
+    cameras: dict[str, dict[str, Any]],
+    videos: list[dict[str, Any]],
     year: str,
     competition: str,
     course_type: str,
     swimmer_sex: str,
     course_distance: str,
     course: str,
-    fps: int,
-    width: int,
-    height: int,
     pool_length: float,
     pool_width: float,
     lane: str,
     swimmer_name: str,
     start_side: str,
 ) -> dict[str, Any]:
+    for video in videos:
+        video["start_side"] = start_side
+        video.setdefault("start_moment", 0)
+        video.setdefault("one_is_up", False)
     return {
         "city": competition,
         "cup": competition,
@@ -336,13 +535,12 @@ def build_metadata(
         "lignes": {lane: swimmer_name},
         "nage": course_type,
         "name": run_name,
-        "ncamera": 1,
-        "one_is_up": "False",
+        "one_is_up": False,
         "sexe": swimmer_sex,
         "start_side": start_side,
         "taille_piscine": [pool_length, pool_width],
         "csvFiles": [csv_name],
-        "camera": camera,
+        "cameras": cameras,
         "cameraFile": camera_name,
         "sourceSportsdata": {
             "format": "basic_tracking",
@@ -350,25 +548,8 @@ def build_metadata(
             "columns": ["frameId", "swimmerId", "eventId", "time", "distance"],
             "lane": lane,
         },
-        "videos": [
-            {
-                "destPts": [
-                    [0, REFERENCE_POOL_HEIGHT],
-                    [REFERENCE_POOL_WIDTH, REFERENCE_POOL_HEIGHT],
-                    [REFERENCE_POOL_WIDTH, 0],
-                    [0, 0],
-                ],
-                "fps": fps,
-                "height": height,
-                "name": video_name,
-                "one_is_up": "False",
-                "srcPts": source_points,
-                "start_flash": 0,
-                "start_moment": 0,
-                "start_side": start_side,
-                "width": width,
-            }
-        ],
+        "ncamera": len(videos),
+        "videos": videos,
         "year": str(year),
     }
 
@@ -376,25 +557,17 @@ def build_metadata(
 def render_tracking_video(
     output_path: Path,
     metadata: dict[str, Any],
+    video: dict[str, Any],
     rows: list[Any],
     fps: int,
     post_roll_seconds: float,
     render_lanes: bool,
 ) -> Path:
-    video = metadata["videos"][0]
     source_points = np.array(video["srcPts"], dtype=np.float32)
     pool_size = metadata.get("taille_piscine") or [50, 20]
     pool_length = float(pool_size[0])
     pool_width = float(pool_size[1])
-    destination_points = np.array(
-        [
-            [0, pool_width],
-            [pool_length, pool_width],
-            [pool_length, 0],
-            [0, 0],
-        ],
-        dtype=np.float32,
-    )
+    destination_points = reference_dest_pts_to_meters(video["destPts"], pool_length, pool_width)
     homography = cv2.getPerspectiveTransform(destination_points, source_points)
     frame_width = int(video["width"])
     frame_height = int(video["height"])
@@ -522,50 +695,38 @@ def main() -> int:
         raise ValueError("--pool-length and --pool-width must be positive")
 
     competition_name = derived_competition_name(args)
-    run_name = derived_run_name(args)
+    run_name = camera_derived_run_name(args)
     output_dir = resolve_output_dir(args, competition_name, run_name)
     output_dir.mkdir(parents=True, exist_ok=True)
-
-    aspect = args.width / args.height
-    camera = load_camera(args.camera.resolve() if args.camera else None, args.pool_length, args.pool_width, aspect)
-    source_points = camera_source_points(
-        camera=camera,
-        pool_length=args.pool_length,
-        pool_width=args.pool_width,
-        frame_width=args.width,
-        frame_height=args.height,
-    )
 
     input_path = args.input.resolve() if args.input else ensure_default_input(output_dir)
     source_csv_path = copy_input(input_path, output_dir)
     rows = read_basic_tracking_csv(source_csv_path)
 
+    aspect = args.width / args.height
+    cameras, videos = build_video_specs(args, run_name, aspect)
     camera_path = args.camera_output.resolve() if args.camera_output else output_dir / DEFAULT_CAMERA_NAME
     camera_path.parent.mkdir(parents=True, exist_ok=True)
     with camera_path.open("w", encoding="utf-8") as handle:
-        json.dump(camera, handle, ensure_ascii=False, indent=2)
+        camera_payload = next(iter(cameras.values())) if len(cameras) == 1 else cameras
+        json.dump(camera_payload, handle, ensure_ascii=False, indent=2)
         handle.write("\n")
 
     csv_path = output_dir / f"{run_name}.csv"
-    video_path = output_dir / f"{run_name}.mp4"
     metadata_path = output_dir / f"{run_name}.json"
     metadata = build_metadata(
         run_name=run_name,
-        video_name=video_path.name,
         csv_name=csv_path.name,
         source_csv_name=source_csv_path.name,
         camera_name=camera_path.name,
-        camera=camera,
-        source_points=source_points,
+        cameras=cameras,
+        videos=videos,
         year=args.year,
         competition=args.competition,
         course_type=args.course_type,
         swimmer_sex=args.swimmer_sex,
         course_distance=args.distance,
         course=args.course,
-        fps=args.fps,
-        width=args.width,
-        height=args.height,
         pool_length=args.pool_length,
         pool_width=args.pool_width,
         lane=args.lane,
@@ -581,15 +742,20 @@ def main() -> int:
         pool_width=args.pool_width,
     )
     write_aquanote_csv(csv_path, aquanote_rows)
-    actual_video_path = render_tracking_video(
-        output_path=video_path,
-        metadata=metadata,
-        rows=rows,
-        fps=args.fps,
-        post_roll_seconds=args.post_roll_seconds,
-        render_lanes=args.render_lanes,
-    )
-    metadata["videos"][0]["name"] = actual_video_path.name
+    actual_video_paths = []
+    for index, video in enumerate(metadata["videos"]):
+        requested_video_path = output_dir / video["name"]
+        actual_video_path = render_tracking_video(
+            output_path=requested_video_path,
+            metadata=metadata,
+            video=video,
+            rows=rows,
+            fps=args.fps,
+            post_roll_seconds=args.post_roll_seconds,
+            render_lanes=args.render_lanes,
+        )
+        metadata["videos"][index]["name"] = actual_video_path.name
+        actual_video_paths.append(actual_video_path)
     with metadata_path.open("w", encoding="utf-8") as handle:
         json.dump(metadata, handle, ensure_ascii=False, indent=2)
         handle.write("\n")
@@ -600,7 +766,8 @@ def main() -> int:
     print(f"camera: {display_path(camera_path)}")
     print(f"Aquanote CSV: {display_path(csv_path)}")
     print(f"metadata: {display_path(metadata_path)}")
-    print(f"video: {display_path(actual_video_path)}")
+    for actual_video_path in actual_video_paths:
+        print(f"video: {display_path(actual_video_path)}")
     if not args.skip_flatdir:
         flat_json_path = args.flat_json.resolve()
         if regenerate_flat_json(flat_json_path):

@@ -99,6 +99,39 @@ function firstCsvRecord(text) {
     return normalized;
 }
 
+function parseCsvRecords(text, delimiter = ",") {
+    const normalized = String(text ?? "").replace(/^\uFEFF/, "");
+    const records = [];
+    let record = "";
+    let inQuotes = false;
+
+    for (let index = 0; index < normalized.length; index++) {
+        const char = normalized[index];
+        const next = normalized[index + 1];
+        if (char === "\"" && inQuotes && next === "\"") {
+            record += "\"\"";
+            index++;
+        } else if (char === "\"") {
+            inQuotes = !inQuotes;
+            record += char;
+        } else if ((char === "\n" || char === "\r") && !inQuotes) {
+            if (char === "\r" && next === "\n") {
+                index++;
+            }
+            records.push(parseCsvHeaderLine(record, delimiter));
+            record = "";
+        } else {
+            record += char;
+        }
+    }
+
+    if (record.length > 0 || normalized.length === 0) {
+        records.push(parseCsvHeaderLine(record, delimiter));
+    }
+
+    return records.filter((columns) => columns.some((value) => String(value).trim() !== ""));
+}
+
 export async function fetchCsvRules(formatId = "formats.csv.swimming-tracking", baseUrl = DEFAULT_SPORTSDATA_BASE_URL) {
     const declarationUrl = new URL(csvFormatDeclarationPath(formatId), baseUrl);
     const declarationResponse = await fetch(declarationUrl.href);
@@ -117,6 +150,63 @@ export async function fetchCsvRules(formatId = "formats.csv.swimming-tracking", 
         throw new Error(`Unable to load CSV rules ${rulesPath}: ${rulesResponse.status}`);
     }
     return rulesResponse.json();
+}
+
+function validateCsvValue(value, column, rowNumber) {
+    const issues = [];
+    const name = String(column?.name ?? "");
+    const trimmed = String(value ?? "").trim();
+    const isEmpty = trimmed === "";
+    const required = Boolean(column?.required);
+    const nullable = Boolean(column?.nullable) || !required;
+
+    if (isEmpty) {
+        if (required && !nullable) {
+            issues.push({ path: `$[${rowNumber}].${name}`, message: `missing value for required column '${name}'`, severity: "error" });
+        }
+        return issues;
+    }
+
+    if (column?.type === "integer") {
+        const number = Number(trimmed);
+        if (!Number.isInteger(number)) {
+            issues.push({ path: `$[${rowNumber}].${name}`, message: `wrong type for column '${name}': expected integer, got '${value}'`, severity: "error" });
+            return issues;
+        }
+    } else if (column?.type === "number") {
+        const number = Number(trimmed);
+        if (!Number.isFinite(number)) {
+            issues.push({ path: `$[${rowNumber}].${name}`, message: `wrong type for column '${name}': expected number, got '${value}'`, severity: "error" });
+            return issues;
+        }
+    } else if (column?.type === "string" && typeof value !== "string") {
+        issues.push({ path: `$[${rowNumber}].${name}`, message: `wrong type for column '${name}': expected string`, severity: "error" });
+        return issues;
+    }
+
+    const number = Number(trimmed);
+    if ((column?.type === "integer" || column?.type === "number") && Number.isFinite(number)) {
+        if (Number.isFinite(Number(column.min)) && number < Number(column.min)) {
+            issues.push({ path: `$[${rowNumber}].${name}`, message: `value for column '${name}' is below minimum ${column.min}`, severity: "error" });
+        }
+        if (Number.isFinite(Number(column.exclusiveMin)) && number <= Number(column.exclusiveMin)) {
+            issues.push({ path: `$[${rowNumber}].${name}`, message: `value for column '${name}' must be greater than ${column.exclusiveMin}`, severity: "error" });
+        }
+        if (Number.isFinite(Number(column.max)) && number > Number(column.max)) {
+            issues.push({ path: `$[${rowNumber}].${name}`, message: `value for column '${name}' is above maximum ${column.max}`, severity: "error" });
+        }
+    }
+
+    if (column?.type === "string") {
+        if (Number.isFinite(Number(column.minLength)) && trimmed.length < Number(column.minLength)) {
+            issues.push({ path: `$[${rowNumber}].${name}`, message: `value for column '${name}' is shorter than ${column.minLength} characters`, severity: "error" });
+        }
+        if (column.pattern && !(new RegExp(column.pattern).test(trimmed))) {
+            issues.push({ path: `$[${rowNumber}].${name}`, message: `value for column '${name}' does not match ${column.pattern}`, severity: "error" });
+        }
+    }
+
+    return issues;
 }
 
 export function validateCsvHeaders(headers, rules) {
@@ -153,12 +243,44 @@ export function validateCsvHeaders(headers, rules) {
     return issues;
 }
 
+export function validateCsvRows(headers, rows, rules, options = {}) {
+    const issues = [];
+    const maxIssues = Number.isInteger(options.maxIssues) ? options.maxIssues : 25;
+    const columns = (rules?.columns || []).filter((column) => column?.name);
+    const headerIndex = new Map(headers.map((header, index) => [header, index]));
+
+    for (let rowIndex = 0; rowIndex < rows.length; rowIndex++) {
+        for (const column of columns) {
+            if (!headerIndex.has(String(column.name))) {
+                continue;
+            }
+            issues.push(...validateCsvValue(rows[rowIndex][headerIndex.get(String(column.name))], column, rowIndex + 2));
+            if (issues.length >= maxIssues) {
+                issues.push({ path: "$", message: `stopped after ${maxIssues} row validation issues`, severity: "warning" });
+                return issues;
+            }
+        }
+    }
+
+    return issues;
+}
+
 export function validateCsvTextHeaders(text, rules) {
     const delimiter = String(rules?.delimiter || ",");
-    const headers = parseCsvHeaderLine(firstCsvRecord(text), delimiter);
+    const records = parseCsvRecords(text, delimiter);
+    const headers = records[0] || parseCsvHeaderLine(firstCsvRecord(text), delimiter);
+    const missingHeader = headers.length === 0 || (headers.length === 1 && String(headers[0]).trim() === "");
+    const headerIssues = missingHeader
+        ? [{ path: "$", message: "missing header row", severity: "error" }]
+        : validateCsvHeaders(headers, rules);
     return {
         headers,
-        issues: validateCsvHeaders(headers, rules)
+        issues: [
+            ...headerIssues,
+            ...(!missingHeader && headerIssues.filter((issue) => (issue.severity || "error") === "error").length === 0
+                ? validateCsvRows(headers, records.slice(1), rules)
+                : [])
+        ]
     };
 }
 

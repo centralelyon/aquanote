@@ -9,9 +9,9 @@ const trackingRules = {
   allowExtraColumns: false,
   delimiter: ',',
   columns: [
-    { name: 'frameId', required: true },
-    { name: 'swimmerId', required: true },
-    { name: 'swimmerName', required: true },
+    { name: 'frameId', type: 'integer', required: true },
+    { name: 'swimmerId', type: 'integer', required: true },
+    { name: 'swimmerName', type: 'string', required: true },
   ],
 };
 
@@ -36,5 +36,13 @@ describe('sportsdata CSV header validation', () => {
 
     expect(result.headers).toEqual(['frameId', 'swimmerId', 'swimmerName']);
     expect(result.issues).toEqual([]);
+  });
+
+  it('reports wrong column types in CSV rows', () => {
+    const result = validateCsvTextHeaders('frameId,swimmerId,swimmerName\nabc,2,Ada', trackingRules);
+
+    expect(result.issues.map((issue) => issue.message)).toContain(
+      "wrong type for column 'frameId': expected integer, got 'abc'",
+    );
   });
 });

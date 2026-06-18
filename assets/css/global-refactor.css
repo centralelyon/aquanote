@@ -798,6 +798,27 @@ input:checked + .slider:before {
     min-width: 820px;
 }
 
+.video-calibration-item {
+    margin: 0 0 14px;
+    padding: 10px;
+    border: 1px solid #d3e5ee;
+    background: #fbfdff;
+}
+
+.video-calibration-item[data-active="true"] {
+    border-color: #2ea3dd;
+}
+
+.video-calibration-item h3 {
+    margin: 0 0 8px;
+    overflow: hidden;
+    color: #2f4554;
+    font-size: 12px;
+    line-height: 1.25;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
 #config_warp_workspace .ImgCtrlPts-workspace {
     align-items: start;
 }

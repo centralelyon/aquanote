@@ -135,6 +135,21 @@ export function getLaneYPosition(swimmerIndex, metaLike = megaData[0]?.videos?.[
     return getDisplayLaneIndex(swimmerIndex, metaLike) * laneSpan;
 }
 
+export function videoMatchesType(video, typeVideo) {
+    const expected = String(typeVideo || "").toLowerCase();
+    if (!expected || !video) {
+        return false;
+    }
+    return String(video.type_video || "").toLowerCase() === expected
+        || String(video.name || "").toLowerCase().includes(expected);
+}
+
+export function findVideoByType(videos = megaData[0]?.videos, typeVideo) {
+    return Array.isArray(videos)
+        ? videos.find((video) => videoMatchesType(video, typeVideo))
+        : undefined;
+}
+
 export function getDisplayLaneIndex(swimmerIndex, metaLike = megaData[0]?.videos?.[0] ?? megaData[0]) {
     const laneCount = getLaneCount(megaData[0] ?? metaLike);
     const clampedIndex = Math.max(0, Math.min(swimmerIndex, laneCount - 1));
@@ -149,6 +164,16 @@ export function getRunDisplayParts(runName, competitionName = selected_comp) {
     const normalizedRunName = resolveRunName(runName);
     if (!normalizedRunName) {
         return ["", "", "", ""];
+    }
+    const runEntry = (compets[competitionName] || []).find((run) => run?.name === normalizedRunName);
+    const metadataParts = [
+        runEntry?.nage,
+        runEntry?.sexe,
+        runEntry?.distance,
+        runEntry?.epreuve,
+    ].map((value) => String(value ?? "").trim());
+    if (metadataParts.some(Boolean)) {
+        return metadataParts;
     }
 
     const prefix = competitionName ? `${competitionName}_` : "";
@@ -170,8 +195,55 @@ export function getRunDisplayParts(runName, competitionName = selected_comp) {
     ];
 }
 
-function addRunPartsToSets(runName, competitionName, type_nage, sexe_nageurs, distance, étape_compétition) {
-    const [part1, part2, part3, part4] = getRunDisplayParts(runName, competitionName);
+function getRunEntry(runName, competitionName = selected_comp) {
+    const normalizedRunName = resolveRunName(runName);
+    return (compets[competitionName] || []).find((run) => run?.name === normalizedRunName) || null;
+}
+
+function getRunParts(runEntryOrName, competitionName = selected_comp) {
+    if (runEntryOrName && typeof runEntryOrName === "object") {
+        const metadataParts = [
+            runEntryOrName.nage,
+            runEntryOrName.sexe,
+            runEntryOrName.distance,
+            runEntryOrName.epreuve,
+        ].map((value) => String(value ?? "").trim());
+        if (metadataParts.some(Boolean)) {
+            return metadataParts;
+        }
+        return getRunDisplayParts(runEntryOrName.name, competitionName);
+    }
+    const entry = getRunEntry(runEntryOrName, competitionName);
+    if (entry) {
+        return getRunParts(entry, competitionName);
+    }
+    return getRunDisplayParts(runEntryOrName, competitionName);
+}
+
+function formatRunDisplayName(runEntryOrName, competitionName = selected_comp) {
+    const parts = getRunParts(runEntryOrName, competitionName).filter(Boolean);
+    return parts.length > 0 ? parts.join("_") : String(runEntryOrName?.name || runEntryOrName || "");
+}
+
+async function enrichRunsWithMetadata(comp, runs) {
+    return Promise.all((runs || []).map(async (run) => {
+        try {
+            const metadata = await dataProvider.loadRunJson(comp, run.name);
+            return {
+                ...run,
+                ...(metadata?.nage ? { nage: metadata.nage } : {}),
+                ...(metadata?.sexe ? { sexe: metadata.sexe } : {}),
+                ...(metadata?.distance ? { distance: metadata.distance } : {}),
+                ...(metadata?.epreuve ? { epreuve: metadata.epreuve } : {}),
+            };
+        } catch {
+            return run;
+        }
+    }));
+}
+
+function addRunPartsToSets(runEntryOrName, competitionName, type_nage, sexe_nageurs, distance, étape_compétition) {
+    const [part1, part2, part3, part4] = getRunParts(runEntryOrName, competitionName);
     if (part1) type_nage.add(part1);
     if (part2) sexe_nageurs.add(part2);
     if (part3) distance.add(part3);
@@ -233,7 +305,7 @@ export async function init() {
       await getRuns(selected_comp);
       
       if (compets[selected_comp]) {
-        processRunData(compets[selected_comp].map(run => run.name));
+        processRunData(compets[selected_comp]);
       } else {
         console.error("compets[selected_comp] n'existe pas! selected_comp =", selected_comp);
       }
@@ -290,7 +362,7 @@ function syncRunSelectorsFromRunName(runName, competitionName = selected_comp) {
     }
 
     const normalizedRunName = resolveRunName(runName);
-    const [part1, part2, part3, part4] = getRunDisplayParts(normalizedRunName, competitionName);
+    const [part1, part2, part3, part4] = getRunParts(normalizedRunName, competitionName);
 
     if (part1) {
         $("#run_part1").val(part1);
@@ -418,7 +490,7 @@ export async function getRuns(comp) {
   }
   
   if (!compets[comp] || compets[comp].length === 0) {
-    const runs = await dataProvider.getRuns(comp);
+    const runs = await enrichRunsWithMetadata(comp, await dataProvider.getRuns(comp));
     compets[comp] = runs;
     selected_run = runs[0]?.name || "";
 
@@ -444,9 +516,9 @@ export async function getRuns(comp) {
                 tclass = "data_checked";
             }
         }
-        let nomAffiche = runs[i].name.replace(comp + "_", '');
+        let nomAffiche = formatRunDisplayName(runs[i], comp);
         select.append("<option value='" + runs[i].name + "' class='" + tclass + "'>" + nomAffiche + "</option>");
-        addRunPartsToSets(runs[i].name, comp, type_nage, sexe_nageurs, distance, étape_compétition);
+        addRunPartsToSets(runs[i], comp, type_nage, sexe_nageurs, distance, étape_compétition);
     }
     const sortedDistance = Array.from(distance).sort((a, b) => parseInt(a) - parseInt(b));
     fillDropdown("run_part1", Array.from(type_nage));
@@ -471,8 +543,8 @@ export async function getRuns(comp) {
           if (compets[comp][i].name === requestedRun) {
               selected_run = compets[comp][i].name;
           }
-          select.append("<option value='" + compets[comp][i].name + "'>" + compets[comp][i].name + "</option>");
-          addRunPartsToSets(compets[comp][i].name, comp, type_nage, sexe_nageurs, distance, étape_compétition);
+          select.append("<option value='" + compets[comp][i].name + "'>" + formatRunDisplayName(compets[comp][i], comp) + "</option>");
+          addRunPartsToSets(compets[comp][i], comp, type_nage, sexe_nageurs, distance, étape_compétition);
           }
         const sortedDistance = Array.from(distance).sort((a, b) => parseInt(a) - parseInt(b));
         fillDropdown("run_part1", Array.from(type_nage));
@@ -570,18 +642,22 @@ export async function load_run(run, data, starTime = null) {
     n_camera = 2; // Valeur par défaut, peut être modifiée par le JSON
     if (t.ncamera){
       n_camera = t.ncamera;
-      if (n_camera === 1) {
-          $("#vidsw").hide();
-      }
+    } else if (Array.isArray(t.videos)) {
+      n_camera = t.videos.length;
+    }
+    if (n_camera === 1) {
+      $("#vidsw").hide();
     }
     try {
       if (t.videos && t.videos.length > 0) {
         if (n_camera > 1) {
-          meta = t.videos.find(d => d.name.includes("fixeDroite"));
+          meta = findVideoByType(t.videos, "fixeDroite");
 
-          if (meta && meta["start_side"] === "left") {
-            meta = t.videos.find(d => d.name.includes("fixeGauche"));
-          }}
+          if ((meta?.start_side || t.start_side) === "left") {
+            meta = findVideoByType(t.videos, "fixeGauche");
+          }
+          meta = meta || t.videos[0];
+        }
         else if (n_camera === 1) {
           meta = t.videos[0];
         }
@@ -776,7 +852,7 @@ export async function load_run(run, data, starTime = null) {
     }
   }
   
-  let is_dessus=megaData[0].videos.filter(d => d.name.includes("dessus"));
+  let is_dessus=megaData[0].videos.filter(d => videoMatchesType(d, "dessus"));
   if (is_dessus.length > 0) {
     $(".vid_dessus").show();
   } else {
@@ -888,14 +964,32 @@ async function collectRunCsvEntries(comp, run) {
 async function filterSportsdataCsvFiles(comp, run, entries) {
     const formatId = getSportsdataLoadFormatId();
     const csvFiles = (entries || []).filter((entry) => entry?.name && entry.name.toLowerCase().endsWith(".csv"));
+    console.info(`[Sportsdata CSV] Found ${csvFiles.length} CSV file(s) for ${comp}/${run}`, csvFiles.map((entry) => entry.name));
     const validationResults = await Promise.all(csvFiles.map(async (entry) => {
         const csvUrl = dataProvider.getVideoUrl(comp, run, entry.name);
         try {
             const result = await validateCsvUrlHeaders(csvUrl, { formatId });
             const errors = result.issues.filter((issue) => (issue.severity || "error") === "error");
-            return errors.length === 0 ? entry : null;
+            if (errors.length === 0) {
+                console.info(`[Sportsdata CSV] Accepted ${entry.name}`, {
+                    format: formatId,
+                    headers: result.headers
+                });
+                return entry;
+            }
+            console.warn(`[Sportsdata CSV] Rejected ${entry.name}`, {
+                format: formatId,
+                url: csvUrl,
+                headers: result.headers,
+                reasons: errors.map(formatValidationIssue)
+            });
+            return null;
         } catch (error) {
-            console.warn(`Skipping CSV with invalid ${formatId} header: ${entry.name}`, error);
+            console.warn(`[Sportsdata CSV] Rejected ${entry.name}`, {
+                format: formatId,
+                url: csvUrl,
+                reasons: [error?.message || String(error)]
+            });
             return null;
         }
     }));

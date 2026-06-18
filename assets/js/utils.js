@@ -3,7 +3,7 @@
  * @brief gère principalement l'url et donne la taille de la vidéo???
  */
 
-import { megaData, selected_comp, n_camera } from './loader.js';
+import { findVideoByType, megaData, selected_comp, n_camera, videoMatchesType } from './loader.js';
 import { get_run_selected,  selected_data, vue_du_dessus } from './refactor-script.js';
 import { getApiBaseUrl, getDataSourceMode, getLocalServerUrl } from './local_api.js';
 
@@ -16,19 +16,24 @@ import { getApiBaseUrl, getDataSourceMode, getLocalServerUrl } from './local_api
 export function getMeta() {
     let vid = document.getElementById("vid");
     const src = vid?.currentSrc || vid?.getAttribute("src") || "";
-    if (vue_du_dessus) {
-        return megaData[0].videos.filter(d => d.name.includes("dessus"))[0];
+    const videos = megaData?.[0]?.videos;
+    if (!Array.isArray(videos) || videos.length === 0) {
+        return null;
     }
-    const matchingMeta = megaData[0]?.videos?.find(d => d.name && src.includes(d.name));
+    if (vue_du_dessus) {
+        return findVideoByType(videos, "dessus") || videos[0];
+    }
+    const matchingMeta = videos.find(d => d.name && src.includes(d.name));
     if (matchingMeta) {
         return matchingMeta;
     }
     if (n_camera > 1) {
-        let side = src.includes("fixeDroite") ;
-        return megaData[0].videos.filter(d => (side ? d.name.includes("fixeDroite") : d.name.includes("fixeGauche")))[0];
+        const lowerSrc = src.toLowerCase();
+        const side = lowerSrc.includes("fixedroite") ? "fixeDroite" : "fixeGauche";
+        return findVideoByType(videos, side) || videos.find((video) => videoMatchesType(video, "fixeDroite")) || videos[0];
     }
     else {
-        return megaData[0].videos[0];
+        return videos[0];
     }
 }
 

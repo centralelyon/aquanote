@@ -116,13 +116,21 @@ export async function buildStaticDataFromManifest(flatManifest, loadMetadata = n
 
     const runsByCompetition = flatManifest.runs || {};
     for (const [competitionName, runEntries] of Object.entries(runsByCompetition)) {
-        dynamicData.runs[competitionName] = (runEntries || []).map(normalizeDirectoryEntry);
+        dynamicData.runs[competitionName] = [];
 
         for (const rawRunEntry of runEntries || []) {
             const runEntry = normalizeDirectoryEntry(rawRunEntry);
             const runName = runEntry.name;
             const manifestEntry = flatManifest.entries[runName] || {};
             const metadata = loadMetadata ? await loadMetadata(competitionName, runName) : null;
+            const enrichedRunEntry = {
+                ...runEntry,
+                ...(metadata?.nage ? { nage: metadata.nage } : {}),
+                ...(metadata?.sexe ? { sexe: metadata.sexe } : {}),
+                ...(metadata?.distance ? { distance: metadata.distance } : {}),
+                ...(metadata?.epreuve ? { epreuve: metadata.epreuve } : {}),
+            };
+            dynamicData.runs[competitionName].push(enrichedRunEntry);
             const aliases = [
                 ...(Array.isArray(runEntry.aliases) ? runEntry.aliases : []),
                 ...(Array.isArray(manifestEntry.aliases) ? manifestEntry.aliases : []),

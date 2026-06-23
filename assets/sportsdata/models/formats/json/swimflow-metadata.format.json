@@ -1,0 +1,4 @@
+{
+  "id": "formats.json.swimflow-metadata",
+  "schema": "models/schemas/swimming/swimflow-metadata.schema.json"
+}

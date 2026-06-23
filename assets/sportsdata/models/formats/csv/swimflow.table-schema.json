@@ -1,0 +1,6 @@
+{
+  "id": "formats.csv.swimflow",
+  "format": "csv",
+  "title": "Swimflow CSV",
+  "rules": "models/rules/swimming/swimflow-csv.rules.json"
+}

@@ -1,0 +1,97 @@
+{
+  "id": "rules.swimming.swimflow-csv",
+  "title": "Swimflow CSV",
+  "delimiter": ",",
+  "allowExtraColumns": false,
+  "columns": [
+    { "name": "frameId", "type": "integer", "required": true, "min": 0 },
+    { "name": "xa_above", "type": "number", "required": true, "min": -1, "max": 51 },
+    { "name": "xb_above", "type": "number", "required": true, "min": -1, "max": 51 },
+    { "name": "x_middle", "type": "number", "required": true, "min": 0, "max": 50 },
+    { "name": "event", "type": "string", "required": true },
+    { "name": "swimmerId", "type": "integer", "required": true, "min": 0 },
+    { "name": "strokeCount", "type": "integer", "required": true, "min": 0 },
+    { "name": "strokeDistance", "type": "number", "required": true, "min": 0 },
+    { "name": "x_world", "type": "number", "required": false, "min": 0 },
+    { "name": "speed_world", "type": "number", "required": false, "min": 0 },
+    { "name": "x_olympic", "type": "number", "required": false, "min": 0 },
+    { "name": "speed_olympic", "type": "number", "required": false, "min": 0 },
+    { "name": "x_personal", "type": "number", "required": false, "min": 0 },
+    { "name": "speed_personal", "type": "number", "required": false, "min": 0 },
+    { "name": "x_national", "type": "number", "required": false, "min": 0 },
+    { "name": "speed_national", "type": "number", "required": false, "min": 0 },
+    { "name": "resultS", "type": "number", "required": false, "exclusiveMin": 0 },
+    { "name": "nationality", "type": "string", "required": false },
+    { "name": "name", "type": "string", "required": false, "minLength": 1 },
+    { "name": "age", "type": "number", "required": false, "exclusiveMin": 0 },
+    { "name": "result", "type": "timecode", "required": false },
+    { "name": "world", "type": "timecode", "required": false },
+    { "name": "world50", "type": "number", "required": false, "min": 0 },
+    { "name": "world100", "type": "number", "required": false, "min": 0 },
+    { "name": "olympic", "type": "timecode", "required": false },
+    { "name": "olympic50", "type": "number", "required": false, "min": 0 },
+    { "name": "olympic100", "type": "number", "required": false, "min": 0 },
+    { "name": "personal", "type": "string", "required": false },
+    { "name": "personal50", "type": "number", "required": false, "min": 0 },
+    { "name": "personal100", "type": "number", "required": false, "min": 0 },
+    { "name": "national", "type": "timecode", "required": false, "nullable": true },
+    { "name": "national50", "type": "number", "required": false, "min": 0 },
+    { "name": "national100", "type": "number", "required": false, "min": 0 },
+    { "name": "currentLap50", "type": "number", "required": false, "min": 0 },
+    { "name": "currentLap100", "type": "number", "required": false, "min": 0 },
+    { "name": "averageLap", "type": "number", "required": true, "min": 0 },
+    { "name": "elapsed", "type": "number", "required": true, "min": 0 },
+    { "name": "speed", "type": "number", "required": true, "min": 0 },
+    { "name": "acceleration", "type": "number", "required": true },
+    { "name": "averageSpeed", "type": "number", "required": true, "min": 0 },
+    { "name": "distanceSwam", "type": "number", "required": true, "min": 0 },
+    { "name": "distanceRemaining", "type": "number", "required": true },
+    { "name": "distanceToLeader", "type": "number", "required": false, "nullable": true },
+    { "name": "estimatedCompletionTime", "type": "number", "required": true },
+    { "name": "nextPassing", "type": "number", "required": false, "nullable": true, "min": -1 },
+    { "name": "winner", "type": "integer", "required": false, "nullable": true, "min": 0 },
+    { "name": "reaction", "type": "number", "required": true, "min": 0 },
+    { "name": "diving", "type": "number", "required": true, "min": 0 },
+    { "name": "direction", "type": "string", "required": true },
+    { "name": "currentLeader", "type": "number", "required": false, "nullable": true, "min": 0 },
+    { "name": "currentLap", "type": "number", "required": false, "min": 0 }
+  ],
+  "groupBy": [
+    "swimmerId"
+  ],
+  "groupRules": [
+    {
+      "id": "middle-between-above-edges",
+      "check": "formula",
+      "column": "x_middle",
+      "formula": "(xa + xb) / 2",
+      "inputs": {
+        "xa": "xa_above",
+        "xb": "xb_above"
+      },
+      "tolerance": 0.001,
+      "severity": "warning"
+    },
+    {
+      "id": "frame-monotonic",
+      "check": "monotonic",
+      "column": "frameId",
+      "direction": "nondecreasing",
+      "severity": "error"
+    },
+    {
+      "id": "elapsed-monotonic",
+      "check": "monotonic",
+      "column": "elapsed",
+      "direction": "nondecreasing",
+      "severity": "error"
+    },
+    {
+      "id": "stroke-count-monotonic",
+      "check": "monotonic",
+      "column": "strokeCount",
+      "direction": "nondecreasing",
+      "severity": "error"
+    }
+  ]
+}

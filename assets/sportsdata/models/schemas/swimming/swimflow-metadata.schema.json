@@ -1,0 +1,55 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "models/schemas/swimming/swimflow-metadata.schema.json",
+  "title": "Swimflow metadata",
+  "type": "object",
+  "required": [
+    "name",
+    "lanes",
+    "raceStartTime",
+    "dataCSV",
+    "framerate",
+    "distance",
+    "poolLapLength",
+    "gender",
+    "year",
+    "type",
+    "style",
+    "level",
+    "videoName",
+    "video",
+    "swimmersInfo"
+  ],
+  "properties": {
+    "name": { "type": "string", "minLength": 1 },
+    "lanes": { "type": "integer", "minimum": 1 },
+    "raceStartTime": { "type": "number", "minimum": 0 },
+    "dataCSV": { "type": "string", "minLength": 1, "pattern": "\\.csv$" },
+    "framerate": { "type": "number", "exclusiveMinimum": 0 },
+    "distance": { "type": "number", "exclusiveMinimum": 0 },
+    "poolLapLength": { "type": "number", "exclusiveMinimum": 0 },
+    "gender": { "type": "string", "enum": ["women", "men", "mixed"] },
+    "year": { "type": "integer", "minimum": 1800 },
+    "type": { "type": "string", "minLength": 1 },
+    "style": { "type": "string", "minLength": 1 },
+    "level": { "type": "string", "minLength": 1 },
+    "videoName": { "type": "string", "minLength": 1 },
+    "video": { "type": "string", "minLength": 1 },
+    "note": { "type": "string" },
+    "swimmersInfo": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["name", "nationality", "swimmerId"],
+        "properties": {
+          "name": { "type": "string", "minLength": 1 },
+          "nationality": { "type": "string", "pattern": "^[A-Z]{3}$" },
+          "swimmerId": { "type": "integer", "minimum": 0 }
+        },
+        "additionalProperties": true
+      }
+    }
+  },
+  "additionalProperties": true
+}

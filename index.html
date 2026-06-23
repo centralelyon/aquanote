@@ -263,6 +263,7 @@ graphiques D3.js et contrôles pour analyser les performances des nageurs
 
 
                         <button id="vidsw">Changer côté</button>
+                        <div id="annotation_video_buttons" class="annotation-video-buttons" aria-label="Videos d'annotation"></div>
                         <button id="hidlab">Cacher texte</button>
                         <button id="resetZoom" class="r_boutons">Reset Zoom</button>
                         <button id="download">Téléchargement</button>
@@ -491,20 +492,25 @@ graphiques D3.js et contrôles pour analyser les performances des nageurs
                     title="Image piscine de reference"></select>
                 <button id="config_refresh" type="button">Actualiser</button>
                 <button id="config_save" type="button">Enregistrer JSON</button>
-                <button id="config_flash_add" type="button" hidden>Add flash</button>
-                <button id="config_flash_save" type="button">Enregistrer flash</button>
+                <button id="config_generate_above" type="button">Generer vue de dessus</button>
+                <button id="config_delete_above" type="button">Supprimer vue de dessus</button>
             </div>
             <p id="config_status" class="video-config-status"></p>
+            <div id="config_generate_panel" class="video-generation-panel" hidden>
+                <div class="video-generation-progress">
+                    <progress id="config_generate_progress" max="100" value="0"></progress>
+                    <span id="config_generate_progress_label">0%</span>
+                </div>
+                <pre id="config_generate_code"></pre>
+                <a id="config_generate_result" href="#" target="_blank" rel="noopener" hidden>Ouvrir la video generee</a>
+                <video id="config_generate_video" class="video-generation-result" controls muted playsinline hidden></video>
+            </div>
             <div class="video-config-layout">
                 <div id="config_warp_workspace"></div>
                 <div class="video-config-preview">
                     <canvas id="config_warp_result"></canvas>
                     <pre id="config_json_preview"></pre>
                 </div>
-            </div>
-            <div id="config_flash_panel" class="flash-config-panel">
-                <label>Flash</label>
-                <div id="config_flash_workspace"></div>
             </div>
         </section>
     </div>
@@ -585,6 +591,10 @@ graphiques D3.js et contrôles pour analyser les performances des nageurs
                 <input id="config_api_url" type="url" placeholder="http://localhost:8000/aquanote">
             </div>
             <div class="configuration-row">
+                <label for="config_sportsdata_json_format">Sportsdata JSON format</label>
+                <select id="config_sportsdata_json_format"></select>
+            </div>
+            <div class="configuration-row">
                 <label for="config_sportsdata_load_format">Sportsdata load schema</label>
                 <select id="config_sportsdata_load_format"></select>
             </div>
@@ -604,6 +614,8 @@ graphiques D3.js et contrôles pour analyser les performances des nageurs
         <section id="synchronize_panel" class="synchronize-panel">
             <div class="synchronize-actions">
                 <button id="sync_use_current" type="button">Set flash time</button>
+                <button id="sync_flash_add" type="button">Definir zone flash</button>
+                <button id="sync_detect_flash" type="button">Detecter flash</button>
                 <button id="sync_save" type="button">Enregistrer JSON</button>
             </div>
             <p id="sync_status" class="synchronize-status"></p>
@@ -624,6 +636,11 @@ graphiques D3.js et contrôles pour analyser les performances des nageurs
                         <label for="sync_flash_region">Pool region</label>
                         <input id="sync_flash_region" type="text" readonly>
                         <div id="sync_flash_pool" class="sync-flash-pool" aria-label="Flash region on swimming pool">
+                        </div>
+                        <div id="sync_flash_editor" class="sync-flash-editor" aria-label="Flash region editor"></div>
+                        <div id="sync_flash_detection" class="sync-flash-detection" hidden>
+                            <img id="sync_flash_preview" alt="Detected flash frame">
+                            <p id="sync_flash_preview_label"></p>
                         </div>
                     </div>
                 </div>

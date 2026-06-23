@@ -24,9 +24,9 @@ import {
     resolveRunAlias,
 } from "./demo_manifest.js";
 import { demoDataRoot, displaySwimmers, setGrad } from "./main.js"
-import { formatValidationIssue, validateCsvUrlHeaders } from "./sportsdata.js";
+import { detectSportsdataCsvFormatId, detectSportsdataJsonFormatId, formatValidationIssue, validateCsvUrlHeaders } from "./sportsdata.js";
 import { dataProvider, setStaticProviderData } from "./aquanote-providers.js";
-import { getSportsdataLoadFormatId } from "./local_api.js";
+import { getSportsdataJsonFormatId, getSportsdataLoadFormatId } from "./local_api.js";
 
 let flat;
 let flatManifest = null;
@@ -74,6 +74,10 @@ export let inter = 100;
  * @brief nombre de caméra disponible pour la course.
  */
 export let n_camera = 2;
+
+const AUTO_SPORTSDATA_CSV_FORMAT = "formats.csv.auto";
+const DEFAULT_VIDEO_WIDTH = 1920;
+const DEFAULT_VIDEO_HEIGHT = 1080;
 
 
 
@@ -140,14 +144,119 @@ export function videoMatchesType(video, typeVideo) {
     if (!expected || !video) {
         return false;
     }
-    return String(video.type_video || "").toLowerCase() === expected
-        || String(video.name || "").toLowerCase().includes(expected);
+    const type = String(video.type_video || "").toLowerCase();
+    const name = String(video.name || "").toLowerCase();
+    const aliases = expected === "dessus" || expected === "from_above"
+        ? ["dessus", "from_above"]
+        : [expected];
+    return aliases.some((alias) => type === alias || name.includes(alias));
 }
 
 export function findVideoByType(videos = megaData[0]?.videos, typeVideo) {
     return Array.isArray(videos)
         ? videos.find((video) => videoMatchesType(video, typeVideo))
         : undefined;
+}
+
+function buildFromAboveVideoEntry(metadata, filename) {
+    const videos = Array.isArray(metadata?.videos) ? metadata.videos : [];
+    const allDestPoints = videos.flatMap((video) => Array.isArray(video.destPts) ? video.destPts : []);
+    const xs = allDestPoints.map((point) => Number(point?.[0])).filter(Number.isFinite);
+    const ys = allDestPoints.map((point) => Number(point?.[1])).filter(Number.isFinite);
+    const width = Math.max(1, Math.round(xs.length ? Math.max(...xs) : 900));
+    const height = Math.max(1, Math.round(ys.length ? Math.max(...ys) : 361));
+    const sideVideo = videos.find((video) => videoMatchesType(video, "fixeGauche") || videoMatchesType(video, "fixeDroite"))
+        || videos[0]
+        || {};
+    const flashSide = String(metadata?.flash?.side || "").toLowerCase();
+    const sideAliases = {
+        left: ["left", "gauche"],
+        gauche: ["left", "gauche"],
+        right: ["right", "droite"],
+        droite: ["right", "droite"]
+    }[flashSide] || (flashSide ? [flashSide] : []);
+    const flashVideo = videos.find((video) => video.start_flash !== undefined)
+        || videos.find((video) => sideAliases.some((alias) =>
+            `${video?.type_video || ""} ${video?.name || ""}`.toLowerCase().includes(alias)
+        ))
+        || sideVideo;
+    const points = [[0, height], [width, height], [width, 0], [0, 0]];
+    return {
+        name: filename,
+        type_video: "from_above",
+        fps: sideVideo.fps || 50,
+        width,
+        height,
+        start_moment: get_temp_start(flashVideo),
+        start_side: metadata?.start_side || sideVideo.start_side || "left",
+        one_is_up: metadata?.one_is_up ?? sideVideo.one_is_up ?? false,
+        srcPts: points,
+        destPts: points
+    };
+}
+
+function videoSelectLabel(video, index) {
+    if (videoMatchesType(video, "fixeGauche")) {
+        return "gauche";
+    }
+    if (videoMatchesType(video, "fixeDroite")) {
+        return "droite";
+    }
+    if (videoMatchesType(video, "from_above") || videoMatchesType(video, "dessus")) {
+        return "dessus";
+    }
+    return video.type_video || video.name || `video ${index + 1}`;
+}
+
+function syncAnnotationVideoSelect(metadata, activeVideo) {
+    const container = document.getElementById("annotation_video_buttons");
+    const videos = Array.isArray(metadata?.videos) ? metadata.videos : [];
+    if (!container) {
+        return;
+    }
+    const legacySwitch = document.getElementById("vidsw");
+    if (legacySwitch) {
+        legacySwitch.hidden = videos.length > 0;
+    }
+    container.replaceChildren(...videos.map((video, index) => {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "annotation-video-button";
+        button.dataset.videoName = video.name || "";
+        button.dataset.videoIndex = String(index);
+        button.textContent = videoSelectLabel(video, index);
+        button.dataset.active = video.name === activeVideo?.name ? "true" : "false";
+        return button;
+    }));
+    container.hidden = videos.length === 0;
+}
+
+async function ensureGeneratedFromAboveVideoEntry(metadata, comp, run) {
+    if (!metadata || typeof metadata !== "object") {
+        return;
+    }
+    const videos = Array.isArray(metadata.videos) ? metadata.videos : [];
+    metadata.videos = videos;
+    const outputName = `${run}_from_above.mp4`;
+    const alreadyListed = videos.some((video) => video.name === outputName || videoMatchesType(video, "from_above"));
+    if (alreadyListed) {
+        return;
+    }
+
+    try {
+        const url = dataProvider.getVideoUrl(comp, run, outputName);
+        let response = await fetch(url, { method: "HEAD" });
+        if (response.status === 405 || response.status === 501) {
+            response = await fetch(url, { headers: { Range: "bytes=0-0" } });
+        }
+        if (!response.ok && response.status !== 206) {
+            return;
+        }
+        videos.push(buildFromAboveVideoEntry(metadata, outputName));
+        metadata.ncamera = videos.length;
+    } catch {
+        // File discovery is best-effort; explicit metadata entries remain authoritative.
+    }
 }
 
 export function getDisplayLaneIndex(swimmerIndex, metaLike = megaData[0]?.videos?.[0] ?? megaData[0]) {
@@ -587,12 +696,12 @@ function fillDropdown(dropdownId, options) {
  */
 export function get_temp_start(meta) {
   let temp_start_temp;
-    if (meta.start_flash) {
+    if (meta?.start_flash !== undefined) {
         temp_start_temp = meta.start_flash
-    } else if (meta.start_synchro_flash) {
+    } else if (meta?.start_synchro_flash !== undefined) {
         temp_start_temp = meta.start_synchro_flash
     } else {
-        temp_start_temp = meta.start_moment
+        temp_start_temp = meta?.start_moment
     }
     if (isNaN(temp_start_temp)) {
         temp_start_temp = 0;
@@ -629,21 +738,22 @@ export async function load_run(run, data, starTime = null) {
     let t;
 
     try {
-      t = await dataProvider.loadRunJson(selected_comp, run);
+      t = await loadRunMetadata(selected_comp, run);
     } catch (e) {
-      console.error("Erreur lors du chargement du fichier JSON:", e);
-      errors.push("Fichier JSON non trouvé ou invalide : " + run + '.json');
+      console.error("Erreur lors du chargement des métadonnées:", e);
+      errors.push(`Metadonnees JSON ou sportsdata introuvables pour ${run}:\n${errorMessage(e)}`);
       throw e;
     }
+    await ensureGeneratedFromAboveVideoEntry(t, selected_comp, run);
 
     let meta = null;
     vidName = "";
     $("#vidsw").show();
     n_camera = 2; // Valeur par défaut, peut être modifiée par le JSON
-    if (t.ncamera){
-      n_camera = t.ncamera;
-    } else if (Array.isArray(t.videos)) {
+    if (Array.isArray(t.videos)) {
       n_camera = t.videos.length;
+    } else if (t.ncamera){
+      n_camera = t.ncamera;
     }
     if (n_camera === 1) {
       $("#vidsw").hide();
@@ -690,9 +800,11 @@ export async function load_run(run, data, starTime = null) {
         const csvUrl = dataProvider.getVideoUrl(selected_comp, run, data);
 
         if (shouldValidateSwimmingTrackingCsv(data)) {
+          const parsedCsv = await validateAndParseSportsdataCsv(csvUrl, data);
 	          validatedAnnotationRows = normalizeSportsdataRows(
-	            await validateAndParseSportsdataCsv(csvUrl, data),
-	            t
+	            parsedCsv.rows,
+	            t,
+              parsedCsv.formatId
 	          );
           r = validatedAnnotationRows;
         } else {
@@ -707,10 +819,10 @@ export async function load_run(run, data, starTime = null) {
         }
       } catch (e) {
         if (shouldValidateSwimmingTrackingCsv(data)) {
-          alert(e.message);
+          alert(`Impossible de charger le CSV sportsdata "${data}":\n\n${errorMessage(e)}`);
           throw e;
         }
-        errors.push("Fichier CSV '" + data + "' introuvable ou invalide."+e);
+        errors.push(`Fichier CSV '${data}' introuvable ou invalide: ${errorMessage(e)}`);
         edit_temp_start(get_temp_start(meta));
       }
     } else {
@@ -761,9 +873,13 @@ export async function load_run(run, data, starTime = null) {
         let time_dif;
 
         const csvUrl = dataProvider.getVideoUrl(selected_comp, run, data);
+        const parsedCsv = validatedAnnotationRows
+          ? null
+          : await validateAndParseSportsdataCsv(csvUrl, data);
 	        let r = validatedAnnotationRows ?? normalizeSportsdataRows(
-	          await validateAndParseSportsdataCsv(csvUrl, data),
-	          t
+	          parsedCsv.rows,
+	          t,
+            parsedCsv.formatId
 	        );
 
         if (r[0]['startTimeEdit'] != null) {
@@ -835,6 +951,7 @@ export async function load_run(run, data, starTime = null) {
       if (meta?.name) {
         $("#vid").attr("src", dataProvider.getVideoUrl(selected_comp, run, meta.name));
       }
+      syncAnnotationVideoSelect(t, meta);
       vide_last_added_data();
       update_cycle_rapide();
       construct_time_entry();
@@ -852,7 +969,7 @@ export async function load_run(run, data, starTime = null) {
     }
   }
   
-  let is_dessus=megaData[0].videos.filter(d => videoMatchesType(d, "dessus"));
+  let is_dessus=megaData[0].videos.filter(d => videoMatchesType(d, "dessus") || videoMatchesType(d, "from_above"));
   if (is_dessus.length > 0) {
     $(".vid_dessus").show();
   } else {
@@ -919,6 +1036,333 @@ function parseCsvText(text) {
     });
 }
 
+function sportsdataCsvHeadersFromRows(rows) {
+    if (!Array.isArray(rows) || rows.length === 0) {
+        return [];
+    }
+    return Object.keys(rows[0] || {});
+}
+
+function supportedVideoFile(entry) {
+    const name = String(entry?.name || "");
+    return /\.(mp4|mov|m4v|webm)$/i.test(name);
+}
+
+function guessDistanceFromName(run, rows = []) {
+    const runMatch = String(run || "").match(/(?:^|[-_])(\d{2,4})m?(?:[-_]|$)/i);
+    if (runMatch) {
+        return String(parseInt(runMatch[1], 10));
+    }
+    const maxDistance = Math.max(
+        0,
+        ...rows.map((row) => Number(row.distanceSwam)).filter(Number.isFinite),
+        ...rows.map((row) => Number(row.distance)).filter(Number.isFinite)
+    );
+    if (maxDistance > 0) {
+        return String(Math.round(maxDistance));
+    }
+    return "50";
+}
+
+function guessStrokeFromName(run) {
+    const normalized = String(run || "").toLowerCase();
+    if (normalized.includes("back") || normalized.includes("dos")) return "backstroke";
+    if (normalized.includes("breast") || normalized.includes("brasse")) return "breaststroke";
+    if (normalized.includes("fly") || normalized.includes("papillon")) return "butterfly";
+    if (normalized.includes("free") || normalized.includes("crawl")) return "freestyle";
+    return "freestyle";
+}
+
+function guessSexFromName(run) {
+    const normalized = String(run || "").toLowerCase();
+    if (normalized.includes("women") || normalized.includes("femme")) return "femmes";
+    if (normalized.includes("men") || normalized.includes("homme")) return "hommes";
+    if (normalized.includes("mixed") || normalized.includes("mixte")) return "mixte";
+    return "hommes";
+}
+
+function guessRoundFromName(run) {
+    const normalized = String(run || "").toLowerCase();
+    if (normalized.includes("semi") || normalized.includes("demi")) return "demifinale";
+    if (normalized.includes("serie") || normalized.includes("heat")) return "serie";
+    if (normalized.includes("final")) return "finale";
+    return "finale";
+}
+
+function numericSwimmerIdsFromRows(rows) {
+    return [...new Set((rows || [])
+        .map((row) => Number(row.swimmerId))
+        .filter(Number.isFinite))]
+        .sort((left, right) => left - right);
+}
+
+function buildLaneMapFromRows(rows) {
+    const ids = numericSwimmerIdsFromRows(rows);
+    const laneMap = {};
+    for (const swimmerId of ids) {
+        const rowWithName = rows.find((row) => Number(row.swimmerId) === swimmerId && String(row.name || row.swimmerName || "").trim());
+        const name = String(rowWithName?.name || rowWithName?.swimmerName || "").trim();
+        laneMap[`ligne${swimmerId + 1}`] = name || `Swimmer ${swimmerId + 1}`;
+    }
+    if (Object.keys(laneMap).length === 0) {
+        for (let index = 0; index < 8; index += 1) {
+            laneMap[`ligne${index + 1}`] = `Swimmer ${index + 1}`;
+        }
+    }
+    return laneMap;
+}
+
+function defaultVideoEntry(filename, metadata = {}) {
+    const width = Number(metadata.width) || DEFAULT_VIDEO_WIDTH;
+    const height = Number(metadata.height) || DEFAULT_VIDEO_HEIGHT;
+    const corners = [[0, height], [width, height], [width, 0], [0, 0]];
+    return {
+        name: filename,
+        type_video: "from_above",
+        fps: Number(metadata.fps) || 50,
+        width,
+        height,
+        start_moment: Number(metadata.start_moment) || 0,
+        start_side: metadata.start_side || "left",
+        one_is_up: Boolean(metadata.one_is_up),
+        srcPts: corners,
+        destPts: corners
+    };
+}
+
+function entryExists(entries, filename) {
+    const expected = String(filename || "").split("/").pop();
+    return Boolean(expected) && (entries || []).some((entry) => entry?.name === expected);
+}
+
+function firstMatchingEntryName(entries, predicate) {
+    return (entries || []).find(predicate)?.name || "";
+}
+
+function chooseRunCsvName(rawMetadata, entries, parsedCsv) {
+    const explicitCsv = String(rawMetadata?.dataCSV || rawMetadata?.sourceSportsdata?.csv || "").split("/").pop();
+    if (entryExists(entries, explicitCsv)) {
+        return explicitCsv;
+    }
+    if (parsedCsv?.name) {
+        return parsedCsv.name;
+    }
+    return firstMatchingEntryName(entries, (entry) => entry?.name?.toLowerCase().endsWith(".csv"));
+}
+
+function chooseRunVideoName(rawMetadata, run, entries) {
+    const explicitVideo = String(rawMetadata?.video || rawMetadata?.videoName || "").split("/").pop();
+    if (entryExists(entries, explicitVideo)) {
+        return explicitVideo;
+    }
+    const runLower = String(run || "").toLowerCase();
+    return firstMatchingEntryName(entries, (entry) =>
+        supportedVideoFile(entry) && String(entry.name || "").toLowerCase().includes(runLower)
+    ) || firstMatchingEntryName(entries, supportedVideoFile);
+}
+
+function swimflowGenderToAquanote(value, run = "") {
+    const gender = String(value || "").toLowerCase();
+    if (gender === "women") return "femmes";
+    if (gender === "men") return "hommes";
+    if (gender === "mixed") return "mixte";
+    return guessSexFromName(run);
+}
+
+function swimflowStyleToAquanote(value, run = "") {
+    const style = String(value || "").toLowerCase();
+    if (style.includes("back")) return "backstroke";
+    if (style.includes("breast")) return "breaststroke";
+    if (style.includes("butterfly") || style.includes("fly")) return "butterfly";
+    if (style.includes("free")) return "freestyle";
+    return guessStrokeFromName(run);
+}
+
+function buildLaneMapFromSwimmersInfo(swimmersInfo) {
+    const rows = Array.isArray(swimmersInfo)
+        ? swimmersInfo.map((swimmer) => ({
+            swimmerId: swimmer?.swimmerId,
+            name: swimmer?.name
+        }))
+        : [];
+    return buildLaneMapFromRows(rows);
+}
+
+function swimflowMetadataToAquanote(rawMetadata, comp, run, entries = [], parsedCsv = null) {
+    const rows = parsedCsv?.rows || [];
+    const laneMap = rows.length > 0
+        ? buildLaneMapFromRows(rows)
+        : buildLaneMapFromSwimmersInfo(rawMetadata?.swimmersInfo);
+    const csvName = chooseRunCsvName(rawMetadata, entries, parsedCsv);
+    const videoName = chooseRunVideoName(rawMetadata, run, entries);
+    const distance = Number(rawMetadata?.distance) || Number(guessDistanceFromName(run, rows)) || 50;
+    const poolLength = Number(rawMetadata?.poolLapLength) || 50;
+    const fps = Number(rawMetadata?.framerate) || 50;
+    const startMoment = Number(rawMetadata?.raceStartTime) || 0;
+    const videos = videoName
+        ? [defaultVideoEntry(videoName, { fps, start_moment: startMoment })]
+        : [];
+
+    return {
+        name: run,
+        city: comp,
+        cup: rawMetadata?.level || comp,
+        distance: String(distance),
+        epreuve: guessRoundFromName(run),
+        lignes: laneMap,
+        nage: swimflowStyleToAquanote(rawMetadata?.style, run),
+        sexe: swimflowGenderToAquanote(rawMetadata?.gender, run),
+        one_is_up: false,
+        start_side: "left",
+        taille_piscine: [poolLength, Math.max(1, Object.keys(laneMap).length) * 2.5],
+        csvFiles: csvName ? [csvName] : [],
+        temps: {},
+        sourceSportsdata: {
+            format: detectSportsdataJsonFormatId(rawMetadata) || "formats.json.swimflow",
+            selectedJsonFormat: getSportsdataJsonFormatId(),
+            csv: csvName || rawMetadata?.dataCSV || "",
+            originalName: rawMetadata?.name || "",
+            defaultsSuggested: true,
+            missingMetadataFilled: ["city", "cup", "epreuve", "lignes", "videos", "taille_piscine"]
+        },
+        videos,
+        ncamera: videos.length
+    };
+}
+
+function normalizeRunMetadata(rawMetadata, comp, run, entries = [], parsedCsv = null) {
+    const detectedFormat = detectSportsdataJsonFormatId(rawMetadata);
+    const selectedFormat = getSportsdataJsonFormatId();
+    if (
+        detectedFormat === "formats.json.swimflow" ||
+        detectedFormat === "formats.json.swimflow-metadata" ||
+        (
+            selectedFormat !== "formats.json.swimming-event-config" &&
+            rawMetadata?.dataCSV &&
+            Array.isArray(rawMetadata?.swimmersInfo)
+        )
+    ) {
+        return swimflowMetadataToAquanote(rawMetadata, comp, run, entries, parsedCsv);
+    }
+    return rawMetadata;
+}
+
+function errorMessage(error) {
+    if (!error) {
+        return "Unknown error";
+    }
+    if (error instanceof Error && error.message) {
+        return error.message;
+    }
+    return String(error);
+}
+
+function formatCsvFailures(failures = []) {
+    if (!failures.length) {
+        return "No CSV file was available to try.";
+    }
+    return failures.map((failure) => {
+        const reasons = (failure.reasons || []).length
+            ? failure.reasons.join("; ")
+            : "No validation details returned.";
+        return `${failure.name}: ${reasons}`;
+    }).join("\n");
+}
+
+async function readFirstSupportedSportsdataCsv(comp, run, entries, diagnostics = null) {
+    const csvEntries = (entries || []).filter((entry) => entry?.name && entry.name.toLowerCase().endsWith(".csv"));
+    if (diagnostics) {
+        diagnostics.csvFiles = csvEntries.map((entry) => entry.name);
+        diagnostics.csvFailures = diagnostics.csvFailures || [];
+    }
+    for (const entry of csvEntries) {
+        try {
+            const csvUrl = dataProvider.getVideoUrl(comp, run, entry.name);
+            const parsed = await validateAndParseSportsdataCsv(csvUrl, entry.name);
+            return {
+                ...parsed,
+                name: entry.name
+            };
+        } catch (error) {
+            console.warn(`Could not use ${entry.name} as sportsdata CSV for ${comp}/${run}:`, error);
+            diagnostics?.csvFailures?.push({
+                name: entry.name,
+                reasons: [errorMessage(error)]
+            });
+        }
+    }
+    return null;
+}
+
+async function buildFallbackRunMetadata(comp, run, originalError) {
+    const entries = await dataProvider.getDatas(comp, run);
+    const diagnostics = { csvFiles: [], csvFailures: [] };
+    const parsedCsv = await readFirstSupportedSportsdataCsv(comp, run, entries, diagnostics);
+    const rows = parsedCsv?.rows || [];
+    const videoEntry = (entries || []).find(supportedVideoFile);
+
+    if (!videoEntry && !parsedCsv) {
+        throw new Error([
+            `Could not load metadata for ${comp}/${run}.`,
+            `JSON metadata failed: ${errorMessage(originalError)}`,
+            `Run files found: ${(entries || []).map((entry) => entry?.name).filter(Boolean).join(", ") || "none"}`,
+            `Sportsdata CSV failed:\n${formatCsvFailures(diagnostics.csvFailures)}`
+        ].join("\n"));
+    }
+
+    const laneMap = buildLaneMapFromRows(rows);
+    const distance = guessDistanceFromName(run, rows);
+    const metadata = {
+        name: run,
+        city: comp,
+        cup: comp,
+        distance,
+        epreuve: guessRoundFromName(run),
+        lignes: laneMap,
+        nage: guessStrokeFromName(run),
+        sexe: guessSexFromName(run),
+        one_is_up: false,
+        start_side: "left",
+        taille_piscine: [50, 20],
+        csvFiles: parsedCsv ? [parsedCsv.name] : [],
+        sourceSportsdata: parsedCsv ? {
+            format: parsedCsv.formatId,
+            csv: parsedCsv.name,
+            defaultsSuggested: true,
+            missingMetadataFilled: ["city", "cup", "distance", "epreuve", "lignes", "nage", "sexe", "videos"],
+            loadDiagnostics: diagnostics
+        } : {
+            defaultsSuggested: true,
+            missingMetadataFilled: ["city", "cup", "distance", "epreuve", "lignes", "nage", "sexe", "videos"],
+            loadDiagnostics: diagnostics
+        },
+        videos: videoEntry ? [defaultVideoEntry(videoEntry.name)] : [],
+    };
+    metadata.ncamera = metadata.videos.length;
+    console.info(`Built default Aquanote metadata for ${comp}/${run}`, metadata);
+    return metadata;
+}
+
+async function loadRunMetadata(comp, run) {
+    try {
+        const rawMetadata = await dataProvider.loadRunJson(comp, run);
+        const entries = await dataProvider.getDatas(comp, run).catch(() => []);
+        const jsonFormatId = detectSportsdataJsonFormatId(rawMetadata);
+        const diagnostics = { csvFiles: [], csvFailures: [] };
+        const parsedCsv = (jsonFormatId === "formats.json.swimflow" || jsonFormatId === "formats.json.swimflow-metadata")
+            ? await readFirstSupportedSportsdataCsv(comp, run, entries, diagnostics)
+            : null;
+        const metadata = normalizeRunMetadata(rawMetadata, comp, run, entries, parsedCsv);
+        if (metadata?.sourceSportsdata && diagnostics.csvFiles.length) {
+            metadata.sourceSportsdata.loadDiagnostics = diagnostics;
+        }
+        return metadata;
+    } catch (error) {
+        console.warn(`Run JSON missing or invalid for ${comp}/${run}; trying sportsdata fallback metadata.`, error);
+        return buildFallbackRunMetadata(comp, run, error);
+    }
+}
+
 function csvEntry(name) {
     return { name, type: "file" };
 }
@@ -946,7 +1390,7 @@ async function collectRunCsvEntries(comp, run) {
     }
 
     try {
-        const metadata = await dataProvider.loadRunJson(comp, run);
+        const metadata = await loadRunMetadata(comp, run);
         for (const csvName of metadata?.csvFiles || []) {
             addUniqueCsvEntry(entries, seen, csvName);
         }
@@ -962,31 +1406,28 @@ async function collectRunCsvEntries(comp, run) {
 }
 
 async function filterSportsdataCsvFiles(comp, run, entries) {
-    const formatId = getSportsdataLoadFormatId();
     const csvFiles = (entries || []).filter((entry) => entry?.name && entry.name.toLowerCase().endsWith(".csv"));
     console.info(`[Sportsdata CSV] Found ${csvFiles.length} CSV file(s) for ${comp}/${run}`, csvFiles.map((entry) => entry.name));
     const validationResults = await Promise.all(csvFiles.map(async (entry) => {
         const csvUrl = dataProvider.getVideoUrl(comp, run, entry.name);
         try {
-            const result = await validateCsvUrlHeaders(csvUrl, { formatId });
-            const errors = result.issues.filter((issue) => (issue.severity || "error") === "error");
-            if (errors.length === 0) {
+            const result = await inspectSportsdataCsv(csvUrl);
+            if (result.ok) {
                 console.info(`[Sportsdata CSV] Accepted ${entry.name}`, {
-                    format: formatId,
-                    headers: result.headers
+                    format: result.formatId,
+                    headers: result.headers,
+                    warnings: result.warnings
                 });
                 return entry;
             }
             console.warn(`[Sportsdata CSV] Rejected ${entry.name}`, {
-                format: formatId,
                 url: csvUrl,
                 headers: result.headers,
-                reasons: errors.map(formatValidationIssue)
+                reasons: result.reasons
             });
             return null;
         } catch (error) {
             console.warn(`[Sportsdata CSV] Rejected ${entry.name}`, {
-                format: formatId,
                 url: csvUrl,
                 reasons: [error?.message || String(error)]
             });
@@ -1001,25 +1442,76 @@ function shouldValidateSwimmingTrackingCsv(data) {
     return Boolean(data && data !== "new_data" && !String(data).includes("automatique"));
 }
 
+async function inspectSportsdataCsv(csvUrl) {
+    const preferredFormatId = getSportsdataLoadFormatId();
+    const formatIds = [...new Set([preferredFormatId, AUTO_SPORTSDATA_CSV_FORMAT])];
+    const failures = [];
+
+    for (const formatId of formatIds) {
+        try {
+            const result = await validateCsvUrlHeaders(csvUrl, { formatId });
+            const errors = result.issues.filter((issue) => (issue.severity || "error") === "error");
+            const warnings = result.issues
+                .filter((issue) => (issue.severity || "error") !== "error")
+                .map(formatValidationIssue);
+            if (errors.length === 0) {
+                return {
+                    ok: true,
+                    result,
+                    text: result.text,
+                    rows: parseCsvText(result.text),
+                    headers: result.headers,
+                    formatId: result.formatId || formatId,
+                    warnings
+                };
+            }
+            failures.push({
+                formatId: result.formatId || formatId,
+                headers: result.headers,
+                reasons: errors.map(formatValidationIssue)
+            });
+        } catch (error) {
+            failures.push({
+                formatId,
+                headers: [],
+                reasons: [error?.message || String(error)]
+            });
+        }
+    }
+
+    const firstFailure = failures[0] || {};
+    return {
+        ok: false,
+        headers: firstFailure.headers || [],
+        formatFailures: failures,
+        reasons: failures.flatMap((failure) =>
+            (failure.reasons || []).map((reason) => `${failure.formatId}: ${reason}`)
+        )
+    };
+}
+
 async function validateAndParseSportsdataCsv(csvUrl, data) {
-    const formatId = getSportsdataLoadFormatId();
-    const result = await validateCsvUrlHeaders(csvUrl, {
-        formatId
-    });
-    const issueMessages = result.issues
-        .filter((issue) => (issue.severity || "error") === "error")
-        .map(formatValidationIssue);
-    if (issueMessages.length > 0) {
-        const message = `Sportsdata CSV header validation failed for ${data}:\n${issueMessages.join("\n")}`;
+    const result = await inspectSportsdataCsv(csvUrl);
+    if (!result.ok) {
+        const message = [
+            `Sportsdata CSV validation failed for ${data}.`,
+            `URL: ${csvUrl}`,
+            `Detected headers: ${(result.headers || []).join(", ") || "none"}`,
+            `Reasons:\n${result.reasons.join("\n") || "No detailed reason returned."}`
+        ].join("\n");
         console.error(message);
         throw new Error(message);
     }
 
     console.log(`Sportsdata CSV header validation ok for ${data}`, {
-        format: formatId,
-        headers: result.headers
+        format: result.formatId,
+        headers: result.headers,
+        warnings: result.warnings
     });
-    return parseCsvText(result.text);
+    return {
+        rows: result.rows,
+        formatId: result.formatId
+    };
 }
 
 function formatSportsdataNumber(value) {
@@ -1077,9 +1569,69 @@ function normalizeBasicTrackingRows(rows, metadata) {
     });
 }
 
-function normalizeSportsdataRows(rows, metadata) {
-    if (getSportsdataLoadFormatId() === "formats.csv.swimming-basic-tracking") {
+function normalizeSwimflowEventName(value) {
+    const event = String(value || "").trim();
+    if (!event) return "cycle";
+    if (event === "end") return "finish";
+    return event;
+}
+
+function normalizeSwimflowRows(rows, metadata) {
+    const poolLength = Number(metadata?.taille_piscine?.[0]) || 50;
+    const poolWidth = Number(metadata?.taille_piscine?.[1]) || 20;
+    const laneKeys = getLaneKeysFromRaceMetadata(metadata);
+    const laneCount = Math.max(1, laneKeys.length);
+    const swimmers = metadata?.lignes || {};
+    const swimmerIds = numericSwimmerIdsFromRows(rows);
+    const swimmerIdToLaneIndex = new Map(swimmerIds.map((swimmerId, index) => [swimmerId, index]));
+
+    return rows.map((row) => {
+        const rawSwimmerId = Number(row.swimmerId);
+        const rawLaneIndex = laneKeys.indexOf(`ligne${rawSwimmerId + 1}`);
+        const swimmerId = rawLaneIndex >= 0
+            ? rawLaneIndex
+            : swimmerIdToLaneIndex.get(rawSwimmerId) ?? 0;
+        const laneIndex = Math.max(0, Math.min(laneCount - 1, swimmerId));
+        const lane = laneKeys[laneIndex] || `ligne${laneIndex + 1}`;
+        const distanceSwam = formatSportsdataNumber(row.distanceSwam);
+        const xMiddle = Number(row.x_middle);
+        const eventX = Number.isFinite(xMiddle)
+            ? Math.max(0, Math.min(poolLength, xMiddle))
+            : Math.max(0, Math.min(poolLength, distanceSwam % poolLength));
+        const eventY = (laneIndex + 0.5) * (poolWidth / laneCount);
+        const elapsed = formatSportsdataNumber(row.elapsed);
+        const event = normalizeSwimflowEventName(row.event);
+        const swimmerName = String(row.name || swimmers[lane] || `Swimmer ${laneIndex + 1}`).trim();
+
+        return {
+            ...row,
+            frameId: Number(row.frameId),
+            swimmerId,
+            swimmerName,
+            lane,
+            cumul: distanceSwam,
+            eventId: event,
+            eventX,
+            eventY,
+            event,
+            "TempsVideo (s)": elapsed,
+            "Temps (s)": elapsed,
+            "distance (m)": distanceSwam,
+            "tempo (s)": row.elapsed || "",
+            "frequence (cylce/min)": "",
+            "amplitude (m)": row.strokeDistance || "",
+            "vitesse (m/s)": row.speed || ""
+        };
+    });
+}
+
+function normalizeSportsdataRows(rows, metadata, formatId = getSportsdataLoadFormatId()) {
+    const resolvedFormatId = formatId || detectSportsdataCsvFormatId(sportsdataCsvHeadersFromRows(rows));
+    if (resolvedFormatId === "formats.csv.swimming-basic-tracking") {
         return normalizeBasicTrackingRows(rows, metadata);
+    }
+    if (resolvedFormatId === "formats.csv.swimflow") {
+        return normalizeSwimflowRows(rows, metadata);
     }
     return rows;
 }

@@ -4,10 +4,11 @@ import {
     getApiBaseUrl,
     getDataSourceMode,
     getLocalServerUrl,
+    getSportsdataJsonFormatId,
     getSportsdataLoadFormatId,
     getSportsdataSaveFormatId
 } from "./local_api.js";
-import { SPORTS_DATA_CSV_FORMATS } from "./sportsdata.js";
+import { SPORTS_DATA_CSV_FORMATS, SPORTS_DATA_JSON_FORMATS } from "./sportsdata.js";
 
 function getElement(id) {
     return document.getElementById(id);
@@ -22,12 +23,12 @@ function setStatus(message, state = "") {
     status.dataset.state = state;
 }
 
-function syncFormatSelect(select, value) {
+function syncFormatSelect(select, value, formats = SPORTS_DATA_CSV_FORMATS) {
     if (!select) {
         return;
     }
 
-    select.replaceChildren(...SPORTS_DATA_CSV_FORMATS.map((format) => {
+    select.replaceChildren(...formats.map((format) => {
         const option = document.createElement("option");
         option.value = format.id;
         option.textContent = format.title;
@@ -40,6 +41,7 @@ function syncConfigurationForm() {
     const sourceSelect = getElement("config_source_select");
     const localServerInput = getElement("config_local_server_url");
     const apiInput = getElement("config_api_url");
+    const sportsdataJsonFormatSelect = getElement("config_sportsdata_json_format");
     const sportsdataLoadFormatSelect = getElement("config_sportsdata_load_format");
     const sportsdataSaveFormatSelect = getElement("config_sportsdata_save_format");
 
@@ -52,14 +54,16 @@ function syncConfigurationForm() {
     if (apiInput) {
         apiInput.value = getApiBaseUrl();
     }
-    syncFormatSelect(sportsdataLoadFormatSelect, getSportsdataLoadFormatId());
-    syncFormatSelect(sportsdataSaveFormatSelect, getSportsdataSaveFormatId());
+    syncFormatSelect(sportsdataJsonFormatSelect, getSportsdataJsonFormatId(), SPORTS_DATA_JSON_FORMATS);
+    syncFormatSelect(sportsdataLoadFormatSelect, getSportsdataLoadFormatId(), SPORTS_DATA_CSV_FORMATS);
+    syncFormatSelect(sportsdataSaveFormatSelect, getSportsdataSaveFormatId(), SPORTS_DATA_CSV_FORMATS);
 }
 
 function applyConfiguration() {
     const source = getElement("config_source_select")?.value || DEFAULTS.source;
     const localServerUrl = getElement("config_local_server_url")?.value || DEFAULTS.localServerUrl;
     const apiBaseUrl = getElement("config_api_url")?.value || DEFAULTS.apiBaseUrl;
+    const sportsdataJsonFormat = getElement("config_sportsdata_json_format")?.value || DEFAULTS.sportsdataJsonFormat;
     const sportsdataLoadFormat = getElement("config_sportsdata_load_format")?.value || DEFAULTS.sportsdataLoadFormat;
     const sportsdataSaveFormat = getElement("config_sportsdata_save_format")?.value || DEFAULTS.sportsdataSaveFormat;
 
@@ -68,6 +72,7 @@ function applyConfiguration() {
         source,
         localServerUrl,
         apiBaseUrl,
+        sportsdataJsonFormat,
         sportsdataLoadFormat,
         sportsdataSaveFormat
     }));
@@ -79,6 +84,7 @@ function resetConfiguration() {
         source: DEFAULTS.source,
         localServerUrl: DEFAULTS.localServerUrl,
         apiBaseUrl: DEFAULTS.apiBaseUrl,
+        sportsdataJsonFormat: DEFAULTS.sportsdataJsonFormat,
         sportsdataLoadFormat: DEFAULTS.sportsdataLoadFormat,
         sportsdataSaveFormat: DEFAULTS.sportsdataSaveFormat
     }));

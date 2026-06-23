@@ -122,26 +122,10 @@ export function get_orr(p1, p2) {
  * @param D3Instance utile pour les tests automatisés
  * @return les 2 points délimitant chaque barre tracée dans l'application
  */
-export function getPoolBar(x, meta,D3Instance=d3) {
-    pool_vid_xscale = d3.scaleLinear([0, pool_size[0]], [1920, 0]);
-    pool_vid_yscale = d3.scaleLinear([0, pool_size[1]], [1080, 0]);
-
-    let try_scale = D3Instance.scaleLinear([0, 360], [0, 1080])
-    let trx_scale = D3Instance.scaleLinear([0, 900], [0, 960])
-
-    let src_tmeta = meta.srcPts.map(d => [d[0], d[1]]) // Does their vids' x are from right to left?
-    let dst_tmeta = meta.destPts.map(d => [trx_scale(d[0]), try_scale(d[1])]) // This is in from_above reference
-
-    
-    let srcCorners = src_tmeta.flat()
-    let dstCorners = dst_tmeta.flat()
-
-    let perspT = new PerspT(dstCorners, srcCorners);
-    
-    let srcPt1 = [(pool_vid_xscale(x) / 2), pool_vid_yscale(0)];
-    let srcPt2 = [(pool_vid_xscale(x) / 2), pool_vid_yscale(pool_size[1])];
-    //console.log(srcPt1,srcPt2," bons source points",x,"le x")
-    let dstPt1 = perspT.transform(srcPt1[0], srcPt1[1]);
-    let dstPt2 = perspT.transform(srcPt2[0], srcPt2[1]);
-    return [dstPt1, dstPt2]
+export function getPoolBar(x, meta) {
+    const [dstPt1, dstPt2] = getPoolLaneSegment(x, 0, 1, pool_size, meta, PerspT);
+    if (!dstPt1 || !dstPt2) {
+        return [[0, 0], [0, 0]];
+    }
+    return [[dstPt1[0], dstPt1[1]], [dstPt2[0], dstPt2[1]]]
 };

@@ -10,6 +10,11 @@ const DEFAULT_SPORTSDATA_BASE_URL = new URL("../sportsdata/", import.meta.url).h
 
 export const SPORTS_DATA_CSV_FORMATS = [
     {
+        id: "formats.csv.auto",
+        title: "Auto-detect sportsdata CSV",
+        rulesId: null
+    },
+    {
         id: "formats.csv.swimming-tracking",
         title: "Swimming tracking CSV",
         rulesId: "rules.swimming.tracking-csv"
@@ -18,14 +23,78 @@ export const SPORTS_DATA_CSV_FORMATS = [
         id: "formats.csv.swimming-basic-tracking",
         title: "Swimming basic tracking CSV",
         rulesId: "rules.swimming.basic-tracking-csv"
+    },
+    {
+        id: "formats.csv.swimflow",
+        title: "Swimflow CSV",
+        rulesId: "rules.swimming.swimflow-csv"
     }
 ];
 
 export const DEFAULT_SPORTSDATA_CSV_FORMAT = SPORTS_DATA_CSV_FORMATS[0].id;
 
+export const SPORTS_DATA_JSON_FORMATS = [
+    {
+        id: "formats.json.auto",
+        title: "Auto-detect sportsdata JSON",
+        schema: null
+    },
+    {
+        id: "formats.json.swimming-event-config",
+        title: "Swimming event config JSON",
+        schema: "models/schemas/swimming/event-config.schema.json"
+    },
+    {
+        id: "formats.json.swimflow",
+        title: "Swimflow JSON",
+        schema: "models/schemas/swimming/swimflow-metadata.schema.json"
+    },
+    {
+        id: "formats.json.swimflow-metadata",
+        title: "Swimflow metadata JSON",
+        schema: "models/schemas/swimming/swimflow-metadata.schema.json"
+    },
+    {
+        id: "formats.json.table-tennis-game",
+        title: "Table-tennis game JSON",
+        schema: "models/schemas/table-tennis/game.schema.json"
+    },
+    {
+        id: "formats.json.table-tennis-match-manifest",
+        title: "Table-tennis match manifest JSON",
+        schema: "models/schemas/table-tennis/match-manifest.schema.json"
+    }
+];
+
+export const DEFAULT_SPORTSDATA_JSON_FORMAT = SPORTS_DATA_JSON_FORMATS[0].id;
+
 export function normalizeSportsdataCsvFormatId(value, fallback = DEFAULT_SPORTSDATA_CSV_FORMAT) {
     const id = String(value || "").trim();
     return SPORTS_DATA_CSV_FORMATS.some((format) => format.id === id) ? id : fallback;
+}
+
+export function normalizeSportsdataJsonFormatId(value, fallback = DEFAULT_SPORTSDATA_JSON_FORMAT) {
+    const id = String(value || "").trim();
+    return SPORTS_DATA_JSON_FORMATS.some((format) => format.id === id) ? id : fallback;
+}
+
+export function detectSportsdataJsonFormatId(value) {
+    if (!value || typeof value !== "object" || Array.isArray(value)) {
+        return null;
+    }
+    if (value.dataCSV && Array.isArray(value.swimmersInfo)) {
+        return "formats.json.swimflow";
+    }
+    if (value.sport === "table-tennis" && (Array.isArray(value.players) || value.playerA || value.playerB)) {
+        return "formats.json.table-tennis-game";
+    }
+    if (value.competition_json_metadata && Array.isArray(value.matches)) {
+        return "formats.json.table-tennis-match-manifest";
+    }
+    if (value.distance && value.lignes && Array.isArray(value.videos)) {
+        return "formats.json.swimming-event-config";
+    }
+    return null;
 }
 
 export async function fetchCatalog(path, baseUrl = "") {
@@ -46,16 +115,43 @@ export function toSelectOptions(catalog) {
 }
 
 function csvFormatDeclarationPath(formatId) {
+    if (formatId === "formats.csv.auto") {
+        throw new Error("Auto-detected CSV formats do not have a declaration path");
+    }
     if (formatId === "formats.csv.swimming-tracking" || formatId === "swimming-tracking-csv") {
         return "models/formats/csv/swimming-tracking.table-schema.json";
     }
     if (formatId === "formats.csv.swimming-basic-tracking" || formatId === "swimming-basic-tracking-csv") {
         return "models/formats/csv/swimming-basic-tracking.table-schema.json";
     }
+    if (formatId === "formats.csv.swimflow" || formatId === "swimflow-csv" || formatId === "swimming-swimflow-csv") {
+        return "models/formats/csv/swimflow.table-schema.json";
+    }
     if (formatId.startsWith("formats.csv.")) {
         return `models/formats/csv/${formatId.replace("formats.csv.", "")}.table-schema.json`;
     }
     throw new Error(`Unknown CSV format ${formatId}`);
+}
+
+export function detectSportsdataCsvFormatId(headers) {
+    const headerSet = new Set((headers || []).map((header) => String(header || "").trim()));
+    const hasAll = (...names) => names.every((name) => headerSet.has(name));
+    const hasAny = (...names) => names.some((name) => headerSet.has(name));
+
+    if (hasAll("frameId", "swimmerId", "event") && hasAny("x_middle", "xa_above", "xb_above", "distanceSwam", "elapsed")) {
+        return "formats.csv.swimflow";
+    }
+    if (hasAll("frameId", "swimmerId", "eventId", "time", "distance")) {
+        return "formats.csv.swimming-basic-tracking";
+    }
+    if (
+        hasAll("frameId", "swimmerId") &&
+        (hasAll("eventX", "eventY") || hasAll("cycleX", "cycleY")) &&
+        hasAny("event", "eventId")
+    ) {
+        return "formats.csv.swimming-tracking";
+    }
+    return null;
 }
 
 function parseCsvHeaderLine(line, delimiter = ",") {
@@ -286,14 +382,22 @@ export function validateCsvTextHeaders(text, rules) {
 
 export async function validateCsvUrlHeaders(url, options = {}) {
     const formatId = options.formatId || "formats.csv.swimming-tracking";
-    const rules = await fetchCsvRules(formatId, options.baseUrl || DEFAULT_SPORTSDATA_BASE_URL);
     const response = await fetch(url);
     if (!response.ok) {
         throw new Error(`Unable to load CSV ${url}: ${response.status}`);
     }
     const text = await response.text();
+    const headers = parseCsvRecords(text, ",")[0] || parseCsvHeaderLine(firstCsvRecord(text), ",");
+    const resolvedFormatId = formatId === "formats.csv.auto"
+        ? detectSportsdataCsvFormatId(headers)
+        : formatId;
+    if (!resolvedFormatId) {
+        throw new Error(`Unable to detect supported sportsdata CSV format for ${url}`);
+    }
+    const rules = await fetchCsvRules(resolvedFormatId, options.baseUrl || DEFAULT_SPORTSDATA_BASE_URL);
     return {
         text,
+        formatId: resolvedFormatId,
         rules,
         ...validateCsvTextHeaders(text, rules)
     };

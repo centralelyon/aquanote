@@ -1,5 +1,5 @@
 import ImgCtrlPts from "./vendor/ImgCtrlPts.js";
-import { megaData, pool_size, selected_comp, selected_run } from "./loader.js";
+import { megaData, pool_size, selected_comp, selected_run, videoMatchesType } from "./loader.js";
 import { getMeta } from "./utils.js";
 import { refreshVideoSurface } from "./video_surface.js";
 import { canWriteMetadata, getLocalApiUrl, isStaticDataSource } from "./local_api.js";
@@ -35,6 +35,7 @@ const referenceImagePromises = new Map();
 const videoSnapshotPromises = new Map();
 let updateFrame = null;
 let flashControl = null;
+let generationPollTimer = null;
 
 function positiveNumber(...values) {
     for (const value of values) {
@@ -727,11 +728,14 @@ function videosForCalibration(videos) {
     if (!Array.isArray(videos) || videos.length <= 1) {
         return videos || [];
     }
-    const sideVideos = videos.filter((video) => {
+    const calibrationVideos = videos.filter((video) => {
         const type = String(video?.type_video || video?.name || "").toLowerCase();
-        return type.includes("fixegauche") || type.includes("fixedroite");
+        return type.includes("fixegauche")
+            || type.includes("fixedroite")
+            || type.includes("from_above")
+            || type.includes("dessus");
     });
-    return sideVideos.length >= 2 ? sideVideos : videos;
+    return calibrationVideos.length >= 1 ? calibrationVideos : videos;
 }
 
 function clearCalibrationWorkspaces(container) {
@@ -1003,6 +1007,281 @@ function schedulePreviewUpdate() {
     });
 }
 
+function clearGenerationPoll() {
+    if (generationPollTimer != null) {
+        clearTimeout(generationPollTimer);
+        generationPollTimer = null;
+    }
+}
+
+function setGenerationButtonState(disabled) {
+    const button = getElement("config_generate_above");
+    if (!button) {
+        return;
+    }
+
+    button.disabled = disabled || !canWriteMetadata();
+    button.title = canWriteMetadata()
+        ? ""
+        : "Mode statique: la generation locale est indisponible.";
+}
+
+function updateGenerationPanel(job = null) {
+    const panel = getElement("config_generate_panel");
+    const progress = getElement("config_generate_progress");
+    const label = getElement("config_generate_progress_label");
+    const code = getElement("config_generate_code");
+    const result = getElement("config_generate_result");
+    const video = getElement("config_generate_video");
+    if (!panel || !progress || !label || !code || !result || !video) {
+        return;
+    }
+
+    if (!job) {
+        panel.hidden = true;
+        progress.value = 0;
+        label.textContent = "0%";
+        code.textContent = "";
+        result.hidden = true;
+        result.removeAttribute("href");
+        video.hidden = true;
+        video.removeAttribute("src");
+        video.load?.();
+        return;
+    }
+
+    const value = Math.max(0, Math.min(100, Number(job.progress) || 0));
+    panel.hidden = false;
+    progress.value = value;
+    label.textContent = `${Math.round(value)}%`;
+    code.textContent = job.command || "";
+    result.hidden = job.status !== "done" || !job.output_url;
+    if (!result.hidden) {
+        ensureGeneratedVideoInMetadata(job);
+        const cacheKey = encodeURIComponent(String(job.updated_at || Date.now()));
+        const videoUrl = getLocalApiUrl(`${job.output_url}?t=${cacheKey}`);
+        result.href = videoUrl;
+        result.textContent = `Ouvrir ${job.output || "la video generee"}`;
+        if (video.src !== videoUrl) {
+            video.src = videoUrl;
+            video.hidden = false;
+            video.load?.();
+            video.play?.().catch(() => {
+                // Browsers can block autoplay; controls remain visible.
+            });
+        }
+    } else {
+        video.hidden = true;
+    }
+}
+
+function ensureGeneratedVideoInMetadata(job) {
+    const metadata = megaData?.[0];
+    const video = job?.video;
+    if (!metadata || !video?.name) {
+        return;
+    }
+
+    const videos = Array.isArray(metadata.videos) ? metadata.videos : [];
+    metadata.videos = videos;
+    const existingIndex = videos.findIndex((entry) => (
+        entry.name === video.name
+        || videoMatchesType(entry, "from_above")
+        || videoMatchesType(entry, "dessus")
+    ));
+    if (existingIndex >= 0) {
+        videos[existingIndex] = { ...videos[existingIndex], ...video };
+    } else {
+        videos.push(video);
+    }
+    metadata.ncamera = videos.length;
+    syncAnnotationVideoSelect(metadata, video.name);
+    window.dispatchEvent(new CustomEvent("metadata-updated", { detail: { metadata } }));
+}
+
+function removeGeneratedVideoFromMetadata(metadata = megaData?.[0]) {
+    if (!metadata || !Array.isArray(metadata.videos)) {
+        return;
+    }
+    metadata.videos = metadata.videos.filter((entry) => (
+        !videoMatchesType(entry, "from_above")
+        && !videoMatchesType(entry, "dessus")
+    ));
+    metadata.ncamera = metadata.videos.length;
+    syncAnnotationVideoSelect(metadata, metadata.videos[0]?.name || "");
+    window.dispatchEvent(new CustomEvent("metadata-updated", { detail: { metadata } }));
+}
+
+function syncAnnotationVideoSelect(metadata, selectedName) {
+    const container = getElement("annotation_video_buttons");
+    const videos = Array.isArray(metadata?.videos) ? metadata.videos : [];
+    if (!container) {
+        return;
+    }
+    const legacySwitch = getElement("vidsw");
+    if (legacySwitch) {
+        legacySwitch.hidden = videos.length > 0;
+    }
+    container.replaceChildren(...videos.map((video, index) => {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "annotation-video-button";
+        button.dataset.videoName = video.name || "";
+        button.dataset.videoIndex = String(index);
+        button.textContent = annotationVideoLabel(video, index);
+        button.dataset.active = selectedName && video.name === selectedName ? "true" : "false";
+        return button;
+    }));
+    container.hidden = videos.length === 0;
+}
+
+async function deleteFromAboveVideo() {
+    if (!canWriteMetadata()) {
+        setStatus("Mode statique: suppression indisponible sans serveur local.", "error");
+        return;
+    }
+    if (!selected_comp || !selected_run) {
+        setStatus("Chargez une course avant de supprimer la vue de dessus.", "empty");
+        return;
+    }
+
+    const button = getElement("config_delete_above");
+    if (button) {
+        button.disabled = true;
+    }
+    try {
+        const response = await fetch(getLocalApiUrl("/deleteFromAbove"), {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                competition: selected_comp,
+                run: selected_run
+            })
+        });
+        if (!response.ok) {
+            throw new Error(await response.text() || `HTTP ${response.status}`);
+        }
+        const payload = await response.json();
+        if (payload.metadata && megaData?.[0]) {
+            Object.keys(megaData[0]).forEach((key) => delete megaData[0][key]);
+            Object.assign(megaData[0], payload.metadata);
+            syncAnnotationVideoSelect(megaData[0], megaData[0].videos?.[0]?.name || "");
+            window.dispatchEvent(new CustomEvent("metadata-updated", { detail: { metadata: megaData[0] } }));
+        } else {
+            removeGeneratedVideoFromMetadata();
+        }
+        updateGenerationPanel(null);
+        await renderConfiguration();
+        setStatus("Vue de dessus supprimee.", "saved");
+    } catch (error) {
+        setStatus(`Suppression impossible: ${error.message}`, "error");
+    } finally {
+        if (button) {
+            button.disabled = !canWriteMetadata();
+        }
+    }
+}
+
+function annotationVideoLabel(video, index) {
+    if (videoMatchesType(video, "fixeGauche")) {
+        return "gauche";
+    }
+    if (videoMatchesType(video, "fixeDroite")) {
+        return "droite";
+    }
+    if (videoMatchesType(video, "from_above") || videoMatchesType(video, "dessus")) {
+        return "dessus";
+    }
+    return video.type_video || video.name || `video ${index + 1}`;
+}
+
+async function pollGenerationJob(jobId) {
+    clearGenerationPoll();
+    try {
+        const response = await fetch(getLocalApiUrl(`/generateFromAbove/${jobId}`));
+        if (!response.ok) {
+            throw new Error(await response.text() || `HTTP ${response.status}`);
+        }
+
+        const job = await response.json();
+        updateGenerationPanel(job);
+        if (job.status === "done") {
+            setGenerationButtonState(false);
+            setStatus(`Vue de dessus generee: ${job.output}`, "saved");
+            return;
+        }
+        if (job.status === "error") {
+            setGenerationButtonState(false);
+            const details = job.stderr ? ` ${job.stderr.slice(0, 240)}` : "";
+            setStatus(`Generation echouee: ${job.message || "erreur inconnue"}.${details}`, "error");
+            return;
+        }
+
+        generationPollTimer = setTimeout(() => pollGenerationJob(jobId), 1000);
+    } catch (error) {
+        setGenerationButtonState(false);
+        setStatus(`Suivi de generation indisponible: ${error.message}`, "error");
+    }
+}
+
+async function startFromAboveGeneration() {
+    if (!canWriteMetadata()) {
+        setStatus("Mode statique: demarrez le serveur local pour generer une vue de dessus.", "error");
+        return;
+    }
+    if (!selected_comp || !selected_run || !megaData?.[0]) {
+        setStatus("Chargez une course avant de generer la vue de dessus.", "empty");
+        return;
+    }
+    if (calibrationWorkspaces.length === 0 || !activeMeta) {
+        await renderConfiguration();
+    }
+
+    const invalidRecord = calibrationWorkspaces.find((record) => {
+        const calibration = extractCalibrationValue(record);
+        return !calibration || calibration.pointCount < 4;
+    });
+    if (invalidRecord) {
+        setStatus("Au moins 4 paires de points sont necessaires pour generer la vue de dessus.", "error");
+        return;
+    }
+
+    applyVisibleCalibrationsToMetadata();
+    updatePreview();
+    clearGenerationPoll();
+    updateGenerationPanel({
+        status: "queued",
+        progress: 5,
+        message: "Generation queued.",
+        command: "Preparation de la commande Python..."
+    });
+    setGenerationButtonState(true);
+    setStatus("Generation de la vue de dessus en cours...", "ready");
+
+    try {
+        const response = await fetch(getLocalApiUrl("/generateFromAbove"), {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                competition: selected_comp,
+                run: selected_run,
+                metadata: megaData[0]
+            })
+        });
+        if (!response.ok) {
+            throw new Error(await response.text() || `HTTP ${response.status}`);
+        }
+
+        const job = await response.json();
+        updateGenerationPanel(job);
+        pollGenerationJob(job.id);
+    } catch (error) {
+        updateGenerationPanel(null);
+        setGenerationButtonState(false);
+        setStatus(`Generation impossible: ${error.message}`, "error");
+    }
+}
+
 async function renderConfiguration() {
     const container = getElement("config_warp_workspace");
     if (!container) {
@@ -1148,11 +1427,13 @@ function bindControls() {
     getElement("config_save")?.addEventListener("click", saveConfiguration);
     getElement("config_flash_add")?.addEventListener("click", addFlashConfiguration);
     getElement("config_flash_save")?.addEventListener("click", saveFlashConfiguration);
+    getElement("config_generate_above")?.addEventListener("click", startFromAboveGeneration);
+    getElement("config_delete_above")?.addEventListener("click", deleteFromAboveVideo);
     getElement("config_video_select")?.addEventListener("change", renderConfiguration);
     getElement("config_pool_select")?.addEventListener("change", renderConfiguration);
     window.addEventListener("calibration-view-opened", renderConfiguration);
 
-    for (const buttonId of ["config_save", "config_flash_save"]) {
+    for (const buttonId of ["config_save", "config_flash_save", "config_generate_above", "config_delete_above"]) {
         const button = getElement(buttonId);
         if (button) {
             button.disabled = !canWriteMetadata();

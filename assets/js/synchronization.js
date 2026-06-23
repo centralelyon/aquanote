@@ -1,3 +1,4 @@
+import ImgCtrlPts from "./vendor/ImgCtrlPts.js";
 import { getLaneCount, megaData, selected_comp, selected_run } from "./loader.js";
 import { edit_temp_start } from "./refactor-script.js";
 import { getMeta } from "./utils.js";
@@ -7,8 +8,12 @@ const REFRESH_INTERVAL_MS = 250;
 const POOL_REFERENCE_WIDTH = 900;
 const POOL_REFERENCE_HEIGHT = 361;
 const SVG_NS = "http://www.w3.org/2000/svg";
+const FLASH_EDITOR_WIDTH = 430;
 
 let refreshTimer = null;
+let flashRegionControl = null;
+let flashEditorCanvas = null;
+let syncingFlashRegionControl = false;
 
 function getElement(id) {
     return document.getElementById(id);
@@ -60,6 +65,86 @@ function normalizePoint(point) {
         return null;
     }
     return { x, y };
+}
+
+function roundCoordinate(value) {
+    if (!Number.isFinite(value)) {
+        return 0;
+    }
+    const rounded = Number(value.toFixed(2));
+    return Number.isInteger(rounded) ? Math.trunc(rounded) : rounded;
+}
+
+function ensureFlashMetadata(metadata = megaData?.[0]) {
+    if (!metadata) {
+        return null;
+    }
+    if (!metadata.flash || typeof metadata.flash !== "object" || Array.isArray(metadata.flash)) {
+        metadata.flash = {};
+    }
+    return metadata.flash;
+}
+
+function defaultFlashReferencePoints(metadata = megaData?.[0]) {
+    const laneCount = Math.max(1, getLaneCount(metadata));
+    const laneHeight = POOL_REFERENCE_HEIGHT / laneCount;
+    const centerY = POOL_REFERENCE_HEIGHT / 2;
+    const halfHeight = Math.max(18, laneHeight * 0.75);
+    const halfWidth = 65;
+    return [
+        [roundCoordinate(POOL_REFERENCE_WIDTH / 2 - halfWidth), roundCoordinate(centerY - halfHeight)],
+        [roundCoordinate(POOL_REFERENCE_WIDTH / 2 + halfWidth), roundCoordinate(centerY - halfHeight)],
+        [roundCoordinate(POOL_REFERENCE_WIDTH / 2 + halfWidth), roundCoordinate(centerY + halfHeight)],
+        [roundCoordinate(POOL_REFERENCE_WIDTH / 2 - halfWidth), roundCoordinate(centerY + halfHeight)]
+    ];
+}
+
+function referencePointToPct(point) {
+    return {
+        x: Number(point.x) * 100 / POOL_REFERENCE_WIDTH,
+        y: Number(point.y) * 100 / POOL_REFERENCE_HEIGHT
+    };
+}
+
+function pctPointToReference(point) {
+    return [
+        roundCoordinate(Number(point.x) * POOL_REFERENCE_WIDTH / 100),
+        roundCoordinate(Number(point.y) * POOL_REFERENCE_HEIGHT / 100)
+    ];
+}
+
+function ensureFlashEditorCanvas(metadata = megaData?.[0]) {
+    if (!flashEditorCanvas) {
+        flashEditorCanvas = document.createElement("canvas");
+        flashEditorCanvas.width = POOL_REFERENCE_WIDTH;
+        flashEditorCanvas.height = POOL_REFERENCE_HEIGHT;
+    }
+    const context = flashEditorCanvas.getContext("2d");
+    const laneCount = Math.max(1, getLaneCount(metadata));
+    context.clearRect(0, 0, POOL_REFERENCE_WIDTH, POOL_REFERENCE_HEIGHT);
+    context.fillStyle = "#e8f7fb";
+    context.fillRect(0, 0, POOL_REFERENCE_WIDTH, POOL_REFERENCE_HEIGHT);
+    context.strokeStyle = "#7bb8c8";
+    context.lineWidth = 2;
+    context.strokeRect(0, 0, POOL_REFERENCE_WIDTH, POOL_REFERENCE_HEIGHT);
+    context.strokeStyle = "#b7dce5";
+    context.lineWidth = 1;
+    for (let i = 1; i < laneCount; i += 1) {
+        const y = POOL_REFERENCE_HEIGHT * i / laneCount;
+        context.beginPath();
+        context.moveTo(0, y);
+        context.lineTo(POOL_REFERENCE_WIDTH, y);
+        context.stroke();
+    }
+    context.setLineDash([8, 8]);
+    context.strokeStyle = "#8cc6d3";
+    context.lineWidth = 2;
+    context.beginPath();
+    context.moveTo(POOL_REFERENCE_WIDTH / 2, 0);
+    context.lineTo(POOL_REFERENCE_WIDTH / 2, POOL_REFERENCE_HEIGHT);
+    context.stroke();
+    context.setLineDash([]);
+    return flashEditorCanvas;
 }
 
 function getFlashRegionPoints(metadata = megaData?.[0]) {
@@ -193,6 +278,97 @@ function renderFlashRegion(metadata = megaData?.[0]) {
     pool.replaceChildren(svg);
 }
 
+function clearFlashRegionControl() {
+    flashRegionControl?.remove?.();
+    flashRegionControl = null;
+    getElement("sync_flash_editor")?.replaceChildren();
+}
+
+function updateFlashMetadataFromControl() {
+    if (!flashRegionControl || syncingFlashRegionControl) {
+        return;
+    }
+    const metadata = megaData?.[0];
+    const flash = ensureFlashMetadata(metadata);
+    if (!flash) {
+        return;
+    }
+
+    const points = flashRegionControl.value.map(pctPointToReference);
+    if (points.length < 2) {
+        return;
+    }
+
+    syncingFlashRegionControl = true;
+    flash.pts = points;
+    window.dispatchEvent(new CustomEvent("flash-calibration-updated", {
+        detail: { flash, source: "synchronize" }
+    }));
+    syncingFlashRegionControl = false;
+    renderFlashRegion(metadata);
+}
+
+function renderFlashRegionEditor(metadata = megaData?.[0]) {
+    const container = getElement("sync_flash_editor");
+    if (!container || !metadata) {
+        clearFlashRegionControl();
+        return;
+    }
+    const points = getFlashRegionPoints(metadata);
+    if (points.length < 2) {
+        clearFlashRegionControl();
+        return;
+    }
+
+    const value = points.map(referencePointToPct);
+    flashRegionControl?.remove?.();
+    flashRegionControl = ImgCtrlPts.createImageControlPoints({
+        image: ensureFlashEditorCanvas(metadata),
+        width: FLASH_EDITOR_WIDTH,
+        value,
+        label: false,
+        mode: "drag-shape",
+        interactionMode: "shape",
+        pointDisplay: "dots",
+        polygon: true,
+        background: true,
+        optimize: true,
+        minPoints: value.length,
+        maxPoints: value.length,
+        addPointOnDoubleClick: false,
+        radius: 0,
+        dotRadius: 0,
+        hitRadius: 14,
+        ariaLabel: "Flash region control points",
+        theme: {
+            polygon: "rgba(255, 201, 71, 0.95)",
+            point: "rgba(255, 201, 71, 0.95)",
+            selectedPoint: "rgba(249, 56, 56, 0.95)",
+            grid: "rgba(255, 201, 71, 0.22)"
+        }
+    });
+    flashRegionControl.addEventListener("input", updateFlashMetadataFromControl);
+    flashRegionControl.addEventListener("change", updateFlashMetadataFromControl);
+    container.replaceChildren(flashRegionControl);
+}
+
+function addFlashRegion() {
+    const metadata = megaData?.[0];
+    const flash = ensureFlashMetadata(metadata);
+    if (!flash) {
+        setStatus("Aucune course chargee.", "error");
+        return;
+    }
+    if (!Array.isArray(flash.pts) || flash.pts.length < 2) {
+        flash.pts = defaultFlashReferencePoints(metadata);
+    }
+    window.dispatchEvent(new CustomEvent("flash-calibration-updated", {
+        detail: { flash, source: "synchronize" }
+    }));
+    renderSynchronizePanel({ preserveStatus: true });
+    setStatus("Zone flash prete a etre ajustee.", "ready");
+}
+
 function setStatus(message, state = "") {
     const status = getElement("sync_status");
     if (!status) {
@@ -244,6 +420,48 @@ function getActiveVideo() {
         return getMeta();
     } catch {
         return getVideos()[0] ?? null;
+    }
+}
+
+function createPerspective(meta, fromReference = true) {
+    const transformer = window.PerspT;
+    const sourcePoints = Array.isArray(meta?.srcPts) ? meta.srcPts : [];
+    const destinationPoints = Array.isArray(meta?.destPts) ? meta.destPts : [];
+    const pointCount = Math.min(sourcePoints.length, destinationPoints.length);
+    if (!transformer || pointCount < 4) {
+        return null;
+    }
+
+    const referenceCorners = destinationPoints.slice(0, pointCount).flatMap((point) => [
+        Number(point?.[0]),
+        Number(point?.[1])
+    ]);
+    const sourceCorners = sourcePoints.slice(0, pointCount).flatMap((point) => [
+        Number(point?.[0]),
+        Number(point?.[1])
+    ]);
+
+    return fromReference
+        ? new transformer(referenceCorners, sourceCorners)
+        : new transformer(sourceCorners, referenceCorners);
+}
+
+function mapReferencePointsToSource(points, meta) {
+    const perspective = createPerspective(meta, true);
+    if (!perspective) {
+        return [];
+    }
+    try {
+        return points.map((point) => {
+            const normalized = normalizePoint(point);
+            if (!normalized) {
+                return null;
+            }
+            const [x, y] = perspective.transform(normalized.x, normalized.y);
+            return { x: Number(x), y: Number(y) };
+        }).filter((point) => Number.isFinite(point?.x) && Number.isFinite(point?.y));
+    } catch {
+        return [];
     }
 }
 
@@ -325,6 +543,7 @@ function renderSynchronizePanel({ preserveFlashInput = false, preserveStatus = f
     }
     updateFlashMomentDisplay(hasMetadata ? activeVideo : null, flashInput);
     renderFlashRegion(metadata);
+    renderFlashRegionEditor(metadata);
 
     const referenceSelect = getElement("sync_reference_video");
     const targetSelect = getElement("sync_target_video");
@@ -343,8 +562,19 @@ function renderSynchronizePanel({ preserveFlashInput = false, preserveStatus = f
     const useCurrentButton = getElement("sync_use_current");
     const saveButton = getElement("sync_save");
     const syncVideoButton = getElement("sync_video_sync");
+    const addFlashButton = getElement("sync_flash_add");
+    const detectFlashButton = getElement("sync_detect_flash");
     if (useCurrentButton) {
         useCurrentButton.disabled = !hasMetadata;
+    }
+    if (addFlashButton) {
+        addFlashButton.disabled = !hasMetadata;
+    }
+    if (detectFlashButton) {
+        detectFlashButton.disabled = !hasMetadata || !canWriteMetadata();
+        detectFlashButton.title = canWriteMetadata()
+            ? ""
+            : "Mode statique: detection serveur indisponible.";
     }
     if (saveButton) {
         saveButton.disabled = !hasMetadata || !canWriteMetadata();
@@ -449,6 +679,108 @@ async function saveSynchronization() {
     }
 }
 
+async function saveMetadataOnly(successMessage = "Metadata enregistree.") {
+    if (!megaData?.[0]) {
+        setStatus("Aucune course chargee.", "error");
+        return false;
+    }
+    if (!canWriteMetadata()) {
+        setStatus("Mode statique: ecriture JSON indisponible.", "error");
+        return false;
+    }
+    try {
+        const response = await fetch(getLocalApiUrl("/saveMetadata"), {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                competition: selected_comp,
+                run: selected_run,
+                metadata: megaData[0]
+            })
+        });
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(errorText || `HTTP ${response.status}`);
+        }
+        setStatus(successMessage, "saved");
+        return true;
+    } catch (error) {
+        setStatus(`Ecriture JSON impossible: ${error.message}`, "error");
+        return false;
+    }
+}
+
+function showFlashDetectionPreview(payload) {
+    const wrapper = getElement("sync_flash_detection");
+    const image = getElement("sync_flash_preview");
+    const label = getElement("sync_flash_preview_label");
+    if (!wrapper || !image || !label || !payload?.preview_url) {
+        return;
+    }
+    image.src = `${getLocalApiUrl(payload.preview_url)}?t=${Date.now()}`;
+    const frame = Number(payload.frame);
+    const time = Number(payload.time);
+    label.textContent = `Frame ${Number.isFinite(frame) ? frame : "?"} - ${Number.isFinite(time) ? formatSeconds(time) : "?"} s`;
+    wrapper.hidden = false;
+}
+
+async function detectFlashPeak() {
+    const metadata = megaData?.[0];
+    const activeVideo = getActiveVideo();
+    if (!metadata || !activeVideo) {
+        setStatus("Aucune course chargee.", "error");
+        return;
+    }
+    if (!canWriteMetadata()) {
+        setStatus("La detection flash requiert le serveur local.", "error");
+        return;
+    }
+
+    const button = getElement("sync_detect_flash");
+    const referencePoints = getFlashRegionPoints(metadata);
+    const sourcePoints = mapReferencePointsToSource(referencePoints, activeVideo);
+    button.disabled = true;
+    setStatus("Detection du pic flash en cours...", "pending");
+
+    try {
+        const response = await fetch(getLocalApiUrl("/detectFlashPeak"), {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                competition: selected_comp,
+                run: selected_run,
+                video: activeVideo.name,
+                regionSourcePts: sourcePoints,
+                threshold: 200
+            })
+        });
+        const payload = await response.json().catch(() => ({}));
+        if (!response.ok) {
+            throw new Error(payload.error || `HTTP ${response.status}`);
+        }
+
+        const detectedTime = roundTime(payload.time);
+        const flashInput = getElement("sync_flash_time");
+        if (flashInput) {
+            flashInput.value = formatSeconds(detectedTime);
+        }
+        applyFlashTime(detectedTime);
+        const videoElement = getElement("vid");
+        if (videoElement) {
+            videoElement.currentTime = detectedTime;
+        }
+        showFlashDetectionPreview(payload);
+        await saveMetadataOnly(`Flash detecte a ${formatSeconds(detectedTime)} s.`);
+        renderSynchronizePanel({ preserveFlashInput: true, preserveStatus: true });
+    } catch (error) {
+        setStatus(`Detection flash impossible: ${error.message}`, "error");
+    } finally {
+        if (button) {
+            button.disabled = !megaData?.[0] || !canWriteMetadata();
+        }
+    }
+}
+
 function startRefreshing() {
     stopRefreshing();
     renderSynchronizePanel();
@@ -469,6 +801,8 @@ function bindSynchronizePanel() {
     };
 
     getElement("sync_use_current")?.addEventListener("click", setCurrentTimeAsFlash);
+    getElement("sync_flash_add")?.addEventListener("click", addFlashRegion);
+    getElement("sync_detect_flash")?.addEventListener("click", detectFlashPeak);
     getElement("sync_save")?.addEventListener("click", saveSynchronization);
     getElement("loadbtn")?.addEventListener("click", delayedRender);
     getElement("vid")?.addEventListener("timeupdate", () => {

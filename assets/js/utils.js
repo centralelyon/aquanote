@@ -21,7 +21,7 @@ export function getMeta() {
         return null;
     }
     if (vue_du_dessus) {
-        return findVideoByType(videos, "dessus") || videos[0];
+        return findVideoByType(videos, "from_above") || findVideoByType(videos, "dessus") || videos[0];
     }
     const matchingMeta = videos.find(d => d.name && src.includes(d.name));
     if (matchingMeta) {

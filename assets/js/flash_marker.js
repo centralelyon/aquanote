@@ -26,14 +26,6 @@ function positiveNumber(...values) {
     return NaN;
 }
 
-function roundCoordinate(value) {
-    if (!Number.isFinite(value)) {
-        return 0;
-    }
-    const rounded = Number(value.toFixed(2));
-    return Number.isInteger(rounded) ? Math.trunc(rounded) : rounded;
-}
-
 function resolveSourceSize(meta = currentMeta) {
     const videoElement = getElement("vid");
     return {
@@ -139,33 +131,10 @@ function mapReferencePointsToSource(points, meta) {
     }
 }
 
-function mapSourcePointsToReference(points, meta) {
-    const perspective = createPerspective(meta, false);
-    if (!perspective) {
-        return [];
-    }
-
-    try {
-        return points.map((point) => {
-            const [x, y] = perspective.transform(point.x, point.y);
-            return [roundCoordinate(Number(x)), roundCoordinate(Number(y))];
-        }).filter((point) => Number.isFinite(point[0]) && Number.isFinite(point[1]));
-    } catch {
-        return [];
-    }
-}
-
 function sourcePointToPct(point, size) {
     return {
         x: Number(point.x) * 100 / size.width,
         y: Number(point.y) * 100 / size.height
-    };
-}
-
-function pctPointToSource(point, size) {
-    return {
-        x: Number(point.x) * size.width / 100,
-        y: Number(point.y) * size.height / 100
     };
 }
 
@@ -205,35 +174,6 @@ function syncFlashControlTransform() {
     } else {
         control.redraw?.();
     }
-}
-
-function updateFlashMetadataFromControl() {
-    if (!control || !currentMeta || updatingFromControl) {
-        return;
-    }
-
-    const metadata = megaData?.[0];
-    if (!metadata?.flash || typeof metadata.flash !== "object" || Array.isArray(metadata.flash)) {
-        return;
-    }
-
-    const sourceSize = resolveSourceSize(currentMeta);
-    if (!Number.isFinite(sourceSize.width) || !Number.isFinite(sourceSize.height)) {
-        return;
-    }
-
-    const sourcePoints = control.value.map((point) => pctPointToSource(point, sourceSize));
-    const referencePoints = mapSourcePointsToReference(sourcePoints, currentMeta);
-    if (referencePoints.length < 2) {
-        return;
-    }
-
-    updatingFromControl = true;
-    metadata.flash.pts = referencePoints;
-    window.dispatchEvent(new CustomEvent("flash-calibration-updated", {
-        detail: { flash: metadata.flash, source: "annotate" }
-    }));
-    updatingFromControl = false;
 }
 
 function createFlashControl(meta, sourcePoints, sourceSize, viewSize) {

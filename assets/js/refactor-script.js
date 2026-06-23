@@ -8,7 +8,7 @@ import { findVideoByType, meters_checkpoints,megaData,curr_swims, frame_rate, co
 import { draw_stats, set_placeholder_of_time_entry, update_swimmer } from './side_views.js';
 import { updateTable, setGrad,frameId_to_RunTime, metrics_calculation } from './main.js';
 import { activate_shortcut,deactivate_shortcut, nageurs } from './jquery-custom.js';
-import { getPointInverted,getPoolBar, eucDistance, get_orr } from './homography_handler.js';
+import { getPoolBar, eucDistance, get_orr } from './homography_handler.js';
 import { getMeta, getSize,update_url } from './utils.js';
 import { get_last_checkpoint, get_meter_plot_label,highlightCycle, mode_color, edit_lab_flipper,lab_flipper, resetHigh, update_cycle_rapide, updateBarsFromEvent } from './cycles_handler.js';
 import { indicator_correction, show_indicator_lines, plot_indicator_lines, hide_indicator_lines,action_indicator_lines } from './plot_handler.js';
@@ -17,6 +17,7 @@ import { vidReset } from './videoHandler.js';
 import { getVideoDisplayTransform, redrawVideoSurface, refreshVideoSurface, zoomVideoSurface } from './video_surface.js';
 import { dataProvider } from './aquanote-providers.js';
 import { getSportsdataSaveFormatId } from './local_api.js';
+import { videoPointToPoolPoint } from './pool_geometry.js';
 
 
 export let video_volume = 0;
@@ -46,8 +47,45 @@ choose_tab(null,"data_entry",'side_tab_content','sideTabLinks')
 construct_modify_selected_annotation_table(true)
 
 function videoUrl(filename, time = null) {
-    const url = dataProvider.getVideoUrl(selected_comp, selected_run, filename);
+    const baseUrl = dataProvider.getVideoUrl(selected_comp, selected_run, filename);
+    const cacheBust = String(filename || "").toLowerCase().includes("from_above")
+        ? `${baseUrl.includes("?") ? "&" : "?"}v=${Date.now()}`
+        : "";
+    const url = `${baseUrl}${cacheBust}`;
     return time == null ? url : `${url}#t=${Math.max(0, time)}`;
+}
+
+function setAnnotationVideoButtonValue(videoName) {
+    document.querySelectorAll("#annotation_video_buttons .annotation-video-button").forEach((button) => {
+        button.dataset.active = button.dataset.videoName === videoName ? "true" : "false";
+    });
+}
+
+function isFromAboveMeta(meta) {
+    return videoMatchesType(meta, "from_above") || videoMatchesType(meta, "dessus");
+}
+
+function switchToAnnotationVideo(meta, time = null) {
+    if (!meta?.name) {
+        return;
+    }
+    const vid = document.getElementById("vid");
+    const currentMeta = getMeta();
+    const currentTime = vid.currentTime ?? 0;
+    const nextTime = time ?? Math.max(0, currentTime - get_temp_start(currentMeta) + get_temp_start(meta));
+    const refreshTarget = () => scheduleAnnotationRefresh(meta);
+    edit_vidName(meta.name);
+    vue_du_dessus = isFromAboveMeta(meta);
+    vid.addEventListener("loadedmetadata", refreshTarget, { once: true });
+    vid.addEventListener("canplay", refreshTarget, { once: true });
+    vid.setAttribute("src", videoUrl(meta.name, nextTime));
+    setGrad(nextTime);
+    setAnnotationVideoButtonValue(meta.name);
+    vid.playbackRate = video_speed;
+    vid.volume = video_volume;
+    vidReset();
+    scheduleAnnotationRefresh(meta);
+    setTimeout(refreshTarget, 250);
 }
 
 function videoMetaByNamePart(namePart) {
@@ -144,7 +182,7 @@ function seekToRaceStart() {
     }
 }
 
-function eventToVideoNormalizedPoint(event, meta) {
+function eventToVideoSourcePoint(event, meta) {
     const container = document.getElementById("video");
     const transform = getVideoDisplayTransform(meta);
     const [sourceWidth, sourceHeight] = getSize(meta);
@@ -169,7 +207,15 @@ function eventToVideoNormalizedPoint(event, meta) {
         return null;
     }
 
-    return [sourceX / sourceWidth, sourceY / sourceHeight];
+    return [sourceX, sourceY];
+}
+
+function eventToPoolPoint(event, meta) {
+    const sourcePoint = eventToVideoSourcePoint(event, meta);
+    if (!sourcePoint) {
+        return null;
+    }
+    return videoPointToPoolPoint(sourcePoint, pool_size, meta);
 }
 
 function videoPointToDisplay(point, meta) {
@@ -182,6 +228,48 @@ function videoPointToDisplay(point, meta) {
         y: transform.y + Number(point[1]) * transform.k,
         k: transform.k
     };
+}
+
+function showVideoClickError(event, message) {
+    const container = document.getElementById("video");
+    if (!container) {
+        return;
+    }
+
+    const bounds = container.getBoundingClientRect();
+    const rawX = event ? event.clientX - bounds.left : NaN;
+    const rawY = event ? event.clientY - bounds.top : NaN;
+    const x = Math.max(0, Math.min(bounds.width, Number.isFinite(rawX) ? rawX : bounds.width / 2));
+    const y = Math.max(0, Math.min(bounds.height, Number.isFinite(rawY) ? rawY : bounds.height / 2));
+    const marker = document.createElement("div");
+    marker.className = "video-click-error";
+    marker.style.left = `${x}px`;
+    marker.style.top = `${y}px`;
+    marker.textContent = message;
+    container.append(marker);
+    marker.addEventListener("animationend", () => marker.remove(), { once: true });
+}
+
+function refreshAnnotationsForVideo(meta) {
+    refreshVideoSurface(meta);
+    requestAnimationFrame(() => {
+        redrawVideoSurface();
+        updateBarsFromEvent(selected_swim, true);
+        if (flipper) {
+            highlightCycle(selected_swim, selected_cycle);
+        }
+        if (show_indicator_lines) {
+            plot_indicator_lines(false);
+            plot_indicator_lines(true);
+        }
+    });
+}
+
+function scheduleAnnotationRefresh(meta) {
+    const videoElement = document.getElementById("vid");
+    refreshAnnotationsForVideo(meta);
+    videoElement?.addEventListener("loadedmetadata", () => refreshAnnotationsForVideo(meta), { once: true });
+    videoElement?.addEventListener("loadeddata", () => refreshAnnotationsForVideo(meta), { once: true });
 }
 
 export function clampSelectedSwim(laneCount) {
@@ -275,7 +363,11 @@ export function clampSelectedSwim(laneCount) {
         
         play_bool = !play_bool;
         if (play_bool) {
-            vid.play();
+            vid.play().catch((error) => {
+                play_bool = false;
+                $("#play").attr("src", "assets/images/controls/play-sign.svg");
+                console.error("Lecture video impossible:", error);
+            });
             $("#play").attr("src", "assets/images/controls/pause-sign.svg");
         } else {
             $("#play").attr("src", "assets/images/controls/play-sign.svg");
@@ -328,79 +420,26 @@ export function clampSelectedSwim(laneCount) {
     })
     $("#vidsw").on("click", () => {
         if (n_camera > 1) {
-            let vid = document.getElementById("vid")
             let metaDroite = videoMetaByNamePart("fixeDroite")
             let metaGauche = videoMetaByNamePart("fixeGauche")
             if (!metaDroite || !metaGauche) {
                 return;
             }
-
-            let right_attr = "start_flash"
-            let left_attr = "start_synchro_flash"
-            if (metaDroite["start_side"] === "left") {
-                right_attr = "start_synchro_flash"
-                left_attr = "start_flash"
-            }
-            if (currentVideoMatches("fixeDroite")) {
-                let t = vid.currentTime + metaDroite[right_attr] - metaGauche[left_attr]
-                edit_vidName(metaGauche.name);
-                vid.setAttribute("src", videoUrl(metaGauche.name, t))
-                setGrad(t)
-            } else {
-                let t = vid.currentTime - metaDroite[right_attr] + metaGauche[left_attr]
-                edit_vidName(metaDroite.name);
-                vid.setAttribute("src", videoUrl(metaDroite.name, t))
-                setGrad(t)
-            }
-            refreshVideoSurface(getMeta());
-            updateBarsFromEvent(selected_swim, true); //
-            if (flipper)
-                highlightCycle(selected_swim, selected_cycle)
-
-            // On doit réafficher les lignes indicatrices si elle était déjà affiché :
-            if(show_indicator_lines){
-                plot_indicator_lines(false)
-                plot_indicator_lines(true)
-            }
-            document.getElementById('vid').playbackRate = video_speed;
-            document.getElementById('vid').volume = video_volume;
-            vidReset();
+            switchToAnnotationVideo(currentVideoMatches("fixeDroite") ? metaGauche : metaDroite);
         }
     })
     $("#vid_dessus").on("click", () => {
-        let vid = document.getElementById("vid")
-        if (currentVideoMatches("dessus")) {
-                let t = 0
-                const sideMeta = videoMetaByNamePart("fixeGauche") || videoMetaByNamePart("fixeDroite") || megaData[0]?.videos?.[0];
-                if (sideMeta?.name) {
-                    edit_vidName(sideMeta.name);
-                    vid.setAttribute("src", videoUrl(sideMeta.name, t))
-                }
-                setGrad(t)
-                vue_du_dessus = false;
-            } else {
-                let t = 0
-                let metaDessus = videoMetaByNamePart("dessus");
-                if (metaDessus?.name) {
-                    edit_vidName(metaDessus.name);
-                    vid.setAttribute("src", videoUrl(metaDessus.name, t));
-                    setGrad(t)
-                    vue_du_dessus = true;
-                }
-            }
-        refreshVideoSurface(getMeta());
-        updateBarsFromEvent(selected_swim, true); //
-            if (flipper)
-                highlightCycle(selected_swim, selected_cycle)
-
-            // On doit réafficher les lignes indicatrices si elle était déjà affiché :
-            if(show_indicator_lines){
-                plot_indicator_lines(false)
-                plot_indicator_lines(true)
-            }
-            document.getElementById('vid').playbackRate = video_speed;
-            document.getElementById('vid').volume = video_volume;
-            vidReset();
+        const targetMeta = currentVideoMatches("dessus") || currentVideoMatches("from_above")
+            ? videoMetaByNamePart("fixeGauche") || videoMetaByNamePart("fixeDroite") || megaData[0]?.videos?.[0]
+            : videoMetaByNamePart("from_above") || videoMetaByNamePart("dessus");
+        switchToAnnotationVideo(targetMeta, 0);
+    })
+    $("#annotation_video_buttons").on("click", ".annotation-video-button", (event) => {
+        const button = event.currentTarget;
+        const videoName = button.dataset.videoName;
+        const index = Number(button.dataset.videoIndex);
+        const meta = megaData[0]?.videos?.find((video) => video.name === videoName) || megaData[0]?.videos?.[index];
+        switchToAnnotationVideo(meta);
     })
 
     $("#quality").on("click",() =>{
@@ -737,19 +776,20 @@ export function clic_souris_video(e) {
             vid.style.cursor = "crosshair";
             updateBarsFromEvent(selected_swim, true);
         } else {
-            const normalizedPoint = eventToVideoNormalizedPoint(e, meta);
-            if (!normalizedPoint) {
+            const poolPoint = eventToPoolPoint(e, meta);
+            if (!poolPoint) {
+                showVideoClickError(e, "Annotation impossible a cet endroit.");
                 return;
             }
-            let pt = getPointInverted(normalizedPoint, meta)
-            
-            let trx_scale = d3.scaleLinear([0, 960], [pool_size[0], 0]);
-            let meters_plot_label = (show_indicator_lines ? indicator_correction(trx_scale(pt[0])):trx_scale(pt[0]));
-            if (meters_plot_label < 0 || meters_plot_label > pool_size[0] || isNaN(meters_plot_label) || isNaN(pt[1])) {
+            let meters_plot_label = (show_indicator_lines ? indicator_correction(poolPoint[0]) : poolPoint[0]);
+            if (meters_plot_label < 0 || meters_plot_label > pool_size[0] || isNaN(meters_plot_label) || isNaN(poolPoint[1])) {
+                showVideoClickError(e, "Annotation impossible a cet endroit.");
                 return;
             }
             let yPosition = getLaneYPosition(selected_swim, meta);
-            annotate(meters_plot_label,yPosition,selected_swim);
+            if (!annotate(meters_plot_label,yPosition,selected_swim,e)) {
+                return;
+            }
         }
         let tid = curr_swims[selected_swim].findIndex(d => d.frame_number == parseInt(vid.currentTime * frame_rate) - parseInt(temp_start * frame_rate),) // = currate_events(curr_swims[selected_swim])
         selected_cycle = tid
@@ -763,7 +803,7 @@ export function clic_souris_video(e) {
     }
 }
 
-    export function annotate(xPosition,yPosition,id_swim){
+    export function annotate(xPosition,yPosition,id_swim,eventForError=null){
 
         var vid = document.getElementById("vid");
         if (parseInt((vid.currentTime - temp_start) * frame_rate) > 0) {
@@ -792,12 +832,14 @@ export function clic_souris_video(e) {
                 "cumul": cumul_annotation
             },id_swim)
             update_cycle_rapide()
+            return true;
         } else {
             if (temp_start) {
-                alert("Annotation should start when the run begins !")
+                showVideoClickError(eventForError, "Annotation should start when the run begins !")
             } else {
                 //TODO: Annotate_start moment
             }
+            return false;
         }
         
     }
@@ -1182,16 +1224,15 @@ let pt=[0,0];
         }
     
         if (e.target == vid) {
-            const normalizedPoint = eventToVideoNormalizedPoint(e, meta);
-            if (!normalizedPoint) {
+            const poolPoint = eventToPoolPoint(e, meta);
+            if (!poolPoint) {
                 $(".lin_mesure").remove();
                 return;
             }
-            pt = getPointInverted(normalizedPoint, meta);
+            pt = poolPoint;
         } //todo:get Offset stuff
-        let trx_scale = d3.scaleLinear([0, 960], [pool_size[0], 0]);
         // On corrige la position de la ligne dans le cas où il y a des lignes indicatrices pour aider à une mesure précise
-        let meters_plot_label = (show_indicator_lines ? indicator_correction(trx_scale(pt[0])):trx_scale(pt[0]));
+        let meters_plot_label = (show_indicator_lines ? indicator_correction(pt[0]) : pt[0]);
         edit_positionCurseur( meters_plot_label);
         
         plot_cursor(positionCurseur, meta);

@@ -72,7 +72,7 @@ function makeHttpProvider(baseUrl) {
         },
         getDatas: async (comp, run) => {
             const data = await apiFetch(`/getDatas/${comp}/${run}`);
-            return Array.isArray(data) ? data.filter(d => d.type === "file" && d.name.includes(".csv")) : [];
+            return Array.isArray(data) ? data.filter(d => d.type === "file") : [];
         },
         getQuality: async (comp, run, side) => {
             const data = await apiFetch(`/getQuality/${comp}/${run}`);
@@ -101,7 +101,7 @@ function makeElectronProvider() {
         getRuns: async (comp) => window.myAPI.getLocalRuns(BASE, comp),
         getDatas: async (comp, run) => {
             const files = await window.myAPI.getLocalFiles(BASE, comp, run);
-            return files.filter(f => f.name && f.name.includes(".csv"));
+            return files.filter(f => f.name);
         },
         getQuality: async (comp, run, side) => {
             const files = await window.myAPI.getLocalFiles(BASE, comp, run);

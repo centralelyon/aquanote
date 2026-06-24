@@ -1487,6 +1487,31 @@ input:checked + .slider:before {
     margin: 0;
 }
 
+.configuration-field-group {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+}
+
+.configuration-field-group select,
+.configuration-field-group input[type="url"] {
+    flex: 1 1 auto;
+}
+
+.configuration-inline-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.configuration-inline-toggle input {
+    width: auto;
+    margin: 0;
+}
+
 .configuration-actions {
     display: flex;
     gap: 12px;

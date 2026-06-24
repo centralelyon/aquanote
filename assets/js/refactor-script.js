@@ -4,7 +4,7 @@
  */
 
 import { choose_tab,construct_modify_selected_annotation_table, add_element_to_data,vide_last_added_data, last_added_data, currate_events, construct_last_added_data_table } from './data_handler.js';
-import { findVideoByType, meters_checkpoints,megaData,curr_swims, frame_rate, compets, getDatas, selected_comp, load_run, turn_distances, selected_run, edit_vidName, vidName, getRuns, get_quality, get_temp_start, pool_size, n_camera, getLaneYPosition, resolveRunName, getRunDisplayParts, videoMatchesType } from './loader.js';
+import { findVideoByType, meters_checkpoints,megaData,curr_swims, frame_rate, compets, getDatas, selected_comp, load_run, turn_distances, selected_run, edit_vidName, vidName, getRuns, get_quality, get_temp_start, pool_size, n_camera, getLaneKeyForSwimmerIndex, getLaneYPosition, resolveRunName, getRunDisplayParts, videoMatchesType } from './loader.js';
 import { draw_stats, set_placeholder_of_time_entry, update_swimmer } from './side_views.js';
 import { updateTable, setGrad,frameId_to_RunTime, metrics_calculation } from './main.js';
 import { activate_shortcut,deactivate_shortcut, nageurs } from './jquery-custom.js';
@@ -964,7 +964,7 @@ export function clic_souris_video(e) {
                 let r = curr_swims[i][j]
 
                 let nageur = nageurs[i];
-                let lane = "ligne" + (i + 1)
+                let lane = getLaneKeyForSwimmerIndex(i, megaData[0])
                 let eventRow = r["mode"]
                 let distanceRow = r["cumul"].toFixed(2)
                 let tempsVideo = (parseFloat(frameId_to_RunTime(r["frame_number"]))+parseFloat(temp_start))

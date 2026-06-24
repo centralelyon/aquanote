@@ -86,12 +86,24 @@ def safe_metadata_path(compet: str, run: str):
     if not compet or not run:
         return None
 
-    target = (DATA_DIR / compet / run / f"{run}.json").resolve()
-    try:
-        target.relative_to(DATA_DIR.resolve())
-    except ValueError:
+    run_directory = safe_run_directory(compet, run)
+    if run_directory is None:
         return None
-    return target
+
+    candidates = [run_directory / f"{run}.json", run_directory / "meta.json"]
+    candidates.extend(
+        entry for entry in sorted(run_directory.glob("*.json"))
+        if entry.name not in {f"{run}.json", "meta.json"}
+    )
+    for target in candidates:
+        resolved = target.resolve()
+        try:
+            resolved.relative_to(DATA_DIR.resolve())
+        except ValueError:
+            continue
+        if resolved.exists():
+            return resolved
+    return (run_directory / f"{run}.json").resolve()
 
 
 def safe_run_directory(compet: str, run: str):

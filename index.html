@@ -593,15 +593,33 @@ graphiques D3.js et contrôles pour analyser les performances des nageurs
             </div>
             <div class="configuration-row">
                 <label for="config_sportsdata_json_format">Sportsdata JSON format</label>
-                <select id="config_sportsdata_json_format"></select>
+                <div class="configuration-field-group">
+                    <select id="config_sportsdata_json_format"></select>
+                    <label class="configuration-inline-toggle" for="config_sportsdata_json_strict">
+                        <input id="config_sportsdata_json_strict" type="checkbox" checked>
+                        <span>Strict</span>
+                    </label>
+                </div>
             </div>
             <div class="configuration-row">
                 <label for="config_sportsdata_load_format">Sportsdata load schema</label>
-                <select id="config_sportsdata_load_format"></select>
+                <div class="configuration-field-group">
+                    <select id="config_sportsdata_load_format"></select>
+                    <label class="configuration-inline-toggle" for="config_sportsdata_load_strict">
+                        <input id="config_sportsdata_load_strict" type="checkbox" checked>
+                        <span>Strict</span>
+                    </label>
+                </div>
             </div>
             <div class="configuration-row">
                 <label for="config_sportsdata_save_format">Sportsdata save format</label>
-                <select id="config_sportsdata_save_format"></select>
+                <div class="configuration-field-group">
+                    <select id="config_sportsdata_save_format"></select>
+                    <label class="configuration-inline-toggle" for="config_sportsdata_save_strict">
+                        <input id="config_sportsdata_save_strict" type="checkbox" checked>
+                        <span>Strict</span>
+                    </label>
+                </div>
             </div>
             <div class="configuration-actions">
                 <button id="config_apply" type="button">Apply</button>

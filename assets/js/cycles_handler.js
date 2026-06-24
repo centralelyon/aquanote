@@ -4,7 +4,7 @@
  */
 
 import { displayMode, selected_swim, temp_start, selected_cycle, last_checkpoint, vue_du_dessus } from './refactor-script.js';
-import { findVideoByType, megaData, curr_swims, frame_rate, pool_size, n_camera, turn_distances, turn_times, getDisplayLaneIndex } from './loader.js';
+import { findVideoByType, megaData, curr_swims, frame_rate, pool_size, n_camera, turn_distances, turn_times } from './loader.js';
 import { draw_stats } from './side_views.js';
 import { updateTable } from './main.js';
 import { construct_modify_selected_annotation_table } from './data_handler.js';
@@ -72,7 +72,7 @@ export function makeBar(data, idx, idswim, scale, elemSize, vidSize, meta) {
     can.setAttribute("class", "crop_can")
     can.setAttribute("swim", idswim)
     can.setAttribute("num", idx)
-    let pts = getBar([data.x, data.y], meta, getDisplayLaneIndex(idswim, meta))
+    let pts = getBar([data.x, data.y], meta, idswim)
     const displayStart = videoPointToDisplay(pts[0], meta);
     const displayScale = displayStart?.k ?? (elemSize[0] / vidSize[0]);
 
@@ -92,6 +92,7 @@ export function makeBar(data, idx, idswim, scale, elemSize, vidSize, meta) {
     can.style["top"] = displayStart ? `${displayStart.y}px` : (scale[1](pts[0][1])) + "%";
     can.style["left"] = displayStart ? `${displayStart.x}px` : (scale[0](pts[0][0])) + "%";
 
+    can.style["transform-origin"] = "1px 0px";
     can.style["transform"] = "rotate(" + get_orr(pts[0], pts[1]) + "deg)"
 
     let div = document.createElement("div");
@@ -106,6 +107,7 @@ export function makeBar(data, idx, idswim, scale, elemSize, vidSize, meta) {
         div.style["left"] = displayStart ? `${displayStart.x - displayScale}px` : (scale[0](pts[0][0] - 1) + 0.4) + "%";
         div.style["top"] = displayStart ? `${displayStart.y + 3 * displayScale}px` : (scale[1](pts[0][1]) + 3) + "%";
         div.style["height"] = can.height + "px"
+        div.style["transform-origin"] = "1px 0px";
         div.style["transform"] = "rotate(" + get_orr(pts[0], pts[1]) + "deg)"
     }
     return [can, div]

@@ -5,8 +5,11 @@ import {
     getDataSourceMode,
     getLocalServerUrl,
     getSportsdataJsonFormatId,
+    getSportsdataJsonStrictMode,
     getSportsdataLoadFormatId,
-    getSportsdataSaveFormatId
+    getSportsdataLoadStrictMode,
+    getSportsdataSaveFormatId,
+    getSportsdataSaveStrictMode
 } from "./local_api.js";
 import { SPORTS_DATA_CSV_FORMATS, SPORTS_DATA_JSON_FORMATS } from "./sportsdata.js";
 
@@ -44,6 +47,9 @@ function syncConfigurationForm() {
     const sportsdataJsonFormatSelect = getElement("config_sportsdata_json_format");
     const sportsdataLoadFormatSelect = getElement("config_sportsdata_load_format");
     const sportsdataSaveFormatSelect = getElement("config_sportsdata_save_format");
+    const sportsdataJsonStrictInput = getElement("config_sportsdata_json_strict");
+    const sportsdataLoadStrictInput = getElement("config_sportsdata_load_strict");
+    const sportsdataSaveStrictInput = getElement("config_sportsdata_save_strict");
 
     if (sourceSelect) {
         sourceSelect.value = getDataSourceMode();
@@ -57,6 +63,15 @@ function syncConfigurationForm() {
     syncFormatSelect(sportsdataJsonFormatSelect, getSportsdataJsonFormatId(), SPORTS_DATA_JSON_FORMATS);
     syncFormatSelect(sportsdataLoadFormatSelect, getSportsdataLoadFormatId(), SPORTS_DATA_CSV_FORMATS);
     syncFormatSelect(sportsdataSaveFormatSelect, getSportsdataSaveFormatId(), SPORTS_DATA_CSV_FORMATS);
+    if (sportsdataJsonStrictInput) {
+        sportsdataJsonStrictInput.checked = getSportsdataJsonStrictMode();
+    }
+    if (sportsdataLoadStrictInput) {
+        sportsdataLoadStrictInput.checked = getSportsdataLoadStrictMode();
+    }
+    if (sportsdataSaveStrictInput) {
+        sportsdataSaveStrictInput.checked = getSportsdataSaveStrictMode();
+    }
 }
 
 function applyConfiguration() {
@@ -66,6 +81,9 @@ function applyConfiguration() {
     const sportsdataJsonFormat = getElement("config_sportsdata_json_format")?.value || DEFAULTS.sportsdataJsonFormat;
     const sportsdataLoadFormat = getElement("config_sportsdata_load_format")?.value || DEFAULTS.sportsdataLoadFormat;
     const sportsdataSaveFormat = getElement("config_sportsdata_save_format")?.value || DEFAULTS.sportsdataSaveFormat;
+    const sportsdataJsonStrict = getElement("config_sportsdata_json_strict")?.checked ?? DEFAULTS.sportsdataJsonStrict;
+    const sportsdataLoadStrict = getElement("config_sportsdata_load_strict")?.checked ?? DEFAULTS.sportsdataLoadStrict;
+    const sportsdataSaveStrict = getElement("config_sportsdata_save_strict")?.checked ?? DEFAULTS.sportsdataSaveStrict;
 
     setStatus("Applying configuration...", "ready");
     window.location.assign(buildDataSourceUrl({
@@ -74,7 +92,10 @@ function applyConfiguration() {
         apiBaseUrl,
         sportsdataJsonFormat,
         sportsdataLoadFormat,
-        sportsdataSaveFormat
+        sportsdataSaveFormat,
+        sportsdataJsonStrict,
+        sportsdataLoadStrict,
+        sportsdataSaveStrict
     }));
 }
 
@@ -86,7 +107,10 @@ function resetConfiguration() {
         apiBaseUrl: DEFAULTS.apiBaseUrl,
         sportsdataJsonFormat: DEFAULTS.sportsdataJsonFormat,
         sportsdataLoadFormat: DEFAULTS.sportsdataLoadFormat,
-        sportsdataSaveFormat: DEFAULTS.sportsdataSaveFormat
+        sportsdataSaveFormat: DEFAULTS.sportsdataSaveFormat,
+        sportsdataJsonStrict: DEFAULTS.sportsdataJsonStrict,
+        sportsdataLoadStrict: DEFAULTS.sportsdataLoadStrict,
+        sportsdataSaveStrict: DEFAULTS.sportsdataSaveStrict
     }));
 }
 

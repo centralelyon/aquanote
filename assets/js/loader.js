@@ -26,7 +26,12 @@ import {
 import { demoDataRoot, displaySwimmers, setGrad } from "./main.js"
 import { detectSportsdataCsvFormatId, detectSportsdataJsonFormatId, formatValidationIssue, validateCsvUrlHeaders } from "./sportsdata.js";
 import { dataProvider, setStaticProviderData } from "./aquanote-providers.js";
-import { getSportsdataJsonFormatId, getSportsdataLoadFormatId } from "./local_api.js";
+import {
+    getSportsdataJsonFormatId,
+    getSportsdataJsonStrictMode,
+    getSportsdataLoadFormatId,
+    getSportsdataLoadStrictMode
+} from "./local_api.js";
 
 let flat;
 let flatManifest = null;
@@ -76,6 +81,7 @@ export let inter = 100;
 export let n_camera = 2;
 
 const AUTO_SPORTSDATA_CSV_FORMAT = "formats.csv.auto";
+const NON_STRICT_CSV_ERROR_LIMIT = 25;
 const DEFAULT_VIDEO_WIDTH = 1920;
 const DEFAULT_VIDEO_HEIGHT = 1080;
 
@@ -114,6 +120,18 @@ export function getLaneKeysFromRaceMetadata(metadata = megaData[0]) {
     });
 }
 
+export function getLaneKeyForSwimmerIndex(swimmerIndex, metadata = megaData[0]) {
+    const laneKeys = getLaneKeysFromRaceMetadata(metadata);
+    const index = Math.max(0, Math.min(Number(swimmerIndex) || 0, Math.max(laneKeys.length - 1, 0)));
+    return laneKeys[index] || `ligne${index + 1}`;
+}
+
+export function getSwimmerNameForIndex(swimmerIndex, metadata = megaData[0]) {
+    const laneKey = getLaneKeyForSwimmerIndex(swimmerIndex, metadata);
+    const name = metadata?.lignes?.[laneKey];
+    return String(name || `Ligne ${Number(swimmerIndex) + 1}`);
+}
+
 export function getLaneCount(metadata = megaData[0]) {
     const laneKeys = getLaneKeysFromRaceMetadata(metadata);
     if (laneKeys.length > 0) {
@@ -136,7 +154,9 @@ export function isOneIsUp(metaLike = megaData[0]?.videos?.[0] ?? megaData[0]) {
 
 export function getLaneYPosition(swimmerIndex, metaLike = megaData[0]?.videos?.[0] ?? megaData[0]) {
     const laneSpan = getLaneSpan(megaData[0] ?? metaLike);
-    return (getDisplayLaneIndex(swimmerIndex, metaLike) + 0.5) * laneSpan;
+    const laneCount = getLaneCount(megaData[0] ?? metaLike);
+    const laneIndex = Math.max(0, Math.min(Number(swimmerIndex) || 0, laneCount - 1));
+    return (laneIndex + 0.5) * laneSpan;
 }
 
 export function videoMatchesType(video, typeVideo) {
@@ -1096,14 +1116,46 @@ function numericSwimmerIdsFromRows(rows) {
         .sort((left, right) => left - right);
 }
 
+function laneEntriesInDisplayOrder(laneMap) {
+    return Object.entries(laneMap || {}).sort(([left], [right]) => {
+        const leftNumber = extractLaneNumber(left);
+        const rightNumber = extractLaneNumber(right);
+        if (leftNumber !== rightNumber) {
+            return leftNumber - rightNumber;
+        }
+        return left.localeCompare(right);
+    });
+}
+
+function compactLaneMetadata(metadata) {
+    if (!metadata || typeof metadata !== "object" || !metadata.lignes || typeof metadata.lignes !== "object") {
+        return metadata;
+    }
+    const entries = laneEntriesInDisplayOrder(metadata.lignes);
+    if (entries.length === 0) {
+        return metadata;
+    }
+    const expectedKeys = entries.map((_, index) => `ligne${index + 1}`);
+    const alreadyCompact = entries.every(([key], index) => key === expectedKeys[index]);
+    if (alreadyCompact) {
+        return metadata;
+    }
+    return {
+        ...metadata,
+        lignes: Object.fromEntries(entries.map(([, value], index) => [`ligne${index + 1}`, value])),
+        sourceLaneKeys: entries.map(([key]) => key)
+    };
+}
+
 function buildLaneMapFromRows(rows) {
     const ids = numericSwimmerIdsFromRows(rows);
     const laneMap = {};
-    for (const swimmerId of ids) {
+    ids.forEach((swimmerId, index) => {
         const rowWithName = rows.find((row) => Number(row.swimmerId) === swimmerId && String(row.name || row.swimmerName || "").trim());
         const name = String(rowWithName?.name || rowWithName?.swimmerName || "").trim();
-        laneMap[`ligne${swimmerId + 1}`] = name || `Swimmer ${swimmerId + 1}`;
-    }
+        const laneKey = `ligne${index + 1}`;
+        laneMap[laneKey] = name || `Swimmer ${swimmerId + 1}`;
+    });
     if (Object.keys(laneMap).length === 0) {
         for (let index = 0; index < 8; index += 1) {
             laneMap[`ligne${index + 1}`] = `Swimmer ${index + 1}`;
@@ -1218,8 +1270,9 @@ function swimflowMetadataToAquanote(rawMetadata, comp, run, entries = [], parsed
         csvFiles: csvName ? [csvName] : [],
         temps: {},
         sourceSportsdata: {
-            format: detectSportsdataJsonFormatId(rawMetadata) || "formats.json.swimflow",
+            format: resolveSportsdataJsonFormat(rawMetadata) || "formats.json.swimflow",
             selectedJsonFormat: getSportsdataJsonFormatId(),
+            selectedJsonStrict: getSportsdataJsonStrictMode(),
             csv: csvName || rawMetadata?.dataCSV || "",
             originalName: rawMetadata?.name || "",
             defaultsSuggested: true,
@@ -1231,7 +1284,7 @@ function swimflowMetadataToAquanote(rawMetadata, comp, run, entries = [], parsed
 }
 
 function normalizeRunMetadata(rawMetadata, comp, run, entries = [], parsedCsv = null) {
-    const detectedFormat = detectSportsdataJsonFormatId(rawMetadata);
+    const detectedFormat = resolveSportsdataJsonFormat(rawMetadata);
     const selectedFormat = getSportsdataJsonFormatId();
     if (
         detectedFormat === "formats.json.swimflow" ||
@@ -1245,6 +1298,34 @@ function normalizeRunMetadata(rawMetadata, comp, run, entries = [], parsedCsv = 
         return swimflowMetadataToAquanote(rawMetadata, comp, run, entries, parsedCsv);
     }
     return rawMetadata;
+}
+
+function resolveSportsdataJsonFormat(rawMetadata, strict = getSportsdataJsonStrictMode()) {
+    const detectedFormat = detectSportsdataJsonFormatId(rawMetadata);
+    if (detectedFormat || strict) {
+        return detectedFormat;
+    }
+    if (!rawMetadata || typeof rawMetadata !== "object" || Array.isArray(rawMetadata)) {
+        return null;
+    }
+    const selectedFormat = getSportsdataJsonFormatId();
+    const hasSwimflowHints = Boolean(
+        rawMetadata?.dataCSV ||
+        Array.isArray(rawMetadata?.swimmersInfo) ||
+        rawMetadata?.poolLapLength ||
+        rawMetadata?.raceStartTime
+    );
+    if (
+        hasSwimflowHints &&
+        (selectedFormat === "formats.json.auto" ||
+            selectedFormat === "formats.json.swimflow" ||
+            selectedFormat === "formats.json.swimflow-metadata")
+    ) {
+        return selectedFormat === "formats.json.swimflow-metadata"
+            ? "formats.json.swimflow-metadata"
+            : "formats.json.swimflow";
+    }
+    return null;
 }
 
 function errorMessage(error) {
@@ -1330,7 +1411,11 @@ async function buildFallbackRunMetadata(comp, run, originalError) {
             csv: parsedCsv.name,
             defaultsSuggested: true,
             missingMetadataFilled: ["city", "cup", "distance", "epreuve", "lignes", "nage", "sexe", "videos"],
-            loadDiagnostics: diagnostics
+            loadDiagnostics: {
+                ...diagnostics,
+                acceptedWarnings: parsedCsv.warnings || [],
+                strictMode: parsedCsv.strictMode
+            }
         } : {
             defaultsSuggested: true,
             missingMetadataFilled: ["city", "cup", "distance", "epreuve", "lignes", "nage", "sexe", "videos"],
@@ -1347,19 +1432,23 @@ async function loadRunMetadata(comp, run) {
     try {
         const rawMetadata = await dataProvider.loadRunJson(comp, run);
         const entries = await dataProvider.getDatas(comp, run).catch(() => []);
-        const jsonFormatId = detectSportsdataJsonFormatId(rawMetadata);
+        const jsonFormatId = resolveSportsdataJsonFormat(rawMetadata);
         const diagnostics = { csvFiles: [], csvFailures: [] };
         const parsedCsv = (jsonFormatId === "formats.json.swimflow" || jsonFormatId === "formats.json.swimflow-metadata")
             ? await readFirstSupportedSportsdataCsv(comp, run, entries, diagnostics)
             : null;
-        const metadata = normalizeRunMetadata(rawMetadata, comp, run, entries, parsedCsv);
+        const metadata = compactLaneMetadata(normalizeRunMetadata(rawMetadata, comp, run, entries, parsedCsv));
         if (metadata?.sourceSportsdata && diagnostics.csvFiles.length) {
             metadata.sourceSportsdata.loadDiagnostics = diagnostics;
+            if (parsedCsv?.warnings?.length) {
+                metadata.sourceSportsdata.loadDiagnostics.acceptedWarnings = parsedCsv.warnings;
+                metadata.sourceSportsdata.loadDiagnostics.strictMode = parsedCsv.strictMode;
+            }
         }
         return metadata;
     } catch (error) {
         console.warn(`Run JSON missing or invalid for ${comp}/${run}; trying sportsdata fallback metadata.`, error);
-        return buildFallbackRunMetadata(comp, run, error);
+        return compactLaneMetadata(await buildFallbackRunMetadata(comp, run, error));
     }
 }
 
@@ -1442,8 +1531,27 @@ function shouldValidateSwimmingTrackingCsv(data) {
     return Boolean(data && data !== "new_data" && !String(data).includes("automatique"));
 }
 
+function isLegacyAquanoteTrackingHeaders(headers = []) {
+    const headerSet = new Set((headers || []).map((header) => String(header || "").trim()));
+    const hasAll = (...names) => names.every((name) => headerSet.has(name));
+    return hasAll(
+        "frameId",
+        "swimmerId",
+        "swimmerName",
+        "lane",
+        "cumul",
+        "eventId",
+        "eventX",
+        "event",
+        "TempsVideo (s)",
+        "Temps (s)",
+        "distance (m)"
+    );
+}
+
 async function inspectSportsdataCsv(csvUrl) {
     const preferredFormatId = getSportsdataLoadFormatId();
+    const strictMode = getSportsdataLoadStrictMode();
     const formatIds = [...new Set([preferredFormatId, AUTO_SPORTSDATA_CSV_FORMAT])];
     const failures = [];
 
@@ -1454,15 +1562,25 @@ async function inspectSportsdataCsv(csvUrl) {
             const warnings = result.issues
                 .filter((issue) => (issue.severity || "error") !== "error")
                 .map(formatValidationIssue);
-            if (errors.length === 0) {
+            const resolvedFormatId = result.formatId || formatId;
+            const canAcceptNonStrict = !strictMode
+                && resolvedFormatId !== AUTO_SPORTSDATA_CSV_FORMAT
+                && errors.length <= NON_STRICT_CSV_ERROR_LIMIT;
+            if (errors.length === 0 || canAcceptNonStrict) {
                 return {
                     ok: true,
                     result,
                     text: result.text,
                     rows: parseCsvText(result.text),
                     headers: result.headers,
-                    formatId: result.formatId || formatId,
-                    warnings
+                    formatId: resolvedFormatId,
+                    warnings: errors.length === 0
+                        ? warnings
+                        : [
+                            ...errors.map((issue) => `Accepted in non-strict mode: ${formatValidationIssue(issue)}`),
+                            ...warnings
+                        ],
+                    strictMode
                 };
             }
             failures.push({
@@ -1480,6 +1598,24 @@ async function inspectSportsdataCsv(csvUrl) {
     }
 
     const firstFailure = failures[0] || {};
+    if (firstFailure.headers && isLegacyAquanoteTrackingHeaders(firstFailure.headers)) {
+        const response = await fetch(csvUrl);
+        if (!response.ok) {
+            throw new Error(`Unable to load CSV ${csvUrl}: ${response.status}`);
+        }
+        const text = await response.text();
+        return {
+            ok: true,
+            text,
+            rows: parseCsvText(text),
+            headers: firstFailure.headers,
+            formatId: "formats.csv.swimming-tracking",
+            warnings: failures.flatMap((failure) =>
+                (failure.reasons || []).map((reason) => `Accepted legacy Aquanote tracking CSV: ${reason}`)
+            ),
+            strictMode: false,
+        };
+    }
     return {
         ok: false,
         headers: firstFailure.headers || [],
@@ -1506,11 +1642,14 @@ async function validateAndParseSportsdataCsv(csvUrl, data) {
     console.log(`Sportsdata CSV header validation ok for ${data}`, {
         format: result.formatId,
         headers: result.headers,
-        warnings: result.warnings
+        warnings: result.warnings,
+        strictMode: result.strictMode
     });
     return {
         rows: result.rows,
-        formatId: result.formatId
+        formatId: result.formatId,
+        warnings: result.warnings,
+        strictMode: result.strictMode
     };
 }
 
@@ -1565,6 +1704,27 @@ function normalizeBasicTrackingRows(rows, metadata) {
             "frequence (cylce/min)": "",
             "amplitude (m)": "",
             "vitesse (m/s)": ""
+        };
+    });
+}
+
+function normalizeTrackingRows(rows, metadata) {
+    const laneKeys = getLaneKeysFromRaceMetadata(metadata);
+    const swimmerIds = numericSwimmerIdsFromRows(rows);
+    const swimmerIdToIndex = new Map(swimmerIds.map((swimmerId, index) => [swimmerId, index]));
+    return rows.map((row) => {
+        const rawSwimmerId = Number(row.swimmerId);
+        const rowLane = String(row.lane || "").trim();
+        const laneIndex = laneKeys.indexOf(rowLane);
+        const swimmerId = laneIndex >= 0
+            ? laneIndex
+            : swimmerIdToIndex.get(rawSwimmerId) ?? 0;
+        const lane = laneKeys[swimmerId] || rowLane || `ligne${swimmerId + 1}`;
+        return {
+            ...row,
+            swimmerId,
+            swimmerName: row.swimmerName || metadata?.lignes?.[lane] || `Swimmer ${swimmerId + 1}`,
+            lane
         };
     });
 }
@@ -1627,6 +1787,9 @@ function normalizeSwimflowRows(rows, metadata) {
 
 function normalizeSportsdataRows(rows, metadata, formatId = getSportsdataLoadFormatId()) {
     const resolvedFormatId = formatId || detectSportsdataCsvFormatId(sportsdataCsvHeadersFromRows(rows));
+    if (resolvedFormatId === "formats.csv.swimming-tracking") {
+        return normalizeTrackingRows(rows, metadata);
+    }
     if (resolvedFormatId === "formats.csv.swimming-basic-tracking") {
         return normalizeBasicTrackingRows(rows, metadata);
     }

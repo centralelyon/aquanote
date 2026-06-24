@@ -145,9 +145,10 @@ GET /aquanote/files/{compet_id}/{run_id}/{filename}
 
 ### Sportsdata CSV formats
 
-The Configuration tab has two Sportsdata CSV options:
+The Configuration tab has Sportsdata format selectors with a `Strict` toggle next to each one:
 
-* **Sportsdata load schema** filters the CSV files shown for the selected run. Aquanote validates CSV headers in the current run folder against the selected Sportsdata swimming schema before adding them to the data dropdown. Static mode can only discover files listed in metadata or `flat.json`.
+* **Sportsdata JSON format** selects the preferred metadata model for sportsdata JSON files. In non-strict mode, Aquanote will still try to load partial Swimflow-like metadata and fill missing race fields with defaults.
+* **Sportsdata load schema** filters the CSV files shown for the selected run. Aquanote validates CSV headers in the current run folder against the selected Sportsdata swimming schema before adding them to the data dropdown. In non-strict mode, a detected sportsdata CSV can still load even when validation reports schema issues; those issues are kept as diagnostics instead of blocking the run. Static mode can only discover files listed in metadata or `flat.json`.
 * **Sportsdata save format** controls the columns used by the download button. The default is **Swimming tracking CSV**; **Swimming basic tracking CSV** writes `frameId,swimmerId,eventId,time,distance`.
 
 

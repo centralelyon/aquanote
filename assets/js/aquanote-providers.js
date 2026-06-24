@@ -21,6 +21,51 @@ let staticProviderData = {
     aliases: {},
 };
 
+async function fetchJsonCandidates(candidates, fetcher, description) {
+    const failures = [];
+    for (const candidate of candidates) {
+        try {
+            return await fetcher(candidate);
+        } catch (error) {
+            failures.push(`${candidate}: ${error?.message || String(error)}`);
+        }
+    }
+    throw new Error(`No matching metadata found for ${description}. Tried: ${failures.join("; ")}`);
+}
+
+function runDirectoryName(run) {
+    return String(run || "").trim().replace(/\.json$/i, "");
+}
+
+function metadataCandidates(run, entries = []) {
+    const names = new Set();
+    const rawRun = String(run || "").trim();
+    const normalizedRun = runDirectoryName(rawRun);
+    if (rawRun.toLowerCase().endsWith(".json")) {
+        names.add(rawRun);
+    }
+    if (normalizedRun) {
+        names.add(`${normalizedRun}.json`);
+    }
+    names.add("meta.json");
+    for (const entry of entries) {
+        const name = String(entry?.name || "").trim();
+        if (!name.toLowerCase().endsWith(".json")) {
+            continue;
+        }
+        if (name === `${normalizedRun}.json` || name === "meta.json" || name.includes(normalizedRun)) {
+            names.add(name);
+        }
+    }
+    for (const entry of entries) {
+        const name = String(entry?.name || "").trim();
+        if (name.toLowerCase().endsWith(".json")) {
+            names.add(name);
+        }
+    }
+    return [...names];
+}
+
 export function setStaticProviderData(data) {
     staticProviderData = {
         competitions: Array.isArray(data?.competitions) ? data.competitions : [],
@@ -37,21 +82,25 @@ function makeStaticProvider(basePath) {
     return {
         getCompets: async () => staticProviderData.competitions,
         getRuns: async (comp) => staticProviderData.runs[comp] ?? [],
-        getDatas: async (comp, run) => staticProviderData.csvFiles[run] ?? [],
+        getDatas: async (comp, run) => staticProviderData.csvFiles[runDirectoryName(run)] ?? [],
         getQuality: async () => [],
-        loadRunJson: async (comp, run) => {
-            const url = `${basePath}${comp}/${run}/${run}.json`;
-            const res = await fetch(url);
-            if (!res.ok) throw new Error(`HTTP ${res.status}: ${url}`);
-            return res.json();
-        },
+        loadRunJson: async (comp, run) => fetchJsonCandidates(
+            metadataCandidates(run, staticProviderData.csvFiles[runDirectoryName(run)] ?? []),
+            async (filename) => {
+                const url = `${basePath}${comp}/${runDirectoryName(run)}/${filename}`;
+                const res = await fetch(url);
+                if (!res.ok) throw new Error(`HTTP ${res.status}: ${url}`);
+                return res.json();
+            },
+            `${run}.json`
+        ),
         fetchCsv: async (comp, run, filename) => {
-            const url = `${basePath}${comp}/${run}/${filename}`;
+            const url = `${basePath}${comp}/${runDirectoryName(run)}/${filename}`;
             const res = await fetch(url);
             if (!res.ok) throw new Error(`HTTP ${res.status}: ${url}`);
             return parseCsvText(await res.text());
         },
-        getVideoUrl: (comp, run, filename) => `${basePath}${comp}/${run}/${filename}`,
+        getVideoUrl: (comp, run, filename) => `${basePath}${comp}/${runDirectoryName(run)}/${filename}`,
     };
 }
 
@@ -71,26 +120,34 @@ function makeHttpProvider(baseUrl) {
             return Array.isArray(data) ? data.filter(d => d.type === "directory") : [];
         },
         getDatas: async (comp, run) => {
-            const data = await apiFetch(`/getDatas/${comp}/${run}`);
+            const data = await apiFetch(`/getDatas/${comp}/${runDirectoryName(run)}`);
             return Array.isArray(data) ? data.filter(d => d.type === "file") : [];
         },
         getQuality: async (comp, run, side) => {
-            const data = await apiFetch(`/getQuality/${comp}/${run}`);
+            const data = await apiFetch(`/getQuality/${comp}/${runDirectoryName(run)}`);
             if (!Array.isArray(data)) return [];
             const key = side === "droite" ? "fixeDroite" : "fixeGauche";
             return data.filter(d => d.type === "file" && d.name.includes(key));
         },
         loadRunJson: async (comp, run) => {
-            const res = await fetch(`${baseUrl}/files/${comp}/${run}/${run}.json`);
-            if (!res.ok) throw new Error(`API JSON ${res.status}: ${comp}/${run}`);
-            return res.json();
+            const runDirectory = runDirectoryName(run);
+            const entries = await apiFetch(`/getDatas/${comp}/${runDirectory}`).catch(() => []);
+            return fetchJsonCandidates(
+                metadataCandidates(run, entries),
+                async (filename) => {
+                    const res = await fetch(`${baseUrl}/files/${comp}/${runDirectory}/${filename}`);
+                    if (!res.ok) throw new Error(`API JSON ${res.status}: ${comp}/${runDirectory}/${filename}`);
+                    return res.json();
+                },
+                `${run}.json`
+            );
         },
         fetchCsv: async (comp, run, filename) => {
-            const res = await fetch(`${baseUrl}/files/${comp}/${run}/${filename}`);
+            const res = await fetch(`${baseUrl}/files/${comp}/${runDirectoryName(run)}/${filename}`);
             if (!res.ok) throw new Error(`API CSV ${res.status}: ${filename}`);
             return parseCsvText(await res.text());
         },
-        getVideoUrl: (comp, run, filename) => `${baseUrl}/files/${comp}/${run}/${filename}`,
+        getVideoUrl: (comp, run, filename) => `${baseUrl}/files/${comp}/${runDirectoryName(run)}/${filename}`,
     };
 }
 
@@ -100,17 +157,25 @@ function makeElectronProvider() {
         getCompets: async () => window.myAPI.getLocalCompetitions(BASE),
         getRuns: async (comp) => window.myAPI.getLocalRuns(BASE, comp),
         getDatas: async (comp, run) => {
-            const files = await window.myAPI.getLocalFiles(BASE, comp, run);
+            const files = await window.myAPI.getLocalFiles(BASE, comp, runDirectoryName(run));
             return files.filter(f => f.name);
         },
         getQuality: async (comp, run, side) => {
-            const files = await window.myAPI.getLocalFiles(BASE, comp, run);
+            const files = await window.myAPI.getLocalFiles(BASE, comp, runDirectoryName(run));
             const key = side === "droite" ? "fixeDroite" : "fixeGauche";
             return files.filter(f => f.name && f.name.includes(key));
         },
-        loadRunJson: async (comp, run) => window.myAPI.readJsonFile(BASE, comp, run, `${run}.json`),
-        fetchCsv: async (comp, run, filename) => window.myAPI.readCsvFile(BASE, comp, run, filename),
-        getVideoUrl: (comp, run, filename) => `${BASE}/${comp}/${run}/${filename}`,
+        loadRunJson: async (comp, run) => {
+            const runDirectory = runDirectoryName(run);
+            const files = await window.myAPI.getLocalFiles(BASE, comp, runDirectory);
+            return fetchJsonCandidates(
+                metadataCandidates(run, files),
+                async (filename) => window.myAPI.readJsonFile(BASE, comp, runDirectory, filename),
+                `${run}.json`
+            );
+        },
+        fetchCsv: async (comp, run, filename) => window.myAPI.readCsvFile(BASE, comp, runDirectoryName(run), filename),
+        getVideoUrl: (comp, run, filename) => `${BASE}/${comp}/${runDirectoryName(run)}/${filename}`,
     };
 }
 

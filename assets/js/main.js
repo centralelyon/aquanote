@@ -4,7 +4,7 @@
  */
 
 
-import { findVideoByType, init, megaData, curr_swims, frame_rate, temp_end, n_camera, selected_comp, selected_run, getLaneKeysFromRaceMetadata, isOneIsUp } from "./loader.js"
+import { findVideoByType, init, megaData, curr_swims, frame_rate, temp_end, n_camera, selected_comp, selected_run, getLaneKeysFromRaceMetadata, getLaneKeyForSwimmerIndex, isOneIsUp } from "./loader.js"
 import { construct_data_row, data_onclick } from "./data_handler.js"
 import { selected_swim, temp_start, updateSwimSwitch, vue_du_dessus } from "./refactor-script.js"
 import "./plot_handler.js"
@@ -229,7 +229,7 @@ export function updateTable() {
 
     // Vérifiez que megaData[0] et megaData[0]["lignes"] existent
     if (megaData[0] && megaData[0]["lignes"]) {
-        let ligneKey = "ligne" + (parseInt(selected_swim) + 1).toString();
+        let ligneKey = getLaneKeyForSwimmerIndex(selected_swim, megaData[0]);
         if (!megaData[0]["lignes"][ligneKey]) {
             console.error(`La clé ${ligneKey} n'existe pas dans megaData[0]["lignes"]`);
         }

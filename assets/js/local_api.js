@@ -13,7 +13,10 @@ const STORAGE_KEYS = {
     apiBaseUrl: "aquanote.apiBaseUrl",
     sportsdataJsonFormat: "aquanote.sportsdataJsonFormat",
     sportsdataLoadFormat: "aquanote.sportsdataLoadFormat",
-    sportsdataSaveFormat: "aquanote.sportsdataSaveFormat"
+    sportsdataSaveFormat: "aquanote.sportsdataSaveFormat",
+    sportsdataJsonStrict: "aquanote.sportsdataJsonStrict",
+    sportsdataLoadStrict: "aquanote.sportsdataLoadStrict",
+    sportsdataSaveStrict: "aquanote.sportsdataSaveStrict"
 };
 const SOURCE_ALIASES = {
     server: "local",
@@ -45,6 +48,20 @@ function readStorage(key) {
     } catch {
         return "";
     }
+}
+
+function normalizeBoolean(value, fallback = true) {
+    if (typeof value === "boolean") {
+        return value;
+    }
+    const normalized = String(value ?? "").trim().toLowerCase();
+    if (["1", "true", "yes", "on"].includes(normalized)) {
+        return true;
+    }
+    if (["0", "false", "no", "off"].includes(normalized)) {
+        return false;
+    }
+    return fallback;
 }
 
 function normalizeBaseUrl(value, fallback) {
@@ -122,6 +139,30 @@ export function getSportsdataSaveFormatId() {
     );
 }
 
+export function getSportsdataJsonStrictMode() {
+    const params = getParams();
+    return normalizeBoolean(
+        params.get("sportsdataJsonStrict") || readStorage(STORAGE_KEYS.sportsdataJsonStrict),
+        true
+    );
+}
+
+export function getSportsdataLoadStrictMode() {
+    const params = getParams();
+    return normalizeBoolean(
+        params.get("sportsdataLoadStrict") || readStorage(STORAGE_KEYS.sportsdataLoadStrict),
+        true
+    );
+}
+
+export function getSportsdataSaveStrictMode() {
+    const params = getParams();
+    return normalizeBoolean(
+        params.get("sportsdataSaveStrict") || readStorage(STORAGE_KEYS.sportsdataSaveStrict),
+        true
+    );
+}
+
 export function getActiveServerUrl() {
     return getDataSourceMode() === "api" ? getApiBaseUrl() : getLocalServerUrl();
 }
@@ -159,7 +200,17 @@ export function canWriteMetadata() {
     return !isStaticDataSource();
 }
 
-export function buildDataSourceUrl({ source, localServerUrl, apiBaseUrl, sportsdataJsonFormat, sportsdataLoadFormat, sportsdataSaveFormat }) {
+export function buildDataSourceUrl({
+    source,
+    localServerUrl,
+    apiBaseUrl,
+    sportsdataJsonFormat,
+    sportsdataLoadFormat,
+    sportsdataSaveFormat,
+    sportsdataJsonStrict,
+    sportsdataLoadStrict,
+    sportsdataSaveStrict
+}) {
     const params = new URLSearchParams(typeof window === "undefined" ? "" : window.location.search);
     const nextSource = normalizeSource(source, getDataSourceMode());
     const nextLocalServerUrl = normalizeBaseUrl(localServerUrl, DEFAULT_LOCAL_SERVER_URL);
@@ -167,6 +218,9 @@ export function buildDataSourceUrl({ source, localServerUrl, apiBaseUrl, sportsd
     const nextSportsdataLoadFormat = normalizeSportsdataCsvFormatId(sportsdataLoadFormat, getSportsdataLoadFormatId());
     const nextSportsdataSaveFormat = normalizeSportsdataCsvFormatId(sportsdataSaveFormat, getSportsdataSaveFormatId());
     const nextSportsdataJsonFormat = normalizeSportsdataJsonFormatId(sportsdataJsonFormat, getSportsdataJsonFormatId());
+    const nextSportsdataJsonStrict = normalizeBoolean(sportsdataJsonStrict, getSportsdataJsonStrictMode());
+    const nextSportsdataLoadStrict = normalizeBoolean(sportsdataLoadStrict, getSportsdataLoadStrictMode());
+    const nextSportsdataSaveStrict = normalizeBoolean(sportsdataSaveStrict, getSportsdataSaveStrictMode());
 
     params.set("source", nextSource);
     params.delete("apiPort");
@@ -201,6 +255,24 @@ export function buildDataSourceUrl({ source, localServerUrl, apiBaseUrl, sportsd
         params.set("sportsdataSaveFormat", nextSportsdataSaveFormat);
     }
 
+    if (nextSportsdataJsonStrict === true) {
+        params.delete("sportsdataJsonStrict");
+    } else {
+        params.set("sportsdataJsonStrict", "false");
+    }
+
+    if (nextSportsdataLoadStrict === true) {
+        params.delete("sportsdataLoadStrict");
+    } else {
+        params.set("sportsdataLoadStrict", "false");
+    }
+
+    if (nextSportsdataSaveStrict === true) {
+        params.delete("sportsdataSaveStrict");
+    } else {
+        params.set("sportsdataSaveStrict", "false");
+    }
+
     try {
         localStorage.setItem(STORAGE_KEYS.source, nextSource);
         localStorage.setItem(STORAGE_KEYS.localServerUrl, nextLocalServerUrl);
@@ -208,6 +280,9 @@ export function buildDataSourceUrl({ source, localServerUrl, apiBaseUrl, sportsd
         localStorage.setItem(STORAGE_KEYS.sportsdataJsonFormat, nextSportsdataJsonFormat);
         localStorage.setItem(STORAGE_KEYS.sportsdataLoadFormat, nextSportsdataLoadFormat);
         localStorage.setItem(STORAGE_KEYS.sportsdataSaveFormat, nextSportsdataSaveFormat);
+        localStorage.setItem(STORAGE_KEYS.sportsdataJsonStrict, String(nextSportsdataJsonStrict));
+        localStorage.setItem(STORAGE_KEYS.sportsdataLoadStrict, String(nextSportsdataLoadStrict));
+        localStorage.setItem(STORAGE_KEYS.sportsdataSaveStrict, String(nextSportsdataSaveStrict));
     } catch {
         // URL parameters remain the source of truth if localStorage is unavailable.
     }
@@ -221,5 +296,8 @@ export const DEFAULTS = {
     apiBaseUrl: DEFAULT_API_BASE_URL,
     sportsdataJsonFormat: DEFAULT_SPORTSDATA_JSON_FORMAT,
     sportsdataLoadFormat: DEFAULT_SPORTSDATA_CSV_FORMAT,
-    sportsdataSaveFormat: DEFAULT_SPORTSDATA_CSV_FORMAT
+    sportsdataSaveFormat: DEFAULT_SPORTSDATA_CSV_FORMAT,
+    sportsdataJsonStrict: true,
+    sportsdataLoadStrict: true,
+    sportsdataSaveStrict: true
 };

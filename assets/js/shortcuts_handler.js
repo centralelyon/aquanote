@@ -11,7 +11,6 @@ import { indicator_correction,show_indicator_lines, action_indicator_lines } fro
 import { highlightCycle } from "./cycles_handler.js";
 import { moveVid } from "./videoHandler.js";
 import { getMeta } from './utils.js';
-import { go_to_next_cycle } from "./data_handler.js";
 
 
 
@@ -153,14 +152,6 @@ window.onkeydown = function (e) {
         if (keymap[88]&&!keymap[16]) { // x --> intermed
             $("#ligneRef").click()
         }
-        if (keymap[78]){
-            if ($("#run_part1").val() !== "freestyle" && $("#run_part1").val() !== "dos") {
-                console.log("Type de nage non supporté pour les prédictions : " + $("#run_part1").val());
-            } else {
-                go_to_next_cycle();
-            }
-        }
-
 document.addEventListener("mousemove", function (e) {
     // Stocker la position actuelle de la souris
     window.mousePosition = {

@@ -37,7 +37,7 @@ export const zoom_step = 5;// Quand on zoom : scaleZoom += (step / 100)
 export let selected_data = ''// nom du fichier csv chargé en donnée (ex :2021_GT_Nice_brasse_50_finaleA_dames_Espadon.csv)
 export let selected_cycle; // int, numéro du cycle séléctionné
 export let temp_start = 0; //instant de la vidéo oùla course démarre.
-export let displayMode = "0" // Mode d'affichage des annotations : 0 -> all, 1 -> swimmer séléctionné, 2 -> dernière annotation, 3 -> rien
+export let displayMode = "1" // Mode d'affichage des annotations : 0 -> tous les nageurs, 1 -> nageur sélectionné, 2 -> dernière annotation, 3 -> rien
 export let scaleZoom = 1// Correspond au zoom dans la vidéo
 export let mode = "cycle"// Modifié dans les boutons de classe modebtn (enter : fin de vol, end : fin de coulée, cycle : cycle, section : temps intermédiaire, respi : respirations, turn : demi-tour, finish : fin)
 export let flipper = false;// Boolean correspondant à : est-ce qu'on a séléctionné une annotation ?

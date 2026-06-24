@@ -1,9 +1,9 @@
 {
   "name": "config",
-  "version": "1.2",
-  "description": "",
+  "version": "1.2.1",
+  "description": "Annotate swimming videos",
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "type": "module",
   "devDependencies": {
     "@eslint/js": "^9.27.0",

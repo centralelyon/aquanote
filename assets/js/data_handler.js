@@ -9,13 +9,8 @@ import { update_swimmer } from "./side_views.js";
 import { frameId_to_RunTime } from "./main.js";
 import { highlightCycle } from "./cycles_handler.js";
 
-import { predit_delta_cycle_dos } from "./ml-cycle-predictor-js/js/predictor.js";
-
-
-
 let nb_of_last_added_data_saved = 6;
 export let last_added_data = [];
-let prochain_cycle_predit;
 
 
 
@@ -163,7 +158,7 @@ export function getAvg(data) {
 }
 
 /**
- * @brief Ajoute un élément d'annotation à la structure globale, met à jour l'historique et prédit le prochain cycle.
+ * @brief Ajoute un élément d'annotation à la structure globale et met à jour l'historique.
  * @param {Object} element Annotation à ajouter
  * @param {number} id_swim Id du nageur
  */
@@ -178,20 +173,6 @@ export function add_element_to_data(element, id_swim) {
     }
     last_added_data[0] = element
     construct_last_added_data_table();
-    if (last_added_data[5]){
-        let delta_prochain_cycle_predit=predit_delta_cycle_dos();
-        prochain_cycle_predit=(delta_prochain_cycle_predit+parseFloat(last_added_data[0].frameId))/50;
-    }
-}
-
-/**
- * @brief Place la vidéo à l'instant prédit du prochain cycle (si disponible).
- */
-export function go_to_next_cycle(){
-    if (prochain_cycle_predit != undefined) {
-        let vid = document.getElementById("vid")
-        vid.currentTime = prochain_cycle_predit+ temp_start;
-    }
 }
 
 /**

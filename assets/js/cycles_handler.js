@@ -236,52 +236,25 @@ export function edit_lab_flipper(x){
 export function updateBarsFromEvent(swim, affiche_tout=false ,meta = null) {
     // Récupère le conteneur vidéo
     const vid = document.getElementById("vid");
+    const container = document.getElementById("video");
+    if (!container) {
+        return;
+    }
+    const swimmerIds = Object.keys(curr_swims || {});
+    if (swimmerIds.length === 0) {
+        throw new Error('No swimmers available');
+    }
+    if (displayMode !== "0" && !Array.isArray(curr_swims[swim])) {
+        throw new Error(`Unknown swimmer: ${swim}`);
+    }
     const currentFrame = Math.floor((vid.currentTime - temp_start) * frame_rate)>0 ? Math.floor((vid.currentTime - temp_start) * frame_rate) : 0;
-    let lastTurnFrame = 0, nextTurnFrame = Infinity;
-    for (let i = 1; i < turn_distances.length; i++) {//0 est le temps de réaction, on ne le prend pas en compte
-        const t = turn_times[swim][turn_distances[i]];
-        if (t !== undefined) {
-            const f = t * frame_rate;
-            if (f <= currentFrame){
-                lastTurnFrame = f;
-            }
-            else if (f > currentFrame && nextTurnFrame === Infinity) {
-                nextTurnFrame = f;
-                break;
-            }
-        }
-    }
-    let data = curr_swims[swim].filter(d => d.event !== "reaction" && d.event !== "finish" && d.event !=="turn");
-    let eventId;
-    if (affiche_tout) {
-        let index = findCycleIndexAtFrame(data, lastTurnFrame);
-        eventId = (index==0)? 0 : index+1;// On commence à afficher à partir du cycle suivant le dernier virage si il y a déjà eu un virage puisque data filtre les virages
-
-    }
-    else {
-        eventId = findCycleIndexAtFrame(data, currentFrame);
-        eventId = (typeof eventId === "number" && !isNaN(eventId) && eventId >= 0) ? eventId : 0;
-    }
-    // Supprime toutes les barres et labels dont num >= eventId pour ce nageur
-    let container = document.getElementById("video")
-    if (affiche_tout){
-        $(".crop_can").remove()
+    if (affiche_tout || displayMode === "0" || displayMode === "3") {
+        $(".crop_can").remove();
         $(".div_can").remove();
     }
-    else {
-        
-        let toRemove = container.querySelectorAll(`.crop_can[swim='${swim}'][num]`);
-        toRemove.forEach(el => {
-            if (parseInt(el.getAttribute('num')) >= eventId) el.remove();
-        });
-        let toRemoveDiv = container.querySelectorAll(`.div_can[swim='${swim}'][num]`);
-        toRemoveDiv.forEach(el => {
-            if (parseInt(el.getAttribute('num')) >= eventId) el.remove();
-        });}
-    if (displayMode === "2") {
-        return // Si le mode est "AUCUN", on n'affiche rien
+    if (displayMode === "3") {
+        return;
     }
-
 
     if (!meta) {
         if (n_camera > 1) {
@@ -314,21 +287,73 @@ export function updateBarsFromEvent(swim, affiche_tout=false ,meta = null) {
     let element = $("#video");
     let size = [element.width(), element.height()];
 
-    
+    function renderBarsForSwimmer(swimmerId) {
+        const swimTurns = turn_times?.[swimmerId];
+        const swimEvents = curr_swims?.[swimmerId];
+        if (!swimTurns || !Array.isArray(swimEvents) || swimEvents.length === 0) {
+            return;
+        }
 
-    // Reconstruit les barres à partir de eventId
-    let indice_max=findCycleIndexAtFrame(data, nextTurnFrame);
-    if (displayMode === "1") {
-        eventId=Math.max(indice_max-1,0);//mode où on veut uniquement 2 affichages de cycle
+        let lastTurnFrame = 0;
+        let nextTurnFrame = Infinity;
+        for (let i = 1; i < turn_distances.length; i++) {
+            const t = swimTurns[turn_distances[i]];
+            if (t === undefined) {
+                continue;
+            }
+            const f = t * frame_rate;
+            if (f <= currentFrame) {
+                lastTurnFrame = f;
+            } else if (nextTurnFrame === Infinity) {
+                nextTurnFrame = f;
+                break;
+            }
+        }
+
+        let data = swimEvents.filter(d => d.event !== "reaction" && d.event !== "finish" && d.event !== "turn");
+        if (data.length === 0) {
+            return;
+        }
+
+        let eventId;
+        if (affiche_tout) {
+            let index = findCycleIndexAtFrame(data, lastTurnFrame);
+            eventId = (index === 0) ? 0 : index + 1;
+        } else {
+            eventId = findCycleIndexAtFrame(data, currentFrame);
+            eventId = (typeof eventId === "number" && !isNaN(eventId) && eventId >= 0) ? eventId : 0;
+        }
+
+        if (!affiche_tout && displayMode !== "0") {
+            let toRemove = container.querySelectorAll(`.crop_can[swim='${swimmerId}'][num]`);
+            toRemove.forEach(el => {
+                if (parseInt(el.getAttribute('num')) >= eventId) el.remove();
+            });
+            let toRemoveDiv = container.querySelectorAll(`.div_can[swim='${swimmerId}'][num]`);
+            toRemoveDiv.forEach(el => {
+                if (parseInt(el.getAttribute('num')) >= eventId) el.remove();
+            });
+        }
+
+        let indice_max = findCycleIndexAtFrame(data, nextTurnFrame);
+        if (displayMode === "2") {
+            eventId = Math.max(indice_max - 1, 0);
+        }
+        for (let idx = eventId; idx < data.length; idx++) {
+            if (idx > indice_max) break;
+            let d = data[idx];
+            let [can, div] = makeBar(d, idx, swimmerId, [tpool_xscale, tpool_yscale], size, [twidth, theight], meta);
+            container.appendChild(can);
+            if (lab_flipper) container.appendChild(div);
+        }
     }
-    for (let idx = eventId; idx < data.length; idx++) {
-        // Exclure les événements de type 'turn' de l'affichage
-        if (idx > indice_max) break;
-        let d = data[idx];
-        let [can, div] = makeBar(d, idx, swim, [tpool_xscale, tpool_yscale], size, [twidth, theight], meta);
-        container.appendChild(can);
-        if (lab_flipper) container.appendChild(div);
+
+    if (displayMode === "0") {
+        Object.keys(curr_swims || {}).forEach(renderBarsForSwimmer);
+        return;
     }
+
+    renderBarsForSwimmer(swim);
 }
 
 

@@ -510,21 +510,7 @@ export async function setupMocks(page, testData, testDataPath, testVideoPath, op
     })
   })
 
-  // 13. Mock du modèle ML pour la prédiction de cycles
-  await page.route('**/ml-cycle-predictor-js/model/best_cycle_predictor.json', route => {
-    route.fulfill({
-      status: 200,
-      contentType: 'application/json',
-      body: JSON.stringify({
-        modelTopology: {},
-        weightSpecs: [],
-        weightData: new ArrayBuffer(0),
-        format: "layers-model"
-      })
-    })
-  })
-
-  // 14. Mock des requêtes CSV de données avec plus de données pour générer des graphiques
+  // 13. Mock des requêtes CSV de données avec plus de données pour générer des graphiques
   await page.route('**/*.csv', route => {
     route.fulfill({
       status: 200,
@@ -720,14 +706,6 @@ export async function setupBasicMocks(page) {
       status: 200,
       contentType: 'application/json',
       body: JSON.stringify([])
-    })
-  });
-
-  await page.route('**/ml-cycle-predictor-js/model/best_cycle_predictor.json', route => {
-    route.fulfill({
-      status: 200,
-      contentType: 'application/json',
-      body: JSON.stringify({})
     })
   });
 

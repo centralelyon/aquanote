@@ -133,18 +133,6 @@ test.describe('Test complet de l\'application avec vidéos', () => {
       })
     })
 
-    await page.route('**/ml-cycle-predictor-js/model/best_cycle_predictor.json', route => {
-      route.fulfill({
-        status: 200,
-        contentType: 'application/json',
-        body: JSON.stringify({
-          modelTopology: {},
-          weightSpecs: [],
-          weightData: new ArrayBuffer(0)
-        })
-      })
-    })
-
     // Naviguer vers l'application
     console.log('Navigating to application...')
     await page.goto(server)

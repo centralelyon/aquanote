@@ -17,7 +17,6 @@ import { findCycleIndexAtFrame } from "./cycles_handler.js";
 import "./plot_handler.js";
 import "./jquery-custom.js";
 import "./workspace_layout.js";
-import "./ml-cycle-predictor-js/js/predictor.js";
 import "./configuration_panel.js";
 import "./video_configuration.js";
 import "./metadata_editor.js";

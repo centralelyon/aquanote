@@ -59,14 +59,6 @@ test.describe('Test de chargement vidéo', () => {
       })
     })
 
-    await page.route('**/ml-cycle-predictor-js/model/best_cycle_predictor.json', route => {
-      route.fulfill({
-        status: 200,
-        contentType: 'application/json',
-        body: JSON.stringify({})
-      })
-    })
-
     // Naviguer vers l'application
     await page.goto(server)
     
